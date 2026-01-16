@@ -30,7 +30,7 @@ export default function Menu() {
 
     return (
         <div ref={container}>
-            <div className="fixed top-8 right-8 z-[60]">
+            <div className="fixed top-20 right-8 z-[60]">
                 <button
                     onClick={toggleMenu}
                     className="group relative w-16 h-16 transition-transform active:scale-90"
