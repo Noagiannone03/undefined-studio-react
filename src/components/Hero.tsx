@@ -1,216 +1,176 @@
-import { useEffect, useRef } from 'react'
-import Matter from 'matter-js'
+import { useRef, useMemo, useState, useEffect } from 'react'
+import { Canvas, useFrame, useThree } from '@react-three/fiber'
+import { Text, Center, Environment, ContactShadows, Float } from '@react-three/drei'
+import * as THREE from 'three'
 
-export default function Hero() {
-    const sceneRef = useRef<HTMLDivElement>(null)
-    const engineRef = useRef<Matter.Engine | null>(null)
-    const renderRef = useRef<Matter.Render | null>(null)
-    const runnerRef = useRef<Matter.Runner | null>(null)
+// Custom "Fake" Physics Engine for stability and performance
+// We simulate spheres bumping into each other and the mouse
+const COUNT = 30
+const WALL_SIZE = 8
 
-    useEffect(() => {
-        if (!sceneRef.current) return
+function PhysicsSphere({ position, color, scale = 1, type = 'sphere', label = '' }: { position: THREE.Vector3, color: string, scale?: number, type?: 'sphere' | 'box', label?: string }) {
+    const meshRef = useRef<THREE.Group>(null)
 
-        const Engine = Matter.Engine,
-            Render = Matter.Render,
-            Runner = Matter.Runner,
-            Bodies = Matter.Bodies,
-            Composite = Matter.Composite,
-            Mouse = Matter.Mouse,
-            MouseConstraint = Matter.MouseConstraint
+    // Physics state
+    const velocity = useRef(new THREE.Vector3(Math.random() - 0.5, Math.random() - 0.5, Math.random() - 0.5))
+    const pos = useRef(position.clone())
 
-        const engine = Engine.create()
-        engineRef.current = engine
+    useFrame((state) => {
+        if (!meshRef.current) return
 
-        const render = Render.create({
-            element: sceneRef.current,
-            engine: engine,
-            options: {
-                width: window.innerWidth,
-                height: window.innerHeight,
-                background: 'transparent',
-                wireframes: false,
-                pixelRatio: window.devicePixelRatio,
-            },
-        })
-        renderRef.current = render
+        // 1. Apply Velocity
+        pos.current.add(velocity.current.clone().multiplyScalar(0.1))
 
-        // Walls
-        const ground = Bodies.rectangle(window.innerWidth / 2, window.innerHeight + 50, window.innerWidth, 100, { isStatic: true })
-        const leftWall = Bodies.rectangle(-50, window.innerHeight / 2, 100, window.innerHeight, { isStatic: true })
-        const rightWall = Bodies.rectangle(window.innerWidth + 50, window.innerHeight / 2, 100, window.innerHeight, { isStatic: true })
-
-        // Playful Sticker Options
-        const stickerOptions = (color: string) => ({
-            restitution: 0.6,
-            friction: 0.1,
-            render: {
-                fillStyle: '#FFFFFF',
-                strokeStyle: '#000000',
-                lineWidth: 4,
-                // We will draw the actual "sticker" feel in afterRender
-            }
-        })
-
-        const shapes: Matter.Body[] = []
-        const words = ['U', 'N', 'D', 'E', 'F', 'I', 'N', 'E', 'D']
-
-        // Create sticker letters
-        words.forEach((letter, i) => {
-            shapes.push(
-                Bodies.rectangle(
-                    (window.innerWidth / 2 - 250) + i * 60,
-                    -100 - i * 50,
-                    60,
-                    60,
-                    {
-                        ...stickerOptions('#FFFFFF'),
-                        label: letter,
-                        chamfer: { radius: 10 }
-                    }
-                )
-            )
-        })
-
-        // Add some random "Playful" shapes (blobs/stars)
-        for (let i = 0; i < 6; i++) {
-            shapes.push(
-                Bodies.polygon(
-                    Math.random() * window.innerWidth,
-                    -500 - Math.random() * 500,
-                    Math.floor(Math.random() * 3) + 3,
-                    40,
-                    {
-                        restitution: 0.8,
-                        render: {
-                            fillStyle: i % 2 === 0 ? '#E6E6FA' : '#FFD1DC',
-                            strokeStyle: '#000000',
-                            lineWidth: 4
-                        }
-                    }
-                )
-            )
+        // 2. Mouse Repulsion
+        const mousePos = new THREE.Vector3(state.mouse.x * WALL_SIZE, state.mouse.y * WALL_SIZE, 0)
+        const distToMouse = pos.current.distanceTo(mousePos)
+        if (distToMouse < 3) {
+            const repulsion = pos.current.clone().sub(mousePos).normalize().multiplyScalar(0.2)
+            velocity.current.add(repulsion)
         }
 
-        Composite.add(engine.world, [ground, leftWall, rightWall, ...shapes])
+        // 3. Gravity / Center attraction (Keep them in the nice box)
+        const distToCenter = pos.current.distanceTo(new THREE.Vector3(0, 0, 0))
+        if (distToCenter > WALL_SIZE) {
+            const attraction = new THREE.Vector3(0, 0, 0).sub(pos.current).normalize().multiplyScalar(0.05)
+            velocity.current.add(attraction)
+        }
 
-        const mouse = Mouse.create(render.canvas)
-        const mouseConstraint = MouseConstraint.create(engine, {
-            mouse: mouse,
-            constraint: {
-                stiffness: 0.2,
-                render: { visible: false },
-            },
-        })
+        // 4. Dampening (Friction)
+        velocity.current.multiplyScalar(0.98)
 
-        Composite.add(engine.world, mouseConstraint)
-        render.mouse = mouse
+        // 5. Update Mesh
+        meshRef.current.position.copy(pos.current)
 
-        Render.run(render)
-        const runner = Runner.create()
-        runnerRef.current = runner
-        Runner.run(runner, engine)
+        // Rotation based on velocity
+        meshRef.current.rotation.x += velocity.current.y * 0.2
+        meshRef.current.rotation.y += velocity.current.x * 0.2
+    })
 
-        // Custom Drawing logic for "Stickers"
-        Matter.Events.on(render, 'afterRender', () => {
-            const ctx = render.context
-            shapes.forEach((body) => {
-                if (body.label && body.label.length === 1) {
-                    const { x, y } = body.position
-                    ctx.save()
-                    ctx.translate(x, y)
-                    ctx.rotate(body.angle)
+    return (
+        <group ref={meshRef} scale={scale}>
+            {type === 'sphere' ? (
+                <mesh>
+                    <sphereGeometry args={[0.8, 32, 32]} />
+                    <meshStandardMaterial color={color} roughness={0.2} metalness={0.1} />
+                </mesh>
+            ) : (
+                <group>
+                    <mesh>
+                        <boxGeometry args={[1.5, 1.5, 1.5]} />
+                        <meshStandardMaterial color={color} roughness={0.2} metalness={0.1} />
+                    </mesh>
+                    {label && (
+                        <Text
+                            position={[0, 0, 0.8]}
+                            fontSize={0.8}
+                            color="black"
+                            font="https://fonts.gstatic.com/s/spacegrotesk/v13/V8mDoQDj3_WNi7bc8d_k4g.woff"
+                            anchorX="center"
+                            anchorY="middle"
+                        >
+                            {label}
+                        </Text>
+                    )}
+                </group>
+            )}
+        </group>
+    )
+}
 
-                    // Draw shadowed border for sticker feel
-                    ctx.shadowColor = 'rgba(0,0,0,1)'
-                    ctx.shadowBlur = 0
-                    ctx.shadowOffsetX = 4
-                    ctx.shadowOffsetY = 4
+function Scene() {
+    const letters = "UNDEFINED".split("")
+    const colors = ['#B8F4D4', '#FFF44F', '#FFD1DC', '#E6E6FA', '#FFFFFF']
 
-                    // Background of sticker
-                    ctx.fillStyle = '#FFFFFF'
-                    ctx.strokeStyle = '#000000'
-                    ctx.lineWidth = 4
-                    ctx.beginPath()
-                    ctx.roundRect(-28, -28, 56, 56, 8)
-                    ctx.fill()
-                    ctx.stroke()
+    const objects = useMemo(() => {
+        const objs = []
 
-                    // Letter
-                    ctx.shadowColor = 'transparent'
-                    ctx.fillStyle = '#000000'
-                    ctx.font = "bold 32px 'Space Grotesk'"
-                    ctx.textAlign = 'center'
-                    ctx.textBaseline = 'middle'
-                    ctx.fillText(body.label, 0, 0)
-
-                    ctx.restore()
-                }
+        // Add Letter Boxes
+        letters.forEach((letter, i) => {
+            objs.push({
+                pos: new THREE.Vector3((Math.random() - 0.5) * 5, (Math.random() - 0.5) * 5, (Math.random() - 0.5) * 2),
+                color: '#FFFFFF',
+                type: 'box',
+                label: letter,
+                scale: 1.2
             })
         })
 
-        const handleResize = () => {
-            render.canvas.width = window.innerWidth
-            render.canvas.height = window.innerHeight
-            Matter.Body.setPosition(ground, Matter.Vector.create(window.innerWidth / 2, window.innerHeight + 50))
-            Matter.Body.setPosition(rightWall, Matter.Vector.create(window.innerWidth + 50, window.innerHeight / 2))
+        // Add Random Spheres (The "Balls")
+        for (let i = 0; i < 20; i++) {
+            objs.push({
+                pos: new THREE.Vector3((Math.random() - 0.5) * 10, (Math.random() - 0.5) * 10, (Math.random() - 0.5) * 5),
+                color: colors[Math.floor(Math.random() * colors.length)],
+                type: 'sphere',
+                label: '',
+                scale: Math.random() * 0.8 + 0.5
+            })
         }
-
-        window.addEventListener('resize', handleResize)
-        return () => {
-            window.removeEventListener('resize', handleResize)
-            Render.stop(render)
-            Runner.stop(runner)
-            if (render.canvas) render.canvas.remove()
-            Composite.clear(engine.world, false)
-            Engine.clear(engine)
-        }
+        return objs
     }, [])
 
     return (
-        <section ref={sceneRef} className="h-screen w-full relative border-b-4 border-black overflow-hidden bg-mint">
-            {/* Liquid-ish Background Text */}
-            <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none select-none">
-                <h1
-                    className="font-display text-[15vw] leading-none font-black text-white mix-blend-overlay opacity-40 uppercase italic"
-                    style={{ transform: 'skewY(-5deg)' }}
-                >
-                    EXPERIENCE
-                </h1>
-                <h1
-                    className="font-display text-[12vw] leading-none font-black text-black uppercase -mt-[5vw]"
-                    style={{ transform: 'skewY(2deg)' }}
-                >
-                    MAKER
+        <>
+            <ambientLight intensity={0.5} />
+            <directionalLight position={[10, 10, 5]} intensity={1} castShadow />
+            <directionalLight position={[-10, -10, -5]} intensity={0.5} color="#B8F4D4" />
+
+            {objects.map((obj, i) => (
+                <PhysicsSphere
+                    key={i}
+                    position={obj.pos}
+                    color={obj.color}
+                    type={obj.type as any}
+                    label={obj.label}
+                    scale={obj.scale}
+                />
+            ))}
+
+            <ContactShadows position={[0, -5, 0]} opacity={0.4} scale={20} blur={2} far={10} color="black" />
+            <Environment preset="studio" />
+        </>
+    )
+}
+
+export default function Hero() {
+    return (
+        <section className="h-screen w-full relative bg-mint overflow-hidden border-b-4 border-black">
+            <div className="absolute inset-0 z-10 cursor-grab active:cursor-grabbing">
+                <Canvas camera={{ position: [0, 0, 12], fov: 45 }} dpr={[1, 2]}>
+                    <Scene />
+                </Canvas>
+            </div>
+
+            {/* Massive Overlay Text (Background) - "THE BRAND" */}
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none select-none z-0 opacity-10">
+                <h1 className="font-display text-[25vw] font-black text-black leading-none text-center">
+                    CHAOS<br />STUDIO
                 </h1>
             </div>
 
-            {/* Playful Sticker Label - Top Left */}
-            <div className="absolute top-12 left-12 z-20 animate-float">
-                <div className="sticker bg-lemon text-black rotate-[-5deg]">
-                    Digital Impact.
+            {/* Foreground UI */}
+            <div className="absolute top-10 w-full flex justify-between px-10 pointer-events-none z-20">
+                <div className="sticker bg-white rotate-[-3deg] animate-float">
+                    <span className="font-bold">v3.0.PHYSICS</span>
+                </div>
+                <div className="sticker bg-black text-white rotate-[3deg] animate-wiggle">
+                    <span className="font-bold">INTERACTIF</span>
                 </div>
             </div>
 
-            {/* Floating Star - Bottom Right */}
-            <div className="absolute bottom-20 right-[15%] star animate-spin-slow opacity-20 scale-150" />
-
-            {/* Central CTA - Skewed */}
-            <div className="absolute bottom-24 left-1/2 -translate-x-1/2 z-30">
-                <button className="btn-skew group">
-                    <span className="flex items-center gap-4">
-                        EXPLORE STUDIO
-                        <svg className="w-6 h-6 group-hover:translate-x-2 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M17 8l4 4m0 0l-4 4m4-4H3" />
-                        </svg>
-                    </span>
-                </button>
+            <div className="absolute bottom-12 left-12 z-20 pointer-events-none">
+                <h2 className="font-display text-6xl md:text-8xl font-black text-black leading-none uppercase drop-shadow-[4px_4px_0px_#FFF]">
+                    Undefined<br />Studio
+                </h2>
+                <div className="bg-black text-white inline-block px-4 py-2 mt-4 skew-x-[-10deg]">
+                    <p className="font-mono text-sm uppercase skew-x-[10deg]">Le terrain de jeu numérique</p>
+                </div>
             </div>
 
-            {/* Human/Liquid Note */}
-            <div className="absolute top-[20%] right-[10%] z-20 animate-wiggle">
-                <p className="font-display text-4xl font-bold italic text-black/20" style={{ transform: 'rotate(10deg)' }}>
-                    Artisanal Code.
-                </p>
+            <div className="absolute bottom-12 right-12 z-20 pointer-events-auto">
+                <button className="w-20 h-20 bg-lemon rounded-full border-4 border-black flex items-center justify-center hover:scale-110 transition-transform shadow-hard animate-bounce-soft">
+                    <span className="text-2xl">↓</span>
+                </button>
             </div>
         </section>
     )
