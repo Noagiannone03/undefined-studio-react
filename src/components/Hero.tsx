@@ -1,175 +1,188 @@
-import { useRef, useMemo } from 'react'
-import { Canvas, useFrame } from '@react-three/fiber'
-import { Text, Environment, ContactShadows, Outlines, Float } from '@react-three/drei'
-import * as THREE from 'three'
+import { useRef, useEffect } from 'react'
+import gsap from 'gsap'
 
-// Custom "Fake" Physics Engine (Optimized)
-const WALL_SIZE = 9
+// --- COMPONENTS ---
 
-function ToonShape({ position, color, type, scale = 1, rotationSpeed = 1 }: any) {
-    const meshRef = useRef<THREE.Group>(null)
+const PaperCard = ({ children, rotate = 0, color = "bg-white", className = "", depth = 1 }: any) => (
+    <div
+        className={`sticker absolute ${color} border-4 border-black shadow-[8px_8px_0px_black] p-4 md:p-8 flex flex-col rounded-2xl pointer-events-auto select-none z-20 ${className}`}
+        style={{ transform: `rotate(${rotate}deg)` }}
+        data-depth={depth}
+    >
+        {children}
+    </div>
+)
 
-    // Physics state
-    const velocity = useRef(new THREE.Vector3(Math.random() - 0.5, Math.random() - 0.5, Math.random() - 0.5))
-    const pos = useRef(position.clone())
-    const rot = useRef(new THREE.Vector3(Math.random(), Math.random(), Math.random()))
+const Burst = ({ color, className, rotate = 0, size = "w-64 h-64", depth = 0.5 }: any) => (
+    <div
+        className={`absolute ${size} ${className} pointer-events-none z-0`}
+        style={{ transform: `rotate(${rotate}deg)` }}
+        data-depth={depth}
+    >
+        <svg viewBox="0 0 200 200" className={`w-full h-full ${color} drop-shadow-[4px_4px_0px_rgba(0,0,0,0.2)]`}>
+            <path d="M100,0 L115,35 L150,20 L135,55 L170,60 L145,85 L180,100 L145,115 L170,140 L135,145 L150,180 L115,165 L100,200 L85,165 L50,180 L65,145 L30,140 L55,115 L20,100 L55,85 L30,60 L65,55 L50,20 L85,35 Z" />
+        </svg>
+    </div>
+)
 
-    useFrame((state) => {
-        if (!meshRef.current) return
+export default function Hero() {
+    const containerRef = useRef<HTMLDivElement>(null)
 
-        // Physics
-        pos.current.add(velocity.current.clone().multiplyScalar(0.1))
+    useEffect(() => {
+        const ctx = gsap.context(() => {
+            const handleMouseMove = (e: MouseEvent) => {
+                const { clientX, clientY } = e
+                const xPos = (clientX / window.innerWidth - 0.5)
+                const yPos = (clientY / window.innerHeight - 0.5)
 
-        // Mouse Repulsion
-        const mousePos = new THREE.Vector3(state.mouse.x * WALL_SIZE, state.mouse.y * WALL_SIZE, 0)
-        const distToMouse = pos.current.distanceTo(mousePos)
-        if (distToMouse < 4) {
-            const repulsion = pos.current.clone().sub(mousePos).normalize().multiplyScalar(0.4)
-            velocity.current.add(repulsion)
-        }
+                // Parallax effect on all elements with data-depth
+                const parallaxElements = document.querySelectorAll('[data-depth]')
+                parallaxElements.forEach((el: any) => {
+                    const depth = parseFloat(el.dataset.depth || "1")
+                    gsap.to(el, {
+                        x: xPos * 60 * depth,
+                        y: yPos * 60 * depth,
+                        duration: 1.2,
+                        ease: "power2.out"
+                    })
+                })
 
-        // Gravity / Center
-        const distToCenter = pos.current.distanceTo(new THREE.Vector3(0, 0, 0))
-        if (distToCenter > WALL_SIZE) {
-            const attraction = new THREE.Vector3(0, 0, 0).sub(pos.current).normalize().multiplyScalar(0.08)
-            velocity.current.add(attraction)
-        }
+                // Title subtle movement
+                gsap.to('.hero-title-main', {
+                    x: xPos * 25,
+                    y: yPos * 25,
+                    duration: 1.5,
+                    ease: "power3.out"
+                })
+            }
 
-        // Friction
-        velocity.current.multiplyScalar(0.97)
+            window.addEventListener('mousemove', handleMouseMove)
 
-        // Update
-        meshRef.current.position.copy(pos.current)
-        meshRef.current.rotation.x += velocity.current.y * 0.1
-        meshRef.current.rotation.y += velocity.current.x * 0.1
-
-        // Constant idle rotation
-        // meshRef.current.rotation.z += 0.01 * rotationSpeed
-    })
-
-    const Geometry = useMemo(() => {
-        switch (type) {
-            case 'box': return <boxGeometry args={[1.5, 1.5, 1.5]} />
-            case 'torus': return <torusGeometry args={[0.8, 0.3, 16, 32]} />
-            case 'cone': return <coneGeometry args={[0.8, 1.5, 32]} />
-            case 'icosa': return <icosahedronGeometry args={[1, 0]} />
-            case 'octa': return <octahedronGeometry args={[1, 0]} />
-            default: return <sphereGeometry args={[1, 32, 32]} />
-        }
-    }, [type])
-
-    return (
-        <group ref={meshRef} scale={scale}>
-            <mesh castShadow receiveShadow>
-                {Geometry}
-                {/* CEL SHADING MATERIAL */}
-                <meshToonMaterial color={color} gradientMap={null} />
-                {/* THICK OUTLINES */}
-                <Outlines thickness={0.05} color="black" />
-            </mesh>
-        </group>
-    )
-}
-
-function Scene() {
-    const objects = useMemo(() => {
-        const objs = []
-        const colors = ['#FFF44F', '#FFD1DC', '#E6E6FA', '#B8F4D4', '#FFFFFF']
-        const shapes = ['box', 'torus', 'cone', 'icosa', 'octa']
-
-        for (let i = 0; i < 20; i++) {
-            objs.push({
-                pos: new THREE.Vector3((Math.random() - 0.5) * 12, (Math.random() - 0.5) * 12, (Math.random() - 0.5) * 5),
-                color: colors[Math.floor(Math.random() * colors.length)],
-                type: shapes[Math.floor(Math.random() * shapes.length)],
-                scale: Math.random() * 0.5 + 0.8,
-                rotationSpeed: Math.random() + 0.5
+            // Floating animations for cards
+            gsap.to('.float-ui', {
+                y: "random(-10, 10)",
+                rotation: "random(-2, 2)",
+                duration: "random(2.5, 4.5)",
+                repeat: -1,
+                yoyo: true,
+                ease: "sine.inOut"
             })
-        }
-        return objs
+
+            // Reveal animations
+            gsap.from('.reveal-item', {
+                y: 100,
+                opacity: 0,
+                duration: 1,
+                stagger: 0.1,
+                ease: "back.out(1.7)",
+                delay: 0.5
+            })
+        }, containerRef)
+
+        return () => ctx.revert()
     }, [])
 
     return (
-        <>
-            <ambientLight intensity={0.8} />
-            <directionalLight position={[5, 10, 7]} intensity={1.5} castShadow />
+        <section ref={containerRef} className="h-screen w-full relative bg-[#B8F4D4] overflow-hidden border-b-4 border-black flex flex-col items-center justify-center font-display">
 
-            {objects.map((obj, i) => (
-                <ToonShape
-                    key={i}
-                    position={obj.pos}
-                    color={obj.color}
-                    type={obj.type}
-                    scale={obj.scale}
-                    rotationSpeed={obj.rotationSpeed}
+            {/* 1. BACKGROUND COMPLEXITY */}
+            <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
+                {/* DOT GRID */}
+                <div className="absolute inset-0 opacity-20"
+                    style={{
+                        backgroundImage: `radial-gradient(circle, #000 1.5px, transparent 1.5px)`,
+                        backgroundSize: '30px 30px'
+                    }}
                 />
-            ))}
 
-            <ContactShadows position={[0, -6, 0]} opacity={0.4} scale={20} blur={2.5} far={10} color="black" />
-            <Environment preset="studio" />
-        </>
-    )
-}
+                {/* NOISE OVERLAY */}
+                <div className="absolute inset-0 opacity-[0.03] mix-blend-multiply bg-[url('https://grainy-gradients.vercel.app/noise.svg')] bg-repeat" />
 
-export default function Hero() {
-    return (
-        <section className="h-screen w-full relative bg-mint overflow-hidden border-b-4 border-black">
+                {/* GRAPHIC BURSTS */}
+                <Burst color="fill-[#FFD1B8]" className="top-[10%] left-[5%] opacity-60" rotate={15} size="w-[60vh] h-[60vh]" depth={0.2} />
+                <Burst color="fill-[#F0F4B8]" className="bottom-[5%] right-[-5%] opacity-40" rotate={-20} size="w-[80vh] h-[80vh]" depth={0.3} />
+                <Burst color="fill-[#6BD4B2]" className="top-[40%] right-[10%] opacity-30" rotate={45} size="w-[40vh] h-[40vh]" depth={0.1} />
+            </div>
 
-            {/* Noise Texture */}
-            <div className="absolute inset-0 z-[1] opacity-20 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] bg-repeat pointer-events-none mix-blend-overlay" />
-
-            {/* Marquee Header */}
-            <div className="absolute top-0 left-0 w-full z-[2] bg-black text-white py-2 overflow-hidden pointer-events-none">
-                <div className="animate-marquee inline-block whitespace-nowrap">
-                    <span className="font-mono text-sm uppercase font-bold mx-4">★ UNDEFINED STUDIO</span>
-                    <span className="font-mono text-sm uppercase font-bold mx-4">PURE CHAOS</span>
-                    <span className="font-mono text-sm uppercase font-bold mx-4">DESIGN REBELLE</span>
-                    <span className="font-mono text-sm uppercase font-bold mx-4">★ UNDEFINED STUDIO</span>
-                    <span className="font-mono text-sm uppercase font-bold mx-4">PURE CHAOS</span>
-                    <span className="font-mono text-sm uppercase font-bold mx-4">DESIGN REBELLE</span>
+            {/* 2. MAIN TYPOGRAPHY */}
+            <div className="hero-title-main relative z-10 text-center select-none pointer-events-none mb-12">
+                <h1 className="text-[20vw] font-black text-black leading-[0.8] tracking-tighter drop-shadow-[12px_12px_0px_white]">
+                    UNDE<br />FINED
+                </h1>
+                <div className="absolute top-0 left-0 w-full h-full flex items-center justify-center pointer-events-none opacity-20">
+                    <span className="text-[20vw] font-black text-transparent stroke-black stroke-2" style={{ WebkitTextStroke: '2px black' }}>UNDE<br />FINED</span>
                 </div>
             </div>
 
-            {/* RESTORED GIANT BACKGROUND TEXT - "PURE CHAOS" */}
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none select-none z-0 w-full text-center">
-                <h1 className="font-display text-[22vw] font-black text-black leading-none opacity-10">
-                    PURE<br />CHAOS
-                </h1>
-            </div>
+            {/* 3. STRUCTURED MOODBOARD COLLAGE */}
+            <div className="absolute inset-0 z-20 pointer-events-none">
 
-            <div className="absolute inset-0 z-[0] cursor-none">
-                <Canvas camera={{ position: [0, 0, 14], fov: 40 }} dpr={[1, 2]} shadows>
-                    <Scene />
-                </Canvas>
-            </div>
+                {/* Top Left: Studio Badge */}
+                <PaperCard rotate={-8} className="top-16 left-12 reveal-item float-ui" color="bg-lemon" depth={1.2}>
+                    <div className="flex flex-col gap-1">
+                        <span className="font-mono text-[10px] font-bold border-b-2 border-black pb-1 mb-1">STUDIO STATUS: ACTIVE</span>
+                        <h4 className="text-xl font-black">2024 / EDITION</h4>
+                    </div>
+                </PaperCard>
 
-            <div className="absolute bottom-12 left-12 z-20 pointer-events-none max-w-2xl">
-                <div className="flex gap-4 mb-2">
-                    <div className="bg-lemon text-black px-3 py-1 border-2 border-black rotate-[-2deg] shadow-hard-sm animate-wiggle">
-                        <span className="font-mono text-xs font-bold uppercase">NOUVELLE VAGUE</span>
+                {/* Top Right: Visual Anchor */}
+                <PaperCard rotate={5} className="top-20 right-16 reveal-item float-ui" color="bg-white" depth={0.8}>
+                    <div className="w-48 h-24 bg-black flex items-center justify-center text-white p-4">
+                        <div className="flex flex-col items-center">
+                            <div className="w-12 h-1 bg-white mb-2" />
+                            <span className="text-2xl font-black italic">IMPACT</span>
+                        </div>
+                    </div>
+                    <p className="font-mono text-[9px] mt-4 font-bold text-center">NO BS. JUST PIXELS.</p>
+                </PaperCard>
+
+                {/* Bottom Left: Detail Card */}
+                <PaperCard rotate={-3} className="bottom-24 left-20 reveal-item float-ui hidden md:flex" color="bg-peach" depth={1.1}>
+                    <div className="flex items-start gap-4">
+                        <div className="w-12 h-12 bg-black rounded-full flex items-center justify-center text-peach text-2xl font-black">★</div>
+                        <div className="flex flex-col">
+                            <span className="text-sm font-black uppercase">Service #01</span>
+                            <span className="text-xs font-mono font-bold opacity-60">Design Expérientiel</span>
+                        </div>
+                    </div>
+                </PaperCard>
+
+                {/* Bottom Right: Callout */}
+                <div className="sticker absolute bottom-32 right-32 reveal-item hidden md:block" data-depth={1.4}>
+                    <div className="relative transform rotate-12">
+                        <div className="bg-black text-white px-6 py-3 border-2 border-black shadow-[6px_6px_0px_#B8F4D4] font-black italic text-lg whitespace-nowrap">
+                            "C'EST DU LOURD"
+                        </div>
+                        <svg className="absolute -top-12 -right-8 w-16 h-16 fill-lemon animate-bounce" viewBox="0 0 100 100">
+                            <path d="M50,0 L61,35 L98,35 L68,57 L79,91 L50,70 L21,91 L32,57 L2,35 L39,35 Z" />
+                        </svg>
                     </div>
                 </div>
-                <h2 className="font-display text-7xl md:text-9xl font-black text-black leading-[0.85] uppercase drop-shadow-[4px_4px_0px_#FFF]">
-                    L'Anomalie<br />Créative.
-                </h2>
-                <div className="bg-black text-white inline-block px-6 py-3 mt-6 skew-x-[-10deg] shadow-hard">
-                    <p className="font-display text-xl font-bold uppercase skew-x-[10deg] tracking-wider">
-                        Le studio qui dérange.
-                    </p>
+
+            </div>
+
+            {/* 4. BOTTOM ACTION UI */}
+            <div className="absolute bottom-12 w-full flex flex-col md:flex-row items-center justify-center gap-12 px-10 z-40 mb-4 md:mb-0">
+                <div className="max-w-md reveal-item">
+                    <div className="bg-white p-6 border-4 border-black shadow-[10px_10px_0px_black] rotate-[-1deg]">
+                        <p className="font-display font-black text-xl md:text-2xl leading-[1.1] uppercase italic">
+                            Nous créons des outils qui aident les gens à avancer.
+                        </p>
+                    </div>
+                </div>
+
+                <div className="flex gap-6 pointer-events-auto reveal-item">
+                    <a href="#services" className="group relative bg-white text-black px-12 py-6 font-display font-black text-2xl uppercase border-4 border-black shadow-[8px_8px_0px_black] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[4px_4px_0px_black] transition-all transform -skew-x-6 hover:skew-x-0">
+                        NOS OFFRES
+                        <span className="absolute -top-3 -right-3 w-6 h-6 bg-lemon border-2 border-black rounded-full flex items-center justify-center text-[10px]">↗</span>
+                    </a>
+                    <button className="hidden md:block bg-black text-white px-10 py-6 font-display font-black text-2xl uppercase border-4 border-black shadow-[8px_8px_0px_#FFD1B8] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[4px_4px_0px_#FFD1B8] transition-all transform skew-x-6 hover:skew-x-0">
+                        CONTACT
+                    </button>
                 </div>
             </div>
 
-            <div className="absolute bottom-12 right-12 z-20 pointer-events-auto">
-                <a href="#services" className="w-24 h-24 bg-peach rounded-full border-4 border-black flex items-center justify-center hover:scale-110 transition-transform shadow-hard animate-bounce-soft group">
-                    <span className="text-3xl font-black group-hover:rotate-180 transition-transform duration-500">↓</span>
-                </a>
-            </div>
-
-            <style dangerouslySetInnerHTML={{
-                __html: `
-        @keyframes marquee { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
-        .animate-marquee { animation: marquee 20s linear infinite; }
-      `}} />
         </section>
     )
 }
+
