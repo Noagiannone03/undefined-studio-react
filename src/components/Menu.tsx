@@ -31,8 +31,33 @@ export default function Menu() {
     return (
         <div ref={container}>
             <div className="fixed top-8 right-8 z-[60]">
-                <button onClick={toggleMenu} className="btn-skew bg-black text-white px-6 py-4 h-auto flex items-center justify-center text-xl">
-                    <span>{isOpen ? 'FERMER' : 'MENU'}</span>
+                <button
+                    onClick={toggleMenu}
+                    className="group relative w-16 h-16 transition-transform active:scale-90"
+                >
+                    {/* Shadow Layer */}
+                    <div className="absolute inset-0 bg-black translate-x-1 translate-y-1 rounded-full group-hover:translate-x-0.5 group-hover:translate-y-0.5 transition-transform" />
+                    {/* Main Layer */}
+                    <div className={`relative w-full h-full ${isOpen ? 'bg-black text-white' : 'bg-lemon text-black'} border-4 border-black rounded-full flex items-center justify-center transition-colors duration-300 shadow-hard group-hover:-translate-x-0.5 group-hover:-translate-y-0.5`}>
+                        <div className="flex flex-col gap-1.5 items-center justify-center w-8">
+                            {isOpen ? (
+                                <div className="relative w-full h-6">
+                                    <div className="absolute top-1/2 left-0 w-full h-1 bg-white rotate-45" />
+                                    <div className="absolute top-1/2 left-0 w-full h-1 bg-white -rotate-45" />
+                                </div>
+                            ) : (
+                                <>
+                                    <div className="w-full h-1 bg-black rounded-full" />
+                                    <div className="w-2/3 h-1 bg-black rounded-full self-start" />
+                                    <div className="w-full h-1 bg-black rounded-full" />
+                                </>
+                            )}
+                        </div>
+                    </div>
+                    {/* Pulsing Dot */}
+                    {!isOpen && (
+                        <div className="absolute -top-1 -right-1 w-4 h-4 bg-peach border-2 border-black rounded-full animate-pulse" />
+                    )}
                 </button>
             </div>
 
