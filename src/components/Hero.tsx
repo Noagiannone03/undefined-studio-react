@@ -102,13 +102,7 @@ export default function Hero() {
 
             {/* 1. BACKGROUND COMPLEXITY (Bauhaus Style) */}
             <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden mt-10">
-                {/* DOT GRID */}
-                <div className="absolute inset-0 opacity-20"
-                    style={{
-                        backgroundImage: `radial-gradient(circle, #000 1.5px, transparent 1.5px)`,
-                        backgroundSize: '30px 30px'
-                    }}
-                />
+
 
                 {/* NOISE OVERLAY */}
                 <div className="absolute inset-0 opacity-[0.03] mix-blend-multiply bg-[url('https://grainy-gradients.vercel.app/noise.svg')] bg-repeat" />
@@ -116,7 +110,7 @@ export default function Hero() {
                 <GraphicCircle color="fill-mint opacity-50" className="top-[-10%] left-[-10%]" size="w-[80vh] h-[80vh]" depth={0.2} />
                 <GraphicCircle color="text-black" className="top-[10%] left-[20%]" size="w-[60vh] h-[60vh]" depth={0.1} dotted={true} />
 
-                <GraphicCircle color="fill-peach opacity-40" className="bottom-[-15%] right-[-10%]" size="w-[90vh] h-[90vh]" depth={0.3} />
+                <GraphicCircle color="fill-mint" className="bottom-[-15%] right-[-10%]" size="w-[90vh] h-[90vh]" depth={0.3} />
                 <GraphicCircle color="text-mint" className="bottom-[5%] right-[10%]" size="w-[70vh] h-[70vh]" depth={0.15} dotted={true} />
 
                 <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full flex items-center justify-center opacity-[0.08]">
@@ -128,7 +122,7 @@ export default function Hero() {
                 <GraphicCircle color="fill-mint opacity-50" className="top-[-10%] left-[-10%]" size="w-[80vh] h-[80vh]" depth={0.2} />
                 <GraphicCircle color="text-lemon" className="top-[10%] left-[20%]" size="w-[60vh] h-[60vh]" depth={0.1} dotted={true} />
 
-                <GraphicCircle color="fill-lemon opacity-40" className="bottom-[-15%] right-[-10%]" size="w-[90vh] h-[90vh]" depth={0.3} />
+                <GraphicCircle color="fill-peach" className="bottom-[-15%] right-[-10%]" size="w-[90vh] h-[90vh]" depth={0.3} />
                 <GraphicCircle color="text-peach" className="bottom-[5%] right-[10%]" size="w-[70vh] h-[70vh]" depth={0.15} dotted={true} />
 
                 <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full flex items-center justify-center opacity-[0.08]">
@@ -169,16 +163,7 @@ export default function Hero() {
 
 
 
-                {/* Bottom Right: Stamp */}
-                <div className="absolute bottom-10 right-10 md:bottom-32 md:right-40 reveal-item hidden lg:block" data-depth={1.4}>
-                    <div className="w-32 h-32 border-4 border-black rounded-full flex items-center justify-center rotate-12 bg-peach shadow-hard">
-                        <div className="text-center">
-                            <span className="font-display font-black text-xs block mb-1">NO CRAP</span>
-                            <div className="w-12 h-1 bg-black mx-auto mb-1 opacity-20" />
-                            <span className="font-mono text-[9px] font-bold">JUST CODE</span>
-                        </div>
-                    </div>
-                </div>
+
 
             </div>
         </section>

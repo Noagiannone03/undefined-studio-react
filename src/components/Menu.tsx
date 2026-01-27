@@ -56,7 +56,7 @@ export default function Menu() {
                     </div>
                     {/* Pulsing Dot */}
                     {!isOpen && (
-                        <div className="absolute -top-1 -right-1 w-4 h-4 bg-peach border-2 border-black rounded-full animate-pulse" />
+                        <div className="absolute -top-1 -right-1 w-4 h-4 bg-[#FF0000] border-2 border-black rounded-full animate-pulse" />
                     )}
                 </button>
             </div>
