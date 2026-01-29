@@ -3,27 +3,7 @@ import gsap from 'gsap'
 
 // --- COMPONENTS ---
 
-const GraphicCircle = ({ color, className, size = "w-64 h-64", depth = 0.5, dotted = false }: any) => (
-    <div
-        className={`absolute ${size} ${className} pointer-events-none z-0`}
-        data-depth={depth}
-    >
-        <svg viewBox="0 0 100 100" className="w-full h-full">
-            {dotted ? (
-                <circle
-                    cx="50" cy="50" r="45"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="0.5"
-                    strokeDasharray="2, 4"
-                    className={`${color} opacity-60`}
-                />
-            ) : (
-                <circle cx="50" cy="50" r="48" className={`${color} drop-shadow-[4px_4px_0px_rgba(0,0,0,0.1)]`} />
-            )}
-        </svg>
-    </div>
-)
+
 
 const PaperCard = ({ children, rotate = 0, color = "bg-white", className = "", depth = 1 }: any) => (
     <div
@@ -107,28 +87,38 @@ export default function Hero() {
                 {/* NOISE OVERLAY */}
                 <div className="absolute inset-0 opacity-[0.03] mix-blend-multiply bg-[url('https://grainy-gradients.vercel.app/noise.svg')] bg-repeat" />
 
-                <GraphicCircle color="fill-mint opacity-50" className="top-[-10%] left-[-10%]" size="w-[80vh] h-[80vh]" depth={0.2} />
-                <GraphicCircle color="text-black" className="top-[10%] left-[20%]" size="w-[60vh] h-[60vh]" depth={0.1} dotted={true} />
+                {/* 1. MINT PILL (Top Left) */}
+                <div
+                    className="absolute top-[-10%] left-[-5%] w-[30vh] h-[60vh] bg-mint rounded-full rotate-[15deg] opacity-90 border-4 border-black shadow-[8px_8px_0px_rgba(0,0,0,0.1)] z-0"
+                    data-depth="0.2"
+                />
 
-                <GraphicCircle color="fill-mint" className="bottom-[-15%] right-[-10%]" size="w-[90vh] h-[90vh]" depth={0.3} />
-                <GraphicCircle color="text-mint" className="bottom-[5%] right-[10%]" size="w-[70vh] h-[70vh]" depth={0.15} dotted={true} />
+                {/* 2. LEMON SQUARE (Top Right/Center) */}
+                <div
+                    className="absolute top-[10%] right-[10%] w-[40vh] h-[40vh] bg-lemon rounded-[3rem] rotate-[-10deg] opacity-100 border-4 border-black z-0 shadow-hard"
+                    data-depth="0.15"
+                />
 
-                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full flex items-center justify-center opacity-[0.08]">
-                    <svg viewBox="0 0 100 100" className="w-[85vh] h-[85vh] text-black">
-                        <circle cx="50" cy="50" r="49" fill="none" stroke="currentColor" strokeWidth="0.5" />
-                        <circle cx="50" cy="50" r="40" fill="none" stroke="currentColor" strokeWidth="0.5" strokeDasharray="1, 2" />
-                    </svg>
+                {/* 3. BLACK CIRCLE (Bottom Right) */}
+                <div
+                    className="absolute bottom-[-10%] right-[-5%] w-[50vh] h-[50vh] bg-black rounded-full opacity-100 z-0"
+                    data-depth="0.3"
+                >
+                    {/* Inner Grid Texture for Black Circle */}
+                    <div
+                        className="absolute inset-0 opacity-20 rounded-full"
+                        style={{
+                            backgroundImage: `linear-gradient(#fff 2px, transparent 2px), linear-gradient(90deg, #fff 2px, transparent 2px)`,
+                            backgroundSize: '30px 30px'
+                        }}
+                    />
                 </div>
-                <GraphicCircle color="fill-mint opacity-50" className="top-[-10%] left-[-10%]" size="w-[80vh] h-[80vh]" depth={0.2} />
-                <GraphicCircle color="text-lemon" className="top-[10%] left-[20%]" size="w-[60vh] h-[60vh]" depth={0.1} dotted={true} />
 
-                <GraphicCircle color="fill-peach" className="bottom-[-15%] right-[-10%]" size="w-[90vh] h-[90vh]" depth={0.3} />
-                <GraphicCircle color="text-peach" className="bottom-[5%] right-[10%]" size="w-[70vh] h-[70vh]" depth={0.15} dotted={true} />
-
-                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full flex items-center justify-center opacity-[0.08]">
-                    <svg viewBox="0 0 100 100" className="w-[85vh] h-[85vh] text-black">
-                        <circle cx="50" cy="50" r="49" fill="none" stroke="currentColor" strokeWidth="0.5" />
+                {/* 4. BEIGE/WIRE ELEMENT (Bottom Left) */}
+                <div className="absolute bottom-[10%] left-[5%] w-[80vh] h-[80vh] flex items-center justify-center opacity-[0.1] z-0 pointer-events-none" data-depth="0.1">
+                    <svg viewBox="0 0 100 100" className="w-full h-full text-black">
                         <circle cx="50" cy="50" r="40" fill="none" stroke="currentColor" strokeWidth="0.5" strokeDasharray="1, 2" />
+                        <rect x="25" y="25" width="50" height="50" fill="none" stroke="currentColor" strokeWidth="0.5" transform="rotate(45 50 50)" />
                     </svg>
                 </div>
             </div>
@@ -140,7 +130,7 @@ export default function Hero() {
                 </h1>
                 {/* STUDIO LABEL */}
                 <div className="absolute -bottom-4 right-0 md:-right-12 transform rotate-[-5deg]">
-                    <div className="bg-black text-white px-6 py-2 border-4 border-mint shadow-hard">
+                    <div className="bg-black text-white px-6 py-2 border-4 border-lemon shadow-hard">
                         <span className="text-4xl md:text-6xl font-black italic tracking-widest">STUDIO</span>
                     </div>
                 </div>

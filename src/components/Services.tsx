@@ -6,7 +6,7 @@ const services = [
         title: "DÉVELOPPEMENT\nCRÉATIF",
         desc: "Nous ne codons pas.\nNous traduisons des rêves en pixel.",
         tools: ["WebGL", "Three.js", "GLSL", "React"],
-        bg: "bg-mint",
+        bg: "bg-lemon",
         textColor: "text-black"
     },
     {
@@ -14,16 +14,16 @@ const services = [
         title: "MOTION\nDESIGN",
         desc: "L'inertie est notre ennemie.\nTout doit bouger, tout doit vivre.",
         tools: ["After Effects", "Rive", "GSAP", "Lottie"],
-        bg: "bg-peach",
-        textColor: "text-black"
+        bg: "bg-black",
+        textColor: "text-white"
     },
     {
         id: '03',
         title: "IDENTITÉ\nVISUELLE",
         desc: "Des marques qui claquent.\nDes logos qui racontent une histoire.",
         tools: ["Branding", "Typos", "Systèmes", "DA"],
-        bg: "bg-black",
-        textColor: "text-white"
+        bg: "bg-mint",
+        textColor: "text-black"
     },
     {
         id: '04',
@@ -37,7 +37,7 @@ const services = [
 
 export default function Services() {
     return (
-        <section id="services" className="relative w-full bg-cream py-20 pb-40">
+        <section id="services" className="relative w-full bg-[#FFF8E7] py-20 pb-40">
             {/* Background Noise Texture */}
             <div className="absolute inset-0 z-0 opacity-10 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] bg-repeat pointer-events-none" />
 

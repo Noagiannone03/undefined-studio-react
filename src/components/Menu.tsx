@@ -54,10 +54,7 @@ export default function Menu() {
                             )}
                         </div>
                     </div>
-                    {/* Pulsing Dot */}
-                    {!isOpen && (
-                        <div className="absolute -top-1 -right-1 w-4 h-4 bg-[#FF0000] border-2 border-black rounded-full animate-pulse" />
-                    )}
+
                 </button>
             </div>
 
@@ -74,8 +71,7 @@ export default function Menu() {
                         </a>
                     ))}
                 </nav>
-                <div className="absolute top-20 left-20 sticker bg-peach animate-float italic">Impact Pur</div>
-                <div className="absolute bottom-20 right-20 sticker bg-mint animate-wiggle italic">Édition 2026</div>
+
             </div>
         </div>
     )

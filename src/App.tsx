@@ -6,11 +6,15 @@ import Services from './components/Services'
 import Showcase from './components/Showcase'
 import Footer from './components/Footer'
 import EasterEggs from './components/EasterEggs'
+import LogoExport from './components/LogoExport'
 
 function App() {
   const lenisRef = useRef<Lenis | null>(null)
+  const isLogoPage = typeof window !== 'undefined' && window.location.pathname === '/logo'
 
   useEffect(() => {
+    if (isLogoPage) return
+
     const lenis = new Lenis({
       duration: 1.2,
       easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
@@ -28,7 +32,11 @@ function App() {
     return () => {
       lenis.destroy()
     }
-  }, [])
+  }, [isLogoPage])
+
+  if (isLogoPage) {
+    return <LogoExport />
+  }
 
   return (
     <div className="w-full min-h-screen bg-mint font-body relative">

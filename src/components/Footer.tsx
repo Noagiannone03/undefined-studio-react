@@ -12,10 +12,10 @@ export default function Footer() {
                     <h2 className="font-display text-[12vw] font-black uppercase leading-[0.8] hover:text-lemon transition-colors cursor-pointer">
                         LET'S
                     </h2>
-                    <h2 className="font-display text-[12vw] font-black uppercase leading-[0.8] ml-[10vw] hover:text-mint transition-colors cursor-pointer">
+                    <h2 className="font-display text-[12vw] font-black uppercase leading-[0.8] ml-[10vw] hover:text-gray-400 transition-colors cursor-pointer">
                         MAKE
                     </h2>
-                    <h2 className="font-display text-[12vw] font-black uppercase leading-[0.8] hover:text-peach transition-colors cursor-pointer">
+                    <h2 className="font-display text-[12vw] font-black uppercase leading-[0.8] hover:text-white transition-colors cursor-pointer">
                         NOISE
                     </h2>
                 </div>
@@ -24,18 +24,14 @@ export default function Footer() {
             <div className="relative z-10 container mx-auto px-6 mt-20 flex flex-col md:flex-row justify-between items-end">
                 <div className="flex flex-col gap-4">
                     <a href="mailto:hello@undefined.studio" className="font-display text-4xl md:text-6xl font-bold underline decoration-4 underline-offset-8 decoration-lemon hover:text-lemon transition-colors">
-                        HELLO@UNDEFINED.STUDIO
+                        HELLO@UNDEFINEDSTUDIO.FR
                     </a>
                     <p className="font-mono text-sm text-gray-400">
                         PARIS — TOULOUSE — INTERNET
                     </p>
                 </div>
 
-                <div className="mt-10 md:mt-0">
-                    <button className="bg-white text-black font-display font-black text-2xl md:text-4xl px-12 py-6 border-4 border-transparent hover:border-white hover:bg-black hover:text-white transition-all transform hover:-translate-y-2 shadow-[8px_8px_0px_#333]">
-                        DÉMARRER PROJET
-                    </button>
-                </div>
+
             </div>
 
             {/* Giant Footer Text Scrolling */}
