@@ -48,6 +48,7 @@ export default function Hero() {
                 gsap.to('.hero-studio-badge', {
                     x: xPos * 30,
                     y: yPos * 30,
+                    rotation: -12,
                     duration: 0.8,
                     ease: "power2.out"
                 })
@@ -80,7 +81,7 @@ export default function Hero() {
                     </h1>
 
                     {/* STUDIO STICKER BADGE */}
-                    <div className="hero-studio-badge absolute bottom-[2%] right-[2%] transform translate-x-[25%] translate-y-[20%] rotate-[-12deg] z-20 hover:scale-105 transition-all duration-300 cursor-pointer origin-center">
+                    <div className="hero-studio-badge absolute bottom-[2%] right-[2%] translate-x-[25%] translate-y-[20%] rotate-[-12deg] z-20 hover:scale-105 hover:rotate-[-12deg] transition-all duration-300 cursor-pointer origin-center">
                         <div className="bg-lemon border-4 border-black px-6 py-3 shadow-[6px_6px_0px_black] flex flex-col items-center">
                             <span className="text-4xl md:text-6xl font-black text-black tracking-tighter block leading-none">
                                 STUDIO
@@ -105,3 +106,4 @@ export default function Hero() {
         </section>
     )
 }
+Ω
