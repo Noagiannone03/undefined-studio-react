@@ -42,7 +42,7 @@ export default function Menu() {
                     {/* Main Button (Top Layer) - MOVES ON CLICK */}
                     <div className={`
                         relative w-full h-full rounded-full border-4 border-black flex items-center justify-center transition-all duration-100 ease-out
-                        ${isOpen ? 'bg-black text-white' : 'bg-mint text-black'}
+                        ${isOpen ? 'bg-black text-white' : 'bg-peach text-black'}
                         translate-x-0 translate-y-0
                         group-hover:-translate-y-0.5 group-hover:-translate-x-0.5
                         group-active:translate-x-1 group-active:translate-y-1

@@ -13,7 +13,7 @@ export default {
                 white: '#FFFFFF',
             },
             fontFamily: {
-                display: ['"Space Grotesk"', 'sans-serif'],
+                display: ['"Archivo Black"', 'sans-serif'],
                 body: ['"DM Sans"', 'sans-serif'],
             },
             borderWidth: {

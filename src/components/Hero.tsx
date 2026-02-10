@@ -30,6 +30,7 @@ const MarqueeLine = ({ text, direction = 'left', speed = 20, transparent = false
 
 export default function Hero() {
     const containerRef = useRef<HTMLDivElement>(null)
+    const titleShadow = { textShadow: '12px 12px 0 rgba(184,244,212,0.85)' }
 
     useEffect(() => {
         const ctx = gsap.context(() => {
@@ -44,14 +45,6 @@ export default function Hero() {
                     duration: 0.6,
                     ease: "power2.out"
                 })
-
-                gsap.to('.hero-studio-badge', {
-                    x: xPos * 30,
-                    y: yPos * 30,
-                    rotation: -12,
-                    duration: 0.8,
-                    ease: "power2.out"
-                })
             }
             window.addEventListener('mousemove', handleMouseMove)
         }, containerRef)
@@ -60,10 +53,10 @@ export default function Hero() {
     }, [])
 
     return (
-        <section ref={containerRef} className="h-screen w-full bg-[#F4F4F0] flex flex-col font-display overflow-hidden border-b-4 border-black">
+        <section ref={containerRef} className="h-screen w-full bg-cream flex flex-col font-display overflow-hidden border-b-4 border-black">
 
             {/* TOP ZONE - MARQUEES (15%) */}
-            <div className="h-[20vh] border-b border-black flex flex-col justify-center bg-[#F4F4F0] relative z-0 overflow-hidden opacity-50">
+            <div className="h-[20vh] border-b border-black flex flex-col justify-center bg-cream relative z-0 overflow-hidden opacity-50">
                 <MarqueeLine text="UNDEFINED STUDIO — EMPOWER THE WORLD WITH APPS" direction="left" speed={40} transparent={false} />
                 <MarqueeLine text="DESIGN REBELLE" direction="right" speed={35} transparent={true} />
             </div>
@@ -73,10 +66,10 @@ export default function Hero() {
 
                 {/* PARALLAX CONTAINER */}
                 <div className="hero-title-layer flex flex-col items-center leading-[0.8] relative">
-                    <h1 className="text-[22vw] font-black text-black tracking-tighter">
+                    <h1 className="text-[22vw] font-black text-black tracking-tighter" style={titleShadow}>
                         UNDE
                     </h1>
-                    <h1 className="text-[22vw] font-black text-black tracking-tighter">
+                    <h1 className="text-[22vw] font-black text-black tracking-tighter" style={titleShadow}>
                         FINED
                     </h1>
 
@@ -93,7 +86,7 @@ export default function Hero() {
             </div>
 
             {/* BOTTOM ZONE - MARQUEES (15%) */}
-            <div className="h-[20vh] border-t border-black flex flex-col justify-center bg-[#F4F4F0] relative z-0 overflow-hidden opacity-50">
+            <div className="h-[20vh] border-t border-black flex flex-col justify-center bg-cream relative z-0 overflow-hidden opacity-50">
                 <MarqueeLine text="NO CORPORATE BS" direction="left" speed={45} transparent={true} />
                 <MarqueeLine text="PURE IMPACT" direction="right" speed={40} transparent={false} />
             </div>
@@ -106,4 +99,3 @@ export default function Hero() {
         </section>
     )
 }
-Ω

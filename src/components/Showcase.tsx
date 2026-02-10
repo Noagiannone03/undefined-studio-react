@@ -4,6 +4,10 @@ import { useGSAP } from '@gsap/react'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { MapContainer, TileLayer, useMap } from 'react-leaflet'
 import 'leaflet/dist/leaflet.css'
+import vagoLogo from '../assets/logo/VAGO-logo.png'
+import whispLogo from '../assets/logo/WHISP-logo.png'
+import appleStoreIcon from '../assets/icones/applestore.jpg'
+import playStoreIcon from '../assets/icones/playstore.png'
 
 gsap.registerPlugin(ScrollTrigger)
 
@@ -120,8 +124,8 @@ const VagoRealMapBackground = () => {
             <style dangerouslySetInnerHTML={{
                 __html: `
                 .leaflet-container {
-                    background: #E8FF86 !important;
-                    filter: grayscale(100%) contrast(130%);
+                    background: #92d3f5 !important;
+                    filter: grayscale(80%) contrast(150%);
                 }
                 .leaflet-layer {
                     mix-blend-mode: multiply;
@@ -142,14 +146,14 @@ const VagoRealMapBackground = () => {
                 }
             `}} />
 
-            {/* Yellow Tint Overlay */}
-            <div className="absolute inset-0 bg-lemon pointer-events-none z-[1] mix-blend-multiply opacity-100" />
+            {/* Blue Tint Overlay */}
+            <div className="absolute inset-0 bg-[#92d3f5] pointer-events-none z-[1] mix-blend-multiply opacity-55" />
 
             {/* The Map - NO LABELS (only streets/buildings) */}
             <MapContainer
                 center={MAP_CENTER}
                 zoom={MAP_ZOOM}
-                style={{ height: '100%', width: '100%', background: '#E8FF86' }}
+                style={{ height: '100%', width: '100%', background: '#92d3f5' }}
                 zoomControl={false}
                 scrollWheelZoom={false}
                 doubleClickZoom={false}
@@ -200,34 +204,30 @@ const WhispOrganicBackground = () => (
 )
 
 // --- ICONS & LOGOS ---
-const VagoLogo = () => (
-    <svg viewBox="0 0 100 100" className="w-full h-full fill-black">
-        <path d="M35 15 L65 15 L50 45 L75 45 L25 85 L40 55 L15 55 Z" />
-    </svg>
-)
-
-const WhispLogo = () => (
-    <svg viewBox="0 0 100 100" className="w-full h-full fill-none stroke-black stroke-[8]">
-        <circle cx="35" cy="50" r="20" />
-        <circle cx="65" cy="50" r="20" />
-        <path d="M50 35 Q50 65 50 65" strokeLinecap="round" />
-    </svg>
+const AppIcon = ({ src, alt, className = "" }: { src: string, alt: string, className?: string }) => (
+    <div
+        className={`rounded-[28px] border-4 border-black shadow-[10px_10px_0px_rgba(0,0,0,0.25)] overflow-hidden ${className}`}
+    >
+        <img src={src} alt={alt} className="w-full h-full object-cover" />
+    </div>
 )
 
 const AppleIcon = () => (
-    <svg className="w-6 h-6 fill-current" viewBox="0 0 24 24"><path d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.74 1.18 0 2.45-1.62 4.37-1.4 1.63.16 2.87 1.07 3.57 2.28-3.09 1.74-2.58 6.47.66 8.01-.58 1.55-1.55 3.01-2.95 4.36l-.73-.02zm-3.8-17.3c-.63 1.51-2.67 2.91-4.08 2.37.56-2.04 2.29-3.41 4.08-2.37z" /></svg>
+    <img src={appleStoreIcon} alt="App Store" className="w-full h-full object-contain" />
 )
 
 const GooglePlayIcon = () => (
-    <svg className="w-6 h-6 fill-current" viewBox="0 0 24 24"><path d="M3,20.5V3.5C3,2.91,3.34,2.39,3.84,2.15l13.83,13.83L3,20.5z M19.49,15.98l-7.82-7.82L4.6,15.16l12.8,7.39C18.4,23.11,19.49,15.98,19.49,15.98z M21.91,9.85l-1.92,1.92l-4.14-4.14l4.14-4.14l1.92,1.92C22.42,6.01,22.42,8.19,21.91,9.85z M4.96,22.09l7.82-7.82l-7.82-7.82L4.96,22.09z" /></svg>
+    <img src={playStoreIcon} alt="Google Play" className="w-full h-full object-contain scale-90" />
 )
 
 const StoreButton = ({ store, label }: { store: 'apple' | 'google', label: string }) => (
-    <button className="flex items-center gap-3 bg-black text-white px-6 py-3 rounded-xl border-2 border-black hover:bg-transparent hover:text-black transition-all duration-300 shadow-[4px_4px_0px_rgba(0,0,0,0.2)] hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px]">
-        {store === 'apple' ? <AppleIcon /> : <GooglePlayIcon />}
+    <button className="group flex items-center gap-3 bg-white text-black px-5 py-2.5 rounded-[999px] border-4 border-black shadow-[6px_6px_0px_black] transition-all duration-200 hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-[4px_4px_0px_black]">
+        <div className="flex items-center justify-center w-10 h-10">
+            {store === 'apple' ? <AppleIcon /> : <GooglePlayIcon />}
+        </div>
         <div className="flex flex-col items-start leading-none">
-            <span className="text-[10px] uppercase font-bold opacity-70">Download on</span>
-            <span className="text-sm font-bold">{label}</span>
+            <span className="text-[9px] uppercase font-bold tracking-widest opacity-70">Télécharger sur</span>
+            <span className="text-base font-black font-display">{label}</span>
         </div>
     </button>
 )
@@ -244,23 +244,20 @@ export default function Showcase() {
             className="w-full relative"
         >
             {/* PROJECT 01: VAGO */}
-            <div className="sticky top-0 h-screen w-full bg-lemon flex flex-col justify-center items-center overflow-hidden">
+            <div className="sticky top-0 h-screen w-full bg-[#92d3f5] flex flex-col justify-center items-center overflow-hidden">
 
                 <VagoRealMapBackground />
 
                 <div className="absolute top-8 left-8 md:top-12 md:left-12 opacity-80 z-20">
-                    <span className="font-mono text-xs md:text-sm font-black tracking-widest border-2 border-black px-4 py-2 rounded-full bg-lemon">GEN_ID: VAGO_GPS</span>
+                    <span className="font-mono text-xs md:text-sm font-black tracking-widest border-2 border-black px-4 py-2 rounded-full bg-[#92d3f5]">GEN_ID: VAGO_GPS</span>
                 </div>
 
                 <div className="relative z-10 flex flex-col items-center text-center p-6 max-w-4xl">
-                    <div className="w-32 h-32 md:w-48 md:h-48 mb-8 hover:scale-110 transition-transform duration-500">
-                        <VagoLogo />
+                    <div className="mb-8 hover:scale-105 transition-transform duration-500">
+                        <AppIcon src={vagoLogo} alt="Vago app icon" className="w-32 h-32 md:w-48 md:h-48" />
                     </div>
 
-                    <h2 className="font-display text-[12vw] md:text-[8rem] font-black leading-[0.8] mb-4 tracking-tighter drop-shadow-[5px_5px_0px_rgba(255,255,255,0.5)]">
-                        VAGO
-                    </h2>
-                    <h3 className="font-display text-xl md:text-3xl font-bold uppercase mb-8 max-w-2xl px-4 bg-black text-lemon px-4 py-1 -rotate-1">
+                    <h3 className="font-display text-xl md:text-3xl font-bold uppercase mb-8 max-w-2xl px-4 bg-white text-black px-4 py-1 -rotate-1 border-2 border-black">
                         L'APP QUI PAIE TON PLEIN.
                     </h3>
 
@@ -272,23 +269,20 @@ export default function Showcase() {
             </div>
 
             {/* PROJECT 02: WHISP */}
-            <div className="sticky top-0 h-screen w-full bg-mint flex flex-col justify-center items-center overflow-hidden shadow-[0px_-20px_60px_rgba(0,0,0,0.2)]">
+            <div className="sticky top-0 h-screen w-full bg-[#3279F7] flex flex-col justify-center items-center overflow-hidden shadow-[0px_-20px_60px_rgba(0,0,0,0.2)]">
 
                 <WhispOrganicBackground />
 
                 <div className="absolute top-8 right-8 md:top-12 md:right-12 opacity-80 z-20">
-                    <span className="font-mono text-xs md:text-sm font-black tracking-widest border-2 border-black px-4 py-2 rounded-full bg-mint">GEN_ID: WHISP_02</span>
+                    <span className="font-mono text-xs md:text-sm font-black tracking-widest border-2 border-white px-4 py-2 rounded-full bg-[#3279F7] text-white">GEN_ID: WHISP_02</span>
                 </div>
 
                 <div className="relative z-10 flex flex-col items-center text-center p-6 max-w-4xl">
-                    <div className="w-32 h-32 md:w-48 md:h-48 mb-8 hover:rotate-180 transition-transform duration-[2s]">
-                        <WhispLogo />
+                    <div className="mb-8">
+                        <AppIcon src={whispLogo} alt="Whisp app icon" className="w-28 h-28 md:w-40 md:h-40 border-white shadow-[10px_10px_0px_rgba(0,0,0,0.3)]" />
                     </div>
 
-                    <h2 className="font-display text-[12vw] md:text-[8rem] font-black leading-[0.8] mb-4 tracking-tighter mix-blend-multiply">
-                        WHISP
-                    </h2>
-                    <h3 className="font-display text-xl md:text-3xl font-bold uppercase mb-8 max-w-xl px-4 border-b-4 border-black pb-2">
+                    <h3 className="font-display text-xl md:text-3xl font-bold uppercase mb-8 max-w-xl px-4 border-b-4 border-white pb-2 text-white">
                         CONNECTE-TOI À CEUX QUI T'ENTOURENT.
                     </h3>
 
