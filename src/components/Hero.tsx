@@ -1,35 +1,18 @@
-import { useRef, useState } from 'react'
+import { useRef, useState, type CSSProperties } from 'react'
 import gsap from 'gsap'
 import { useGSAP } from '@gsap/react'
 import { TextPlugin } from 'gsap/TextPlugin'
+import GrainOverlay from './GrainOverlay'
+import BlobBackground from './BlobBackground'
 
 gsap.registerPlugin(TextPlugin)
 
-// --- BOUNCY STICKER COMPONENT ---
+// --- STATIC STICKER COMPONENT ---
 const BouncySticker = ({ text, rotation = -5, color = 'bg-lemon' }: { text: string, rotation?: number, color?: string }) => {
-    const stickerRef = useRef<HTMLDivElement>(null)
-
-    useGSAP(() => {
-        const xTo = gsap.quickTo(stickerRef.current, "x", { duration: 0.4, ease: "power3" })
-        const yTo = gsap.quickTo(stickerRef.current, "y", { duration: 0.4, ease: "power3" })
-
-        const handleMouseMove = (e: MouseEvent) => {
-            const { clientX, clientY } = e
-            const { innerWidth, innerHeight } = window
-            const x = (clientX - innerWidth / 2) * 0.15
-            const y = (clientY - innerHeight / 2) * 0.15
-            xTo(x)
-            yTo(y)
-        }
-
-        window.addEventListener('mousemove', handleMouseMove)
-        return () => window.removeEventListener('mousemove', handleMouseMove)
-    }, { scope: stickerRef })
-
     return (
-        <div ref={stickerRef} className={`absolute z-30 cursor-pointer select-none`} style={{ transform: `rotate(${rotation}deg)` }}>
-            <div className={`${color} border-4 border-black px-6 py-3 shadow-[6px_6px_0px_black] hover:scale-110 hover:-rotate-12 transition-transform duration-300`}>
-                <span className="text-3xl md:text-5xl font-black font-display text-black tracking-tighter block leading-none">
+        <div className={`relative z-50 cursor-pointer select-none`} style={{ transform: `rotate(${rotation}deg)` }}>
+            <div className={`${color} border-4 border-black px-5 py-2 md:px-8 md:py-3 shadow-[6px_6px_0px_black] hover:scale-110 hover:-rotate-12 transition-transform duration-300 group`}>
+                <span className="text-3xl md:text-7xl font-black font-display text-black tracking-tighter block leading-none group-hover:text-black transition-colors">
                     {text}
                 </span>
             </div>
@@ -37,24 +20,82 @@ const BouncySticker = ({ text, rotation = -5, color = 'bg-lemon' }: { text: stri
     )
 }
 
-// --- STAMP EFFECT COMPONENT ---
-const Stamp = ({ x, y, type }: { x: number, y: number, type: number }) => {
-    const stamps = ['UNDEFINED', 'RAW', 'POP!', '★']
-    const colors = ['text-lemon', 'text-mint', 'text-peach', 'text-lilac']
-    const content = stamps[type % stamps.length]
+// --- DATA TRAIL GLYPHS (NEO-BRUTALIST) ---
+const CrosshairShape = () => (
+    <svg viewBox="0 0 24 24" className="w-full h-full stroke-current fill-none stroke-[3px]">
+        <line x1="12" y1="2" x2="12" y2="22" />
+        <line x1="2" y1="12" x2="22" y2="12" />
+    </svg>
+)
+const SquareShape = () => (
+    <svg viewBox="0 0 24 24" className="w-full h-full stroke-current fill-none stroke-[3px]">
+        <rect x="4" y="4" width="16" height="16" />
+    </svg>
+)
+const CircleShape = () => (
+    <svg viewBox="0 0 24 24" className="w-full h-full stroke-current fill-none stroke-[3px]">
+        <circle cx="12" cy="12" r="9" />
+    </svg>
+)
+const ArrowShape = () => (
+    <svg viewBox="0 0 24 24" className="w-full h-full fill-current">
+        <path d="M7 7h8.586L5.293 17.293l1.414 1.414L17 8.414V17h2V5H7v2z" />
+    </svg>
+)
+const XShape = () => (
+    <svg viewBox="0 0 24 24" className="w-full h-full stroke-current fill-none stroke-[4px]">
+        <line x1="4" y1="4" x2="20" y2="20" />
+        <line x1="20" y1="4" x2="4" y2="20" />
+    </svg>
+)
+
+type Stamp = {
+    id: number
+    x: number
+    y: number
+    variant: number
+    rotation: number
+    createdAt: number
+}
+
+const STAMP_INTERVAL_MS = 60 // Faster, denser trail
+const STAMP_LIFETIME_MS = 800
+const STAMP_MAX = 20
+
+// --- DATA TRAIL COMPONENT ---
+const DataTrailStamp = ({ x, y, type, rotation }: { x: number, y: number, type: number, rotation: number }) => {
+    const shapes = [CrosshairShape, SquareShape, CircleShape, ArrowShape, XShape]
+    const colors = ['text-black', 'text-lemon', 'text-mint', 'text-black', 'text-white'] // High contrast
+    const Shape = shapes[type % shapes.length]
     const color = colors[type % colors.length]
 
     return (
         <div
-            className={`absolute pointer-events-none font-black font-display text-4xl md:text-6xl ${color} drop-shadow-[2px_2px_0px_black] z-0 select-none`}
+            className={`absolute pointer-events-none w-8 h-8 md:w-12 md:h-12 ${color} z-0 select-none -translate-x-1/2 -translate-y-1/2`}
             style={{
                 left: x,
                 top: y,
-                transform: `translate(-50%, -50%) rotate(${Math.random() * 40 - 20}deg)`,
-                opacity: 0.8
-            }}
+                '--stamp-rot': `${rotation}deg`,
+            } as CSSProperties}
         >
-            {content}
+            <div className="w-full h-full animate-stamp-pop">
+                <Shape />
+            </div>
+        </div>
+    )
+}
+
+// --- TOP MARQUEE SLOGAN ---
+const TopMarquee = () => {
+    return (
+        <div className="absolute top-0 left-0 w-full z-40 bg-lemon border-b-4 border-black overflow-hidden py-2 select-none">
+            <div className="animate-marquee inline-block whitespace-nowrap">
+                {[...Array(8)].map((_, i) => (
+                    <span key={i} className="font-display font-black text-2xl md:text-3xl uppercase tracking-tighter mx-4">
+                        EMPOWER THE WORLD WITH APPS • DIGITAL CRAFTSMEN •
+                    </span>
+                ))}
+            </div>
         </div>
     )
 }
@@ -62,16 +103,13 @@ const Stamp = ({ x, y, type }: { x: number, y: number, type: number }) => {
 export default function Hero() {
     const containerRef = useRef<HTMLElement>(null)
     const titleRef = useRef<HTMLHeadingElement>(null)
-    const [stamps, setStamps] = useState<{ id: number, x: number, y: number }[]>([])
+    const [stamps, setStamps] = useState<Stamp[]>([])
+    const lastStampTime = useRef(0)
+    const stampIdRef = useRef(0)
 
-    // Scramble Text Effect on Load
     useGSAP(() => {
         const tl = gsap.timeline()
-
-        // Initial set
         gsap.set('.char-wrapper', { y: 100, opacity: 0 })
-
-        // Animate in
         tl.to('.char-wrapper', {
             y: 0,
             opacity: 1,
@@ -79,36 +117,47 @@ export default function Hero() {
             duration: 0.8,
             ease: "back.out(1.7)"
         })
-
-        // Blob Animation
-        gsap.to('.hero-blob', {
-            y: "random(-50, 50)",
-            x: "random(-50, 50)",
-            rotation: "random(-20, 20)",
-            duration: "random(4, 7)",
-            repeat: -1,
-            yoyo: true,
-            ease: "sine.inOut"
-        })
-
     }, { scope: containerRef })
 
-    // Mouse Interaction for Title (Magnetic/Skew)
     useGSAP(() => {
         const xTo = gsap.quickTo('.hero-title-layer', "x", { duration: 0.5, ease: "power3" })
         const yTo = gsap.quickTo('.hero-title-layer', "y", { duration: 0.5, ease: "power3" })
-        const skewTo = gsap.quickTo('.hero-title-layer', "skewX", { duration: 0.5, ease: "power3" })
 
         const handleMouseMove = (e: MouseEvent) => {
             const { clientX, clientY } = e
             const { innerWidth, innerHeight } = window
-            const x = (clientX / innerWidth - 0.5) * 40
-            const y = (clientY / innerHeight - 0.5) * 40
-            const skew = (clientX / innerWidth - 0.5) * 10
-
+            const x = (clientX / innerWidth - 0.5) * 20
+            const y = (clientY / innerHeight - 0.5) * 20
             xTo(x)
             yTo(y)
-            skewTo(skew)
+
+            const now = Date.now()
+            if (now - lastStampTime.current > STAMP_INTERVAL_MS) {
+                const containerRect = containerRef.current?.getBoundingClientRect()
+                if (containerRect) {
+                    const relX = clientX - containerRect.left + (Math.random() - 0.5) * 4 // Reduced random spread for cleaner trail
+                    const relY = clientY - containerRect.top + (Math.random() - 0.5) * 4
+                    setStamps(prev => {
+                        const nextId = stampIdRef.current + 1
+                        stampIdRef.current = nextId
+                        const pruned = prev.filter(stamp => now - stamp.createdAt < STAMP_LIFETIME_MS)
+                        const newStamps = [
+                            ...pruned,
+                            {
+                                id: nextId,
+                                x: relX,
+                                y: relY,
+                                variant: nextId,
+                                rotation: Math.random() * 360,
+                                createdAt: now
+                            }
+                        ]
+                        if (newStamps.length > STAMP_MAX) return newStamps.slice(newStamps.length - STAMP_MAX)
+                        return newStamps
+                    })
+                    lastStampTime.current = now
+                }
+            }
         }
 
         const currentContainer = containerRef.current;
@@ -123,95 +172,78 @@ export default function Hero() {
         }
     }, { scope: containerRef })
 
-    const handleStamp = (e: React.MouseEvent) => {
-        const rect = containerRef.current?.getBoundingClientRect()
-        if (!rect) return
-
-        const x = e.clientX - rect.left
-        const y = e.clientY - rect.top
-
-        setStamps(prev => [...prev, { id: Date.now(), x, y }])
-    }
 
     return (
         <section
             ref={containerRef}
-            onClick={handleStamp}
-            className="h-screen w-full bg-cream relative flex flex-col items-center justify-center font-display overflow-hidden border-b-4 border-black cursor-crosshair"
+            className="h-screen w-full bg-cream relative flex flex-col items-center justify-center font-display border-b-4 border-black cursor-crosshair overflow-hidden pt-12"
         >
-            {/* BACKGROUND BLOBS */}
-            <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
-                <div className="hero-blob absolute top-[10%] left-[10%] w-[40vw] h-[40vw] bg-mint rounded-full mix-blend-multiply filter blur-[80px] opacity-70" />
-                <div className="hero-blob absolute bottom-[10%] right-[10%] w-[45vw] h-[45vw] bg-peach rounded-full mix-blend-multiply filter blur-[80px] opacity-70" />
-                <div className="hero-blob absolute top-[40%] left-[40%] w-[30vw] h-[30vw] bg-lilac rounded-full mix-blend-multiply filter blur-[80px] opacity-70" />
-            </div>
+            {/* TOP MARQUEE */}
+            <TopMarquee />
 
-            {/* GRAIN OVERLAY */}
-            <div className="absolute inset-0 opacity-20 pointer-events-none z-10"
-                style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='1'/%3E%3C/svg%3E")` }}
-            />
+            {/* STATIC HEAVY GRAIN */}
+            <GrainOverlay opacity={0.35} />
 
-            {/* STAMPS LAYER */}
-            <div className="absolute inset-0 z-10">
-                {stamps.map((stamp, i) => (
-                    <Stamp key={stamp.id} x={stamp.x} y={stamp.y} type={i} />
+            <BlobBackground />
+
+            {/* DECORATIVE CORNERS */}
+            <div className="absolute top-20 left-6 w-8 h-8 border-t-4 border-l-4 border-black pointer-events-none z-40" />
+            <div className="absolute top-20 right-6 w-8 h-8 border-t-4 border-r-4 border-black pointer-events-none z-40" />
+            <div className="absolute bottom-6 left-6 w-8 h-8 border-b-4 border-l-4 border-black pointer-events-none z-40" />
+            <div className="absolute bottom-6 right-6 w-8 h-8 border-b-4 border-r-4 border-black pointer-events-none z-40" />
+
+            {/* GRID */}
+            <div className="absolute inset-0 pointer-events-none opacity-5 bg-[linear-gradient(to_right,#000_1px,transparent_1px),linear-gradient(to_bottom,#000_1px,transparent_1px)] bg-[size:100px_100px]" />
+
+            {/* DATA TRAIL */}
+            <div className="absolute inset-0 z-10 overflow-hidden pointer-events-none">
+                {stamps.map((stamp) => (
+                    <DataTrailStamp key={stamp.id} x={stamp.x} y={stamp.y} type={stamp.variant} rotation={stamp.rotation} />
                 ))}
             </div>
 
-            {/* MAIN TITLE CONTENT */}
-            <div className="relative z-20 flex flex-col items-center justify-center w-full mix-blend-hard-light perspective-1000">
+            {/* STACKED BACKGROUND TEXT */}
+            <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none z-0 overflow-hidden opacity-5 select-none scale-150">
+                <span className="text-[15vw] font-black uppercase text-black leading-[0.8]">EMPOWER</span>
+                <span className="text-[15vw] font-black uppercase text-black leading-[0.8] ml-20">THE WORLD</span>
+                <span className="text-[15vw] font-black uppercase text-black leading-[0.8] -ml-20">WITH APPS</span>
+            </div>
 
-                {/* FLOATING DECORATIONS */}
-                <div className="absolute top-0 right-10 animate-spin-slow w-16 h-16 md:w-24 md:h-24 pointer-events-none">
-                    <svg viewBox="0 0 100 100" className="w-full h-full fill-black">
-                        <path d="M50 0 L61 35 L98 35 L68 57 L79 91 L50 70 L21 91 L32 57 L2 35 L39 35 Z" />
-                    </svg>
-                </div>
+            {/* MAIN CONTENT - NEW BLOCK TYPOGRAPHY */}
+            <div className="relative z-20 flex flex-col items-center justify-center w-full perspective-1000">
 
-                {/* HERO TITLE LAYER */}
-                <div className="hero-title-layer flex flex-col items-center leading-[0.75]">
+                <div className="hero-title-layer flex flex-col items-center leading-[0.75] relative w-full gap-4">
 
-                    <div className="overflow-hidden">
+                    {/* UNDE - SOLID BLOCK */}
+                    <div className="relative transform -rotate-2 hover:rotate-0 transition-transform duration-500">
                         <h1
                             ref={titleRef}
-                            className="char-wrapper text-[22vw] font-black text-black tracking-tighter drop-shadow-[8px_8px_0px_rgba(255,255,255,0.5)] select-none"
-                            style={{ WebkitTextStroke: '3px black', color: 'transparent' }}
+                            className="bg-black text-white px-8 py-2 text-[20vw] font-black tracking-tighter shadow-[12px_12px_0px_#B8F4D4] border-4 border-transparent select-none"
                         >
                             UNDE
                         </h1>
                     </div>
 
-                    <div className="overflow-hidden relative">
+                    {/* FINED - SOLID BLOCK INVERTED */}
+                    <div className="relative w-full text-center transform rotate-2 hover:rotate-0 transition-transform duration-500 scale-110 md:scale-100">
                         <h1
-                            className="char-wrapper text-[22vw] font-black text-black tracking-tighter drop-shadow-[8px_8px_0px_rgba(184,244,212,1)] select-none"
+                            className="bg-white text-black px-8 py-2 text-[20vw] font-black tracking-tighter shadow-[12px_12px_0px_black] border-4 border-black select-none relative inline-block"
                         >
                             FINED
-                        </h1>
 
-                        {/* INTERACTIVE COMPONENT STICKING TO TITLE */}
-                        <div className="absolute -bottom-4 right-0 md:right-10 w-full h-full pointer-events-none flex justify-end items-end">
-                            <div className="pointer-events-auto">
-                                <BouncySticker text="STUDIO" rotation={12} color="bg-lemon" />
+                            {/* STATIC STUDIO STICKER */}
+                            <div className="absolute -bottom-[5%] -right-[5%] md:-right-[8%] z-50 pointer-events-auto">
+                                <BouncySticker text="STUDIO" rotation={-8} color="bg-lemon" />
                             </div>
-                        </div>
+                        </h1>
                     </div>
-
-                </div>
-
-                {/* TAGLINE */}
-                <div className="mt-12 flex items-center gap-4 bg-black text-white px-6 py-2 rotate-2 hover:rotate-0 transition-transform duration-300">
-                    <div className="w-3 h-3 bg-mint rounded-full animate-pulse" />
-                    <span className="font-mono text-sm md:text-xl font-bold uppercase tracking-widest">
-                        Digital Impact. Human Experience.
-                    </span>
                 </div>
 
             </div>
 
-            {/* SCROLL INDICATOR */}
-            <div className="absolute bottom-8 left-8 flex flex-col gap-1 z-20 mix-blend-difference text-white">
-                <span className="font-mono text-xs font-bold tracking-widest uppercase opacity-70">Scroll to explore</span>
-                <div className="w-px h-16 bg-white origin-top animate-bounce-soft" />
+            <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 z-20 mix-blend-difference text-white">
+                <span className="font-mono text-xs font-bold tracking-widest uppercase opacity-70">Scroll</span>
+                <div className="w-px h-12 bg-white origin-top animate-bounce-soft" />
             </div>
 
         </section>

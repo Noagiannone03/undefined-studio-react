@@ -106,6 +106,22 @@ body {
   }
 }
 
+@keyframes stamp-pop {
+  0% {
+    transform: rotate(var(--stamp-rot)) scale(0.6);
+    opacity: 0;
+  }
+
+  30% {
+    opacity: 0.75;
+  }
+
+  100% {
+    transform: rotate(var(--stamp-rot)) scale(1.35);
+    opacity: 0;
+  }
+}
+
 .animate-float {
   animation: float 6s ease-in-out infinite;
 }
@@ -124,6 +140,10 @@ body {
 
 .animate-blob {
   animation: blob-morph 8s ease-in-out infinite;
+}
+
+.animate-stamp-pop {
+  animation: stamp-pop 900ms ease-out forwards;
 }
 
 /* ===============================================

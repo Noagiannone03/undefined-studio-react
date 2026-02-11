@@ -1,4 +1,4 @@
-import { useRef } from 'react'
+import GrainOverlay from './GrainOverlay'
 
 const services = [
     {
@@ -7,7 +7,8 @@ const services = [
         desc: "Nous ne codons pas.\nNous traduisons des rêves en pixel.",
         tools: ["WebGL", "Three.js", "GLSL", "React"],
         bg: "bg-lemon",
-        textColor: "text-black"
+        textColor: "text-black",
+        rotate: -2
     },
     {
         id: '02',
@@ -15,7 +16,8 @@ const services = [
         desc: "L'inertie est notre ennemie.\nTout doit bouger, tout doit vivre.",
         tools: ["After Effects", "Rive", "GSAP", "Lottie"],
         bg: "bg-black",
-        textColor: "text-white"
+        textColor: "text-white",
+        rotate: 1
     },
     {
         id: '03',
@@ -23,26 +25,39 @@ const services = [
         desc: "Des marques qui claquent.\nDes logos qui racontent une histoire.",
         tools: ["Branding", "Typos", "Systèmes", "DA"],
         bg: "bg-mint",
-        textColor: "text-black"
+        textColor: "text-black",
+        rotate: -1
     },
     {
         id: '04',
         title: "AUDACE\nNUMÉRIQUE",
         desc: "Stratégie de rupture.\nOn fait ce que les autres n'osent pas.",
         tools: ["Concept", "Copywriting", "Activation", "Buzz"],
-        bg: "bg-lemon",
-        textColor: "text-black"
+        bg: "bg-peach",
+        textColor: "text-black",
+        rotate: 2
     },
 ]
 
 export default function Services() {
     return (
-        <section id="services" className="relative w-full bg-[#FFF8E7] py-20 pb-40">
-            {/* Background Noise Texture */}
-            <div className="absolute inset-0 z-0 opacity-10 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] bg-repeat pointer-events-none" />
+        <section id="services" className="relative w-full bg-lilac py-20 pb-40 border-b-4 border-black overflow-hidden">
 
-            <div className="container mx-auto px-6 mb-20 relative z-10">
-                <h2 className="font-display text-[12vw] font-black uppercase text-black leading-none text-center drop-shadow-[6px_6px_0px_#E6E6FA]">
+            {/* INCREASED GRAIN OPACITY TO 0.5 */}
+            <GrainOverlay opacity={0.5} />
+
+            {/* Giant Background Title */}
+            <div className="absolute top-0 left-0 w-full overflow-hidden pointer-events-none opacity-5">
+                <h2 className="font-display text-[25vw] font-black uppercase text-black leading-none whitespace-nowrap -translate-y-1/4">
+                    SERVICES
+                </h2>
+            </div>
+
+            <div className="container mx-auto px-6 mb-24 relative z-10 flex flex-col items-center">
+                <div className="bg-black text-white px-6 py-2 -rotate-2 inline-block shadow-[6px_6px_0px_#B8F4D4] mb-8">
+                    <span className="font-mono font-bold uppercase tracking-widest">Ce qu'on fait de mieux</span>
+                </div>
+                <h2 className="font-display text-[12vw] font-black uppercase text-black leading-none text-center drop-shadow-[6px_6px_0px_white]">
                     NOS ARMES
                 </h2>
             </div>
@@ -51,26 +66,30 @@ export default function Services() {
                 {services.map((s, i) => (
                     <div
                         key={i}
-                        className={`sticky top-24 w-full max-w-5xl ${s.bg} border-4 border-black p-8 md:p-16 rounded-3xl shadow-[0px_-10px_40px_rgba(0,0,0,0.1)] mb-20 transform transition-transform hover:scale-[1.02] overflow-hidden`}
-                        style={{ transform: `rotate(${i % 2 === 0 ? -1.5 : 1.5}deg)` }}
+                        className={`sticky top-32 w-full max-w-6xl ${s.bg} border-4 border-black p-8 md:p-12 rounded-none md:rounded-3xl shadow-[8px_8px_0px_black] mb-24 transform transition-transform hover:scale-[1.02] hover:-rotate-1 relative overflow-hidden`}
+                        style={{ transform: `rotate(${s.rotate}deg)` }}
                     >
-                        <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-8 relative z-10">
+                        <GrainOverlay opacity={0.15} />
+
+                        <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-12 relative z-10">
                             <div className="flex-1">
-                                <span className={`font-mono text-lg font-bold border-2 border-current px-3 py-1 rounded-full mb-6 inline-block ${s.textColor}`}>
-                                    SERVICE #{s.id}
-                                </span>
-                                <h3 className={`font-display text-5xl md:text-8xl font-black uppercase whitespace-pre-line leading-[0.85] tracking-tighter ${s.textColor}`}>
+                                <div className="flex items-center gap-4 mb-6">
+                                    <span className={`font-display text-4xl font-black ${s.textColor} opacity-30`}>#{s.id}</span>
+                                    <div className={`h-1 flex-1 ${s.textColor === 'text-white' ? 'bg-white' : 'bg-black'} opacity-30`}></div>
+                                </div>
+
+                                <h3 className={`font-display text-5xl md:text-7xl font-black uppercase whitespace-pre-line leading-[0.85] tracking-tighter ${s.textColor} drop-shadow-sm`}>
                                     {s.title}
                                 </h3>
                             </div>
 
-                            <div className="max-w-sm flex-1">
-                                <p className={`font-body text-xl font-bold mb-6 leading-tight whitespace-pre-line ${s.textColor}`}>
+                            <div className="max-w-md flex-1">
+                                <p className={`font-body text-xl md:text-2xl font-bold mb-8 leading-tight whitespace-pre-line ${s.textColor}`}>
                                     {s.desc}
                                 </p>
-                                <div className="flex flex-wrap gap-2">
+                                <div className="flex flex-wrap gap-3">
                                     {s.tools.map(t => (
-                                        <span key={t} className={`text-xs font-mono border border-current px-2 py-1 uppercase ${s.textColor}`}>
+                                        <span key={t} className={`text-sm font-mono font-bold border-2 border-current px-3 py-1 uppercase ${s.textColor} hover:bg-current hover:text-${s.bg.replace('bg-', '')} transition-colors cursor-default`}>
                                             {t}
                                         </span>
                                     ))}
@@ -78,13 +97,13 @@ export default function Services() {
                             </div>
                         </div>
 
-                        {/* Giant Number Background */}
-                        <div className={`absolute -bottom-20 -right-10 font-display text-[30vh] font-black opacity-10 pointer-events-none select-none z-0 ${s.textColor} leading-none`}>
-                            {s.id}
-                        </div>
+                        {/* Interactive Corner Decoration */}
+                        <div className="absolute top-4 right-4 w-4 h-4 border-2 border-current rounded-full" />
+                        <div className="absolute bottom-4 left-4 w-4 h-4 border-2 border-current rounded-full" />
                     </div>
                 ))}
             </div>
+
         </section>
     )
 }

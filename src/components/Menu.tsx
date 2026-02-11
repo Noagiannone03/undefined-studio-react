@@ -1,6 +1,7 @@
 import { useState, useRef } from 'react'
 import gsap from 'gsap'
 import { useGSAP } from '@gsap/react'
+import GrainOverlay from './GrainOverlay'
 
 export default function Menu() {
     const [isOpen, setIsOpen] = useState(false)
@@ -30,52 +31,44 @@ export default function Menu() {
 
     return (
         <div ref={container}>
-            <div className="fixed top-8 right-8 z-[60]">
-                {/* NEO-BRUTALIST BUTTON */}
+            {/* NEW MENU BUTTON - BRUTALIST SQUARE - SPACED OUT */}
+            <div className="fixed top-8 right-8 md:top-12 md:right-12 z-[60]">
                 <button
                     onClick={toggleMenu}
-                    className="group relative w-16 h-16 outline-none focus:outline-none"
+                    className="group relative w-16 h-16 md:w-20 md:h-20 bg-black border-4 border-transparent hover:border-black hover:bg-white transition-all duration-300 shadow-[8px_8px_0px_white] hover:shadow-[4px_4px_0px_black]"
+                    aria-label="Toggle Menu"
                 >
-                    {/* Shadow Block (Bottom Layer) - FIXED */}
-                    <div className="absolute inset-0 bg-black rounded-full translate-x-1 translate-y-1" />
-
-                    {/* Main Button (Top Layer) - MOVES ON CLICK */}
-                    <div className={`
-                        relative w-full h-full rounded-full border-4 border-black flex items-center justify-center transition-all duration-100 ease-out
-                        ${isOpen ? 'bg-black text-white' : 'bg-peach text-black'}
-                        translate-x-0 translate-y-0
-                        group-hover:-translate-y-0.5 group-hover:-translate-x-0.5
-                        group-active:translate-x-1 group-active:translate-y-1
-                    `}>
-                        <div className="flex flex-col gap-1.5 items-center justify-center w-8">
-                            {isOpen ? (
-                                <div className="relative w-full h-6 pointer-events-none">
-                                    <div className="absolute top-1/2 left-0 w-full h-1 bg-white rotate-45 transition-transform" />
-                                    <div className="absolute top-1/2 left-0 w-full h-1 bg-white -rotate-45 transition-transform" />
-                                </div>
-                            ) : (
-                                <>
-                                    <div className="w-full h-1 bg-black rounded-full transition-all group-hover:w-3/4" />
-                                    <div className="w-2/3 h-1 bg-black rounded-full self-start transition-all group-hover:w-full" />
-                                    <div className="w-full h-1 bg-black rounded-full transition-all group-hover:w-1/2" />
-                                </>
-                            )}
+                    <div className="flex flex-col items-center justify-center w-full h-full gap-1.5 p-2">
+                        {/* Hamburger / Close Icon */}
+                        <div className="relative w-8 h-6 flex flex-col justify-between items-center overflow-hidden">
+                            <span className={`w-full h-1 bg-white group-hover:bg-black transition-all duration-300 ${isOpen ? 'rotate-45 translate-y-2.5' : ''}`} />
+                            <span className={`w-full h-1 bg-white group-hover:bg-black transition-all duration-300 ${isOpen ? 'translate-x-full opacity-0' : ''}`} />
+                            <span className={`w-full h-1 bg-white group-hover:bg-black transition-all duration-300 ${isOpen ? '-rotate-45 -translate-y-2.5' : ''}`} />
                         </div>
                     </div>
-
                 </button>
             </div>
 
-            <div ref={menuOverlay} className="fixed inset-0 z-50 bg-lemon flex flex-col justify-center items-start px-[10%] pointer-events-auto border-b-8 border-black" style={{ transform: 'translateY(-100%)' }}>
+            <div ref={menuOverlay} className="fixed inset-0 z-50 bg-mint flex flex-col justify-center items-start px-[10%] pointer-events-auto border-b-8 border-black overflow-hidden" style={{ transform: 'translateY(-100%)' }}>
+
+                {/* Using the updated GrainOverlay here too */}
+                <GrainOverlay opacity={0.4} />
+
                 <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-10 pointer-events-none select-none">
-                    <h1 className="font-display text-[30vw] font-black uppercase text-black">HELLO</h1>
+                    <h1 className="font-display text-[30vw] font-black uppercase text-black leading-none">HELLO</h1>
                 </div>
-                <nav className="flex flex-col gap-4 relative z-10">
+
+                <nav className="flex flex-col gap-4 relative z-10 w-full">
                     {menuItems.map((item, index) => (
-                        <a key={index} href={item.href} className="group py-2 block" onClick={() => setIsOpen(false)}>
-                            <span className="menu-item-text block font-display text-5xl md:text-9xl font-black text-black group-hover:text-white transition-colors duration-300 uppercase leading-none">
-                                {item.label}
-                            </span>
+                        <a key={index} href={item.href} className="group py-2 block border-b-4 border-black/10 hover:border-black transition-colors" onClick={() => setIsOpen(false)}>
+                            <div className="menu-item-text flex items-center justify-between">
+                                <span className="font-display text-5xl md:text-8xl font-black text-black group-hover:text-white group-hover:text-stroke-black transition-all duration-300 uppercase leading-none" style={{ WebkitTextStroke: '2px black' }}>
+                                    {item.label}
+                                </span>
+                                <span className="font-mono text-xl font-bold opacity-0 group-hover:opacity-100 transition-opacity">
+                                    0{index + 1}
+                                </span>
+                            </div>
                         </a>
                     ))}
                 </nav>

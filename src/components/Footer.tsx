@@ -1,63 +1,55 @@
-import { useRef } from 'react'
+import GrainOverlay from './GrainOverlay'
 
 export default function Footer() {
     return (
-        <footer className="relative bg-black text-white py-40 overflow-hidden min-h-screen flex flex-col justify-between">
+        <footer className="relative bg-black text-white pt-40 pb-20 overflow-hidden min-h-screen flex flex-col justify-between border-t-4 border-white">
 
-            {/* Background Noise Video/Texture would go here */}
-            <div className="absolute inset-0 opacity-20 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] bg-repeat opacity-20" />
+            {/* INCREASED GRAIN OPACITY TO 0.4 */}
+            <GrainOverlay opacity={0.4} />
 
-            <div className="container mx-auto px-6 relative z-10">
-                <div className="flex flex-col gap-0 border-l-4 border-white pl-10">
-                    <h2 className="font-display text-[12vw] font-black uppercase leading-[0.8] hover:text-lemon transition-colors cursor-pointer">
+            <div className="container mx-auto px-6 relative z-10 flex flex-col md:flex-row justify-between items-start gap-20">
+
+                <div className="flex flex-col gap-0 border-l-4 border-white pl-4 md:pl-10">
+                    <h2 className="font-display text-[15vw] font-black uppercase leading-[0.75] hover:text-lemon transition-colors cursor-pointer select-none mix-blend-difference">
                         LET'S
                     </h2>
-                    <h2 className="font-display text-[12vw] font-black uppercase leading-[0.8] ml-[10vw] hover:text-gray-400 transition-colors cursor-pointer">
+                    <h2 className="font-display text-[15vw] font-black uppercase leading-[0.75] ml-[5vw] hover:text-gray-400 transition-colors cursor-pointer select-none mix-blend-difference">
                         MAKE
                     </h2>
-                    <h2 className="font-display text-[12vw] font-black uppercase leading-[0.8] hover:text-white transition-colors cursor-pointer">
+                    <h2 className="font-display text-[15vw] font-black uppercase leading-[0.75] hover:text-mint transition-colors cursor-pointer select-none mix-blend-difference">
                         NOISE
                     </h2>
                 </div>
-            </div>
 
-            <div className="relative z-10 container mx-auto px-6 mt-20 flex flex-col md:flex-row justify-between items-end">
-                <div className="flex flex-col gap-4">
-                    <a href="mailto:hello@undefined.studio" className="font-display text-4xl md:text-6xl font-bold underline decoration-4 underline-offset-8 decoration-lemon hover:text-lemon transition-colors">
-                        HELLO@UNDEFINEDSTUDIO.FR
+                <div className="flex flex-col gap-8 items-start md:items-end">
+                    <div className="bg-white text-black px-4 py-2 rotate-6 border-2 border-black shadow-[4px_4px_0px_#FFF]">
+                        <span className="font-mono font-bold uppercase">Ready to start?</span>
+                    </div>
+                    <a href="mailto:hello@undefined.studio" className="font-display text-4xl md:text-6xl font-bold underline decoration-4 underline-offset-8 decoration-lemon hover:bg-lemon hover:text-black hover:no-underline px-2 transition-all">
+                        HELLO@UNDEFINED.FR
                     </a>
-                    <p className="font-mono text-sm text-gray-400">
-                        PARIS — TOULOUSE — INTERNET
-                    </p>
+                    <div className="flex flex-col items-start md:items-end font-mono text-sm text-gray-400 mt-10">
+                        <p>PARIS — TOULOUSE — INTERNET</p>
+                        <p>© 2026 UNDEFINED STUDIO</p>
+                    </div>
                 </div>
-
 
             </div>
 
             {/* Giant Footer Text Scrolling */}
-            <div className="absolute bottom-0 left-0 w-full whitespace-nowrap overflow-hidden py-4 bg-lemon text-black">
+            <div className="w-full whitespace-nowrap overflow-hidden py-6 bg-lemon text-black border-y-4 border-black mt-20 rotate-1 scale-105">
                 <div className="animate-marquee inline-block">
-                    <span className="text-xl font-bold mx-8">UNDEFINED STUDIO © 2026</span>
-                    <span className="text-xl font-bold mx-8">DESIGN REBELLE</span>
-                    <span className="text-xl font-bold mx-8">NO CORPORATE BS</span>
-                    <span className="text-xl font-bold mx-8">PURE IMPACT</span>
-                    <span className="text-xl font-bold mx-8">UNDEFINED STUDIO © 2026</span>
-                    <span className="text-xl font-bold mx-8">DESIGN REBELLE</span>
-                    <span className="text-xl font-bold mx-8">NO CORPORATE BS</span>
-                    <span className="text-xl font-bold mx-8">PURE IMPACT</span>
+                    <span className="text-3xl font-black font-display mx-12">UNDEFINED STUDIO © 2026</span>
+                    <span className="text-3xl font-black font-display mx-12">DESIGN REBELLE</span>
+                    <span className="text-3xl font-black font-display mx-12">NO CORPORATE BS</span>
+                    <span className="text-3xl font-black font-display mx-12">PURE IMPACT</span>
+                    <span className="text-3xl font-black font-display mx-12">UNDEFINED STUDIO © 2026</span>
+                    <span className="text-3xl font-black font-display mx-12">DESIGN REBELLE</span>
+                    <span className="text-3xl font-black font-display mx-12">NO CORPORATE BS</span>
+                    <span className="text-3xl font-black font-display mx-12">PURE IMPACT</span>
                 </div>
             </div>
 
-            <style dangerouslySetInnerHTML={{
-                __html: `
-        @keyframes marquee {
-          0% { transform: translateX(0); }
-          100% { transform: translateX(-50%); }
-        }
-        .animate-marquee {
-          animation: marquee 20s linear infinite;
-        }
-      `}} />
         </footer>
     )
 }
