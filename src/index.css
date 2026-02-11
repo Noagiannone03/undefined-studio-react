@@ -252,3 +252,12 @@ body {
   background: #000000;
   border: 3px solid #B8F4D4;
 }
+
+.text-stroke-white {
+  -webkit-text-stroke: 2px white;
+  color: transparent;
+}
+.text-stroke-black {
+  -webkit-text-stroke: 2px black;
+  color: transparent;
+}

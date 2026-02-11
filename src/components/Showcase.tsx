@@ -197,73 +197,217 @@ const StoreButton = ({ store, label }: { store: 'apple' | 'google', label: strin
         </div>
     </button>
 )
+const PhoneMockup = ({ children, className = "" }: { children: React.ReactNode, className?: string }) => (
+    <div className={`relative w-[280px] h-[580px] md:w-[320px] md:h-[640px] bg-white border-4 border-black rounded-[40px] shadow-[12px_12px_0px_black] overflow-hidden flex flex-col ${className}`}>
+        {/* Notch / Dynamic Island */}
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-1/3 h-7 bg-black rounded-b-2xl z-20"></div>
+        {/* Screen Content */}
+        <div className="w-full h-full relative z-10 overflow-hidden bg-gray-100">
+            {children}
+        </div>
+        {/* Reflection Shine */}
+        <div className="absolute top-0 right-0 w-full h-full bg-gradient-to-bl from-white/20 to-transparent pointer-events-none z-30 opacity-50"></div>
+    </div>
+)
+
+
+
 
 export default function Showcase() {
-    const container = useRef(null)
-    useGSAP(() => { }, { scope: container })
+    const container = useRef<HTMLDivElement>(null)
+
+
+    // Project Refs for Animation
+    const vagoPhone = useRef<HTMLDivElement>(null)
+    const vagoText = useRef<HTMLDivElement>(null)
+    const whispPhone = useRef<HTMLDivElement>(null)
+    const whispText = useRef<HTMLDivElement>(null)
+    const headerRef = useRef<HTMLDivElement>(null)
+
+    useGSAP(() => {
+        // 1. Parallax for WORK Title REMOVED to match Services.tsx
+        // Static positioning is used instead.
+
+        // 2. Header Entrance
+        const headerEls = headerRef.current?.children
+        if (headerEls) {
+            gsap.fromTo(headerEls,
+                { y: 50, opacity: 0 },
+                {
+                    y: 0,
+                    opacity: 1,
+                    stagger: 0.1,
+                    duration: 1,
+                    ease: "power3.out",
+                    scrollTrigger: {
+                        trigger: headerRef.current,
+                        start: "top 80%"
+                    }
+                }
+            )
+        }
+
+        // 3. VAGO Animation
+        gsap.fromTo(vagoPhone.current,
+            { y: 100, opacity: 0, rotate: -10 },
+            {
+                y: 0, opacity: 1, rotate: -2,
+                duration: 1.2,
+                ease: "power3.out",
+                scrollTrigger: {
+                    trigger: vagoPhone.current,
+                    start: "top 85%"
+                }
+            }
+        )
+        gsap.fromTo(vagoText.current,
+            { x: 50, opacity: 0 },
+            {
+                x: 0, opacity: 1,
+                duration: 1,
+                delay: 0.2,
+                ease: "power3.out",
+                scrollTrigger: {
+                    trigger: vagoText.current,
+                    start: "top 85%"
+                }
+            }
+        )
+
+        // 4. WHISP Animation
+        gsap.fromTo(whispPhone.current,
+            { y: 100, opacity: 0, rotate: 10 },
+            {
+                y: 0, opacity: 1, rotate: 2,
+                duration: 1.2,
+                ease: "power3.out",
+                scrollTrigger: {
+                    trigger: whispPhone.current,
+                    start: "top 85%"
+                }
+            }
+        )
+        gsap.fromTo(whispText.current,
+            { x: -50, opacity: 0 },
+            {
+                x: 0, opacity: 1,
+                duration: 1,
+                delay: 0.2,
+                ease: "power3.out",
+                scrollTrigger: {
+                    trigger: whispText.current,
+                    start: "top 85%"
+                }
+            }
+        )
+
+    }, { scope: container })
 
     return (
         <section
             id="showcase-realworld"
             ref={container}
-            className="w-full relative border-t-4 border-black"
+            className="w-full relative border-t-4 border-black bg-[#F0EFEB] overflow-hidden"
         >
-            {/* PROJECT 01: VAGO */}
-            <div className="sticky top-0 h-screen w-full bg-[#92d3f5] flex flex-col justify-center items-center overflow-hidden border-b-4 border-black">
+            <GrainOverlay opacity={0.5} />
 
-                <VagoRealMapBackground />
-                <GrainOverlay opacity={0.25} />
-
-                <div className="absolute top-8 left-8 md:top-12 md:left-12 opacity-100 z-20">
-                    <div className="bg-white border-4 border-black px-4 py-2 shadow-[4px_4px_0px_black]">
-                        <span className="font-mono text-sm md:text-base font-black tracking-widest text-black">GEN_ID: VAGO_GPS</span>
-                    </div>
-                </div>
-
-                <div className="relative z-10 flex flex-col items-center text-center p-6 max-w-4xl">
-                    <div className="mb-12 hover:scale-105 transition-transform duration-500 hover:rotate-2">
-                        <AppIcon src={vagoLogo} alt="Vago app icon" className="w-40 h-40 md:w-56 md:h-56" />
-                    </div>
-
-                    <h3 className="font-display text-3xl md:text-5xl font-black uppercase mb-10 max-w-2xl px-8 py-4 bg-white text-black -rotate-2 border-4 border-black shadow-[8px_8px_0px_black]">
-                        L'APP QUI PAIE TON PLEIN.
-                    </h3>
-
-                    <div className="flex flex-col md:flex-row gap-6 w-full md:w-auto px-8 mt-4">
-                        <StoreButton store="apple" label="App Store" />
-                        <StoreButton store="google" label="Google Play" />
-                    </div>
-                </div>
+            {/* Giant Background Title - Static like Services.tsx */}
+            <div className="absolute top-0 left-0 w-full overflow-hidden pointer-events-none opacity-5 select-none">
+                <h2 className="font-display text-[25vw] font-black uppercase text-black leading-none whitespace-nowrap text-center -translate-y-1/4">
+                    WORK
+                </h2>
             </div>
 
-            {/* PROJECT 02: WHISP */}
-            <div className="sticky top-0 h-screen w-full bg-[#3279F7] flex flex-col justify-center items-center overflow-hidden">
+            <div className="container mx-auto px-4 py-24 md:py-32 relative z-10 flex flex-col gap-32">
 
-                <WhispOrganicBackground />
-                {/* Grain is handled inside WhispOrganicBackground now at reduced opacity */}
+                {/* --- HEADER --- */}
+                <div ref={headerRef} className="flex flex-col items-center justify-center text-center">
+                    <div className="bg-black text-white px-6 py-2 rotate-1 inline-block shadow-[6px_6px_0px_white] mb-8 border-2 border-transparent">
+                        <span className="font-mono font-bold uppercase tracking-widest">Track Record</span>
+                    </div>
+                    <h2 className="font-display text-[12vw] md:text-[8vw] font-black uppercase text-black leading-none text-center drop-shadow-[6px_6px_0px_white]">
+                        SÉLECTION
+                    </h2>
+                    <p className="font-sans text-xl md:text-2xl font-bold text-center max-w-2xl mt-8 px-6 leading-tight">
+                        Des produits utilisés par de vrais gens.<br />
+                        Pas de prototypes qui dorment dans un placard.
+                    </p>
+                </div>
 
-                <div className="absolute top-8 right-8 md:top-12 md:right-12 z-20">
-                    <div className="bg-white border-4 border-black px-4 py-2 shadow-[4px_4px_0px_black]">
-                        <span className="font-mono text-sm md:text-base font-black tracking-widest text-black">GEN_ID: WHISP_02</span>
+
+                {/* --- PROJECT 01: VAGO --- */}
+                <div className="w-full flex flex-col md:flex-row items-center gap-12 md:gap-24 group">
+
+                    {/* Phone Visual */}
+                    <div ref={vagoPhone} className="w-full md:w-1/2 flex justify-center md:justify-end">
+                        <div className="transform transition-transform duration-500 group-hover:scale-105">
+                            <PhoneMockup className="bg-[#92d3f5]">
+                                <VagoRealMapBackground />
+                                {/* removed Logo from inside phone */}
+                            </PhoneMockup>
+                        </div>
+                    </div>
+
+                    {/* Info */}
+                    <div ref={vagoText} className="w-full md:w-1/2 flex flex-col items-center md:items-start text-center md:text-left">
+                        {/* Logo here instead */}
+                        <div className="mb-8">
+                            <AppIcon src={vagoLogo} alt="Vago app icon" className="w-24 h-24 md:w-32 md:h-32" />
+                        </div>
+
+                        <div className="bg-white border-4 border-black px-4 py-1 shadow-[4px_4px_0px_black] mb-6 -rotate-2">
+                            <span className="font-mono text-sm font-black tracking-widest uppercase">VAGO_GPS</span>
+                        </div>
+                        <h3 className="font-display text-5xl md:text-7xl font-black uppercase leading-none mb-8 drop-shadow-[4px_4px_0px_white]">
+                            L'APP QUI<br />PAIE TON<br />PLEIN.
+                        </h3>
+                        <p className="font-sans text-xl font-medium leading-relaxed mb-8 max-w-md">
+                            Un GPS communautaire qui récompense tes trajets. Gagne des points, convertis-les en carburant.
+                        </p>
+                        <div className="flex flex-row gap-4">
+                            <StoreButton store="apple" label="App Store" />
+                            <StoreButton store="google" label="Google Play" />
+                        </div>
                     </div>
                 </div>
 
-                <div className="relative z-10 flex flex-col items-center text-center p-6 max-w-4xl">
-                    <div className="mb-12 hover:scale-105 transition-transform duration-500 hover:-rotate-2">
-                        <AppIcon src={whispLogo} alt="Whisp app icon" className="w-40 h-40 md:w-56 md:h-56 shadow-[8px_8px_0px_white] border-white" />
+                {/* --- PROJECT 02: WHISP --- */}
+                <div className="w-full flex flex-col md:flex-row-reverse items-center gap-12 md:gap-24 group">
+
+                    {/* Phone Visual */}
+                    <div ref={whispPhone} className="w-full md:w-1/2 flex justify-center md:justify-start">
+                        <div className="transform transition-transform duration-500 group-hover:scale-105">
+                            <PhoneMockup className="bg-[#3279F7]">
+                                <WhispOrganicBackground />
+                                {/* removed Logo from inside phone */}
+                            </PhoneMockup>
+                        </div>
                     </div>
 
-                    <h3 className="font-display text-3xl md:text-5xl font-black uppercase mb-10 max-w-3xl px-8 py-4 bg-black text-white rotate-1 border-4 border-white shadow-[8px_8px_0px_rgba(0,0,0,0.5)]">
-                        CONNECTE-TOI À CEUX QUI T'ENTOURENT.
-                    </h3>
+                    {/* Info */}
+                    <div ref={whispText} className="w-full md:w-1/2 flex flex-col items-center md:items-start text-center md:text-left">
+                        {/* Logo here instead */}
+                        <div className="mb-8">
+                            <AppIcon src={whispLogo} alt="Whisp app icon" className="w-24 h-24 md:w-32 md:h-32 shadow-[8px_8px_0px_white] border-white" />
+                        </div>
 
-                    <div className="flex flex-col md:flex-row gap-6 w-full md:w-auto px-8 mt-4">
-                        <StoreButton store="apple" label="App Store" />
-                        <StoreButton store="google" label="Google Play" />
+                        <div className="bg-black text-white border-4 border-white px-4 py-1 shadow-[4px_4px_0px_black] mb-6 rotate-1">
+                            <span className="font-mono text-sm font-black tracking-widest uppercase">WHISP_02</span>
+                        </div>
+                        <h3 className="font-display text-5xl md:text-7xl font-black uppercase leading-none mb-8 text-black drop-shadow-[4px_4px_0px_white]">
+                            SOCIAL<br />RÉEL.
+                        </h3>
+                        <p className="font-sans text-xl font-medium leading-relaxed mb-8 max-w-md">
+                            Connecte-toi aux gens qui sont vraiment autour de toi. Sans algorithme. Sans filtre.
+                        </p>
+                        <div className="flex flex-row gap-4">
+                            <StoreButton store="apple" label="App Store" />
+                            <StoreButton store="google" label="Google Play" />
+                        </div>
                     </div>
                 </div>
+
             </div>
-
         </section>
     )
 }

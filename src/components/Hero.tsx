@@ -96,28 +96,25 @@ export default function Hero() {
 
     useGSAP(() => {
         const tl = gsap.timeline()
-        gsap.set('.char-wrapper', { y: 100, opacity: 0 })
-        tl.to('.char-wrapper', {
+        gsap.set('.hero-title-layer > div', { y: 100, opacity: 0, rotation: 10 })
+        tl.to('.hero-title-layer > div', {
             y: 0,
             opacity: 1,
-            stagger: 0.05,
-            duration: 0.8,
-            ease: "back.out(1.7)"
+            rotation: 0, // Reset rotation to initial CSS value (handled by CSS) - actually GSAP overwrites so we should animate TO the desired state. 
+            // The CSS has transforms (-rotate-2 and rotate-2). 
+            // If I animate "rotation", GSAP might conflict with the hover hover:rotate-0 logic.
+            // Better to animate y and opacity only, or use clearProps.
+            // Let's just animate y and opacity for a clean "slide up".
+            stagger: 0.1,
+            duration: 1.2,
+            ease: "power3.out",
+            clearProps: "all" // Important so CSS hover effects work after animation
         })
     }, { scope: containerRef })
 
     useGSAP(() => {
-        const xTo = gsap.quickTo('.hero-title-layer', "x", { duration: 0.5, ease: "power3" })
-        const yTo = gsap.quickTo('.hero-title-layer', "y", { duration: 0.5, ease: "power3" })
-
         const handleMouseMove = (e: MouseEvent) => {
             const { clientX, clientY } = e
-            const { innerWidth, innerHeight } = window
-            const x = (clientX / innerWidth - 0.5) * 20
-            const y = (clientY / innerHeight - 0.5) * 20
-            xTo(x)
-            yTo(y)
-
             const now = Date.now()
             if (now - lastStampTime.current > STAMP_INTERVAL_MS) {
                 const containerRect = containerRef.current?.getBoundingClientRect()
@@ -201,7 +198,7 @@ export default function Hero() {
                 <div className="hero-title-layer flex flex-col items-center leading-[0.75] relative w-full gap-4">
 
                     {/* UNDE - SOLID BLOCK */}
-                    <div className="relative transform -rotate-2 hover:rotate-0 transition-transform duration-500">
+                    <div className="relative transform -rotate-2">
                         <h1
                             ref={titleRef}
                             className="bg-black text-white px-8 py-2 text-[20vw] font-black tracking-tighter shadow-[12px_12px_0px_#B8F4D4] border-4 border-transparent select-none"
@@ -211,7 +208,7 @@ export default function Hero() {
                     </div>
 
                     {/* FINED - SOLID BLOCK INVERTED */}
-                    <div className="relative w-full text-center transform rotate-2 hover:rotate-0 transition-transform duration-500 scale-110 md:scale-100">
+                    <div className="relative w-full text-center transform rotate-2 md:scale-100">
                         <h1
                             className="bg-white text-black px-8 py-2 text-[20vw] font-black tracking-tighter shadow-[12px_12px_0px_black] border-4 border-black select-none relative inline-block"
                         >

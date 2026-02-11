@@ -3,39 +3,30 @@ import GrainOverlay from './GrainOverlay'
 const services = [
     {
         id: '01',
-        title: "DÉVELOPPEMENT\nCRÉATIF",
-        desc: "Nous ne codons pas.\nNous traduisons des rêves en pixel.",
-        tools: ["WebGL", "Three.js", "GLSL", "React"],
+        title: "ARTISANS\nDU CODE",
+        desc: "On ne pond pas du code au kilomètre. On sculpte des applications natives (Swift, Kotlin) qui durent.\nC'est robuste, c'est propre, et ça ne plante pas.",
+        tools: ["Swift", "Kotlin", "React Native", "Robustesse"],
         bg: "bg-lemon",
         textColor: "text-black",
         rotate: -2
     },
     {
         id: '02',
-        title: "MOTION\nDESIGN",
-        desc: "L'inertie est notre ennemie.\nTout doit bouger, tout doit vivre.",
-        tools: ["After Effects", "Rive", "GSAP", "Lottie"],
+        title: "DESIGN\nRADICAL",
+        desc: "Le beau pour le beau, c'est cool, mais ça ne suffit pas.\nOn crée des interfaces qui ont du sens. Tout est à sa place, rien n'est laissé au hasard.",
+        tools: ["Sens", "Usage", "Détail", "Systèmes"],
         bg: "bg-black",
         textColor: "text-white",
         rotate: 1
     },
     {
         id: '03',
-        title: "IDENTITÉ\nVISUELLE",
-        desc: "Des marques qui claquent.\nDes logos qui racontent une histoire.",
-        tools: ["Branding", "Typos", "Systèmes", "DA"],
+        title: "IMPACT\nRÉEL",
+        desc: "On ne fait pas des slides, on sort des produits.\nNotre but, c'est que ton app serve vraiment à quelque chose. Qu'elle soit installée, utilisée, et aimée.",
+        tools: ["Produit", "Lancement", "Traction", "Amour"],
         bg: "bg-mint",
         textColor: "text-black",
         rotate: -1
-    },
-    {
-        id: '04',
-        title: "AUDACE\nNUMÉRIQUE",
-        desc: "Stratégie de rupture.\nOn fait ce que les autres n'osent pas.",
-        tools: ["Concept", "Copywriting", "Activation", "Buzz"],
-        bg: "bg-peach",
-        textColor: "text-black",
-        rotate: 2
     },
 ]
 
@@ -55,10 +46,10 @@ export default function Services() {
 
             <div className="container mx-auto px-6 mb-24 relative z-10 flex flex-col items-center">
                 <div className="bg-black text-white px-6 py-2 -rotate-2 inline-block shadow-[6px_6px_0px_#B8F4D4] mb-8">
-                    <span className="font-mono font-bold uppercase tracking-widest">Ce qu'on fait de mieux</span>
+                    <span className="font-mono font-bold uppercase tracking-widest">Passion brute</span>
                 </div>
                 <h2 className="font-display text-[12vw] font-black uppercase text-black leading-none text-center drop-shadow-[6px_6px_0px_white]">
-                    NOS ARMES
+                    NOTRE OBSESSION
                 </h2>
             </div>
 
