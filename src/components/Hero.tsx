@@ -85,20 +85,7 @@ const DataTrailStamp = ({ x, y, type, rotation }: { x: number, y: number, type: 
     )
 }
 
-// --- TOP MARQUEE SLOGAN ---
-const TopMarquee = () => {
-    return (
-        <div className="absolute top-0 left-0 w-full z-40 bg-lemon border-b-4 border-black overflow-hidden py-2 select-none">
-            <div className="animate-marquee inline-block whitespace-nowrap">
-                {[...Array(8)].map((_, i) => (
-                    <span key={i} className="font-display font-black text-2xl md:text-3xl uppercase tracking-tighter mx-4">
-                        EMPOWER THE WORLD WITH APPS • DIGITAL CRAFTSMEN •
-                    </span>
-                ))}
-            </div>
-        </div>
-    )
-}
+// --- TOP MARQUEE REMOVED ---
 
 export default function Hero() {
     const containerRef = useRef<HTMLElement>(null)
@@ -176,10 +163,9 @@ export default function Hero() {
     return (
         <section
             ref={containerRef}
-            className="h-screen w-full bg-cream relative flex flex-col items-center justify-center font-display border-b-4 border-black cursor-crosshair overflow-hidden pt-12"
+            className="h-screen w-full bg-cream relative flex flex-col items-center justify-center font-display border-b-4 border-black cursor-crosshair overflow-hidden"
         >
-            {/* TOP MARQUEE */}
-            <TopMarquee />
+            {/* TOP MARQUEE REMOVED */}
 
             {/* STATIC HEAVY GRAIN */}
             <GrainOverlay opacity={0.35} />
@@ -187,8 +173,8 @@ export default function Hero() {
             <BlobBackground />
 
             {/* DECORATIVE CORNERS */}
-            <div className="absolute top-20 left-6 w-8 h-8 border-t-4 border-l-4 border-black pointer-events-none z-40" />
-            <div className="absolute top-20 right-6 w-8 h-8 border-t-4 border-r-4 border-black pointer-events-none z-40" />
+            <div className="absolute top-6 left-6 w-8 h-8 border-t-4 border-l-4 border-black pointer-events-none z-40" />
+            <div className="absolute top-6 right-6 w-8 h-8 border-t-4 border-r-4 border-black pointer-events-none z-40" />
             <div className="absolute bottom-6 left-6 w-8 h-8 border-b-4 border-l-4 border-black pointer-events-none z-40" />
             <div className="absolute bottom-6 right-6 w-8 h-8 border-b-4 border-r-4 border-black pointer-events-none z-40" />
 
@@ -209,7 +195,7 @@ export default function Hero() {
                 <span className="text-[15vw] font-black uppercase text-black leading-[0.8] -ml-20">WITH APPS</span>
             </div>
 
-            {/* MAIN CONTENT - NEW BLOCK TYPOGRAPHY */}
+            {/* MAIN CONTENT - BLOCK TYPOGRAPHY */}
             <div className="relative z-20 flex flex-col items-center justify-center w-full perspective-1000">
 
                 <div className="hero-title-layer flex flex-col items-center leading-[0.75] relative w-full gap-4">
