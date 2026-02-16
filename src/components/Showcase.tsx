@@ -12,6 +12,10 @@ import vagoInterfaceOpen from '../assets/images/vago-illustrations/interface-ope
 import vagoNoTripInterface from '../assets/images/vago-illustrations/no-trip-interface.png'
 import vagoRoad from '../assets/images/vago-illustrations/road.jpg'
 import vagoStreak from '../assets/images/vago-illustrations/streak.jpeg'
+import whispDetailProfile from '../assets/images/whisp/detail-profile.png'
+import whispDiscussion from '../assets/images/whisp/discussion.png'
+import whispHomescreen from '../assets/images/whisp/homescreen.png'
+import whispMap from '../assets/images/whisp/map.jpeg'
 import GrainOverlay from './GrainOverlay'
 
 gsap.registerPlugin(ScrollTrigger)
@@ -22,6 +26,13 @@ const VAGO_SLIDES = [
     vagoNoTripInterface,
     vagoRoad,
     vagoStreak
+]
+
+const WHISP_SLIDES = [
+    whispHomescreen,
+    whispDiscussion,
+    whispDetailProfile,
+    whispMap
 ]
 
 const VagoPhoneSlideshow = () => {
@@ -54,41 +65,43 @@ const VagoPhoneSlideshow = () => {
                 )
             })}
 
-            <div className="absolute inset-x-0 bottom-4 z-20 flex justify-center gap-2">
-                {VAGO_SLIDES.map((slide, index) => (
-                    <span
-                        key={`${slide}-dot`}
-                        className={`h-2 rounded-full border border-black/40 transition-all duration-300 ${index === activeSlide ? 'w-5 bg-white/90' : 'w-2 bg-white/45'}`}
-                    />
-                ))}
-            </div>
-
-            <div className="absolute inset-0 bg-gradient-to-b from-white/10 via-transparent to-black/10 pointer-events-none" />
-            <GrainOverlay opacity={0.08} />
         </div>
     )
 }
 
-const WhispOrganicBackground = () => (
-    <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        {[...Array(6)].map((_, i) => (
-            <div
-                key={i}
-                className="absolute bg-white mix-blend-overlay opacity-40 rounded-full animate-blob-morph"
-                style={{
-                    width: `${Math.random() * 30 + 20}vw`,
-                    height: `${Math.random() * 30 + 20}vw`,
-                    top: `${Math.random() * 100}%`,
-                    left: `${Math.random() * 100}%`,
-                    animationDelay: `${i * -2}s`,
-                    animationDuration: `${Math.random() * 10 + 10}s`
-                }}
-            />
-        ))}
-        {/* REDUCED GRAIN FOR WHISP AS REQUESTED (0.15) */}
-        <GrainOverlay opacity={0.15} />
-    </div>
-)
+const WhispPhoneSlideshow = () => {
+    const [activeSlide, setActiveSlide] = useState(0)
+
+    useEffect(() => {
+        const interval = setInterval(() => {
+            setActiveSlide((prev) => (prev + 1) % WHISP_SLIDES.length)
+        }, 2600)
+
+        return () => clearInterval(interval)
+    }, [])
+
+    return (
+        <div className="relative w-full h-full bg-black">
+            {WHISP_SLIDES.map((slide, index) => {
+                const isActive = index === activeSlide
+                return (
+                    <img
+                        key={slide}
+                        src={slide}
+                        alt={`Whisp screen ${index + 1}`}
+                        className={`absolute inset-0 w-full h-full object-cover transition-all duration-[1100ms] ease-out ${isActive ? 'opacity-100 scale-100' : 'opacity-0 scale-105'}`}
+                        style={{
+                            transform: isActive
+                                ? 'scale(1) translate3d(0, 0, 0)'
+                                : 'scale(1.05) translate3d(0, -1.5%, 0)'
+                        }}
+                    />
+                )
+            })}
+
+        </div>
+    )
+}
 
 // --- ICONS & LOGOS ---
 const AppIcon = ({ src, alt, className = "" }: { src: string, alt: string, className?: string }) => (
@@ -291,10 +304,10 @@ export default function Showcase() {
                         </div>
 
                         <h3 className="font-display text-4xl md:text-6xl font-black uppercase leading-none mb-8 drop-shadow-[4px_4px_0px_white]">
-                            L'APP QUI<br />PAIE TON<br />PLEIN.
+                            LE JEU QUI<br />PAIE VOTRE<br />ESSENCE.
                         </h3>
                         <p className="font-sans text-lg md:text-xl font-medium leading-relaxed mb-8 max-w-md">
-                            Un GPS communautaire qui récompense tes trajets. Gagne des points, convertis-les en carburant.
+                            Marre des prix à la pompe ? Avec Vago, jouez et obtenez votre plein gratuit.
                         </p>
                         <div className="flex flex-row gap-4">
                             <StoreButton store="apple" label="App Store" />
@@ -312,7 +325,7 @@ export default function Showcase() {
                             <PhoneMockup
                                 className="bg-[#3279F7]"
                             >
-                                <WhispOrganicBackground />
+                                <WhispPhoneSlideshow />
                                 {/* removed Logo from inside phone */}
                             </PhoneMockup>
                         </div>
