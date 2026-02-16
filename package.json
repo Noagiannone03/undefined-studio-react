@@ -20,6 +20,7 @@
     "lenis": "^1.3.17",
     "matter-js": "^0.20.0",
     "react": "^19.2.0",
+    "react-device-mockup": "^1.0.0",
     "react-dom": "^19.2.0",
     "react-leaflet": "^5.0.0",
     "sass": "^1.97.2",

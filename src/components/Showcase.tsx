@@ -2,148 +2,69 @@ import { useRef, useEffect, useState } from 'react'
 import gsap from 'gsap'
 import { useGSAP } from '@gsap/react'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
-import { MapContainer, TileLayer, useMap } from 'react-leaflet'
-import 'leaflet/dist/leaflet.css'
+import { IPhoneMockup } from 'react-device-mockup'
+import type { IPhoneMockupProps } from 'react-device-mockup'
 import vagoLogo from '../assets/logo/VAGO-logo.png'
 import whispLogo from '../assets/logo/WHISP-logo.png'
 import appleStoreIcon from '../assets/icones/applestore.jpg'
 import playStoreIcon from '../assets/icones/playstore.png'
+import vagoInterfaceOpen from '../assets/images/vago-illustrations/interface-open.jpeg'
+import vagoNoTripInterface from '../assets/images/vago-illustrations/no-trip-interface.png'
+import vagoRoad from '../assets/images/vago-illustrations/road.jpg'
+import vagoStreak from '../assets/images/vago-illustrations/streak.jpeg'
 import GrainOverlay from './GrainOverlay'
 
 gsap.registerPlugin(ScrollTrigger)
 
 // --- GENERATIVE BACKGROUNDS ---
+const VAGO_SLIDES = [
+    vagoInterfaceOpen,
+    vagoNoTripInterface,
+    vagoRoad,
+    vagoStreak
+]
 
-// Map Options
-const MAP_CENTER: [number, number] = [43.2965, 5.3698] // Marseille
-const MAP_ZOOM = 14
+const VagoPhoneSlideshow = () => {
+    const [activeSlide, setActiveSlide] = useState(0)
 
-// Generate random Bezier path
-const generateRandomPath = () => {
-    const edges = ['top', 'bottom', 'left', 'right']
-    const startEdge = edges[Math.floor(Math.random() * 4)]
-    const endEdge = edges.filter(e => e !== startEdge)[Math.floor(Math.random() * 3)]
-
-    const getEdgePoint = (edge: string) => {
-        switch (edge) {
-            case 'top': return { x: Math.random() * 800, y: -50 }
-            case 'bottom': return { x: Math.random() * 800, y: 650 }
-            case 'left': return { x: -50, y: Math.random() * 600 }
-            case 'right': return { x: 850, y: Math.random() * 600 }
-            default: return { x: 400, y: 300 }
-        }
-    }
-
-    const start = getEdgePoint(startEdge)
-    const end = getEdgePoint(endEdge)
-    const cp1 = { x: 100 + Math.random() * 600, y: 100 + Math.random() * 400 }
-    const cp2 = { x: 100 + Math.random() * 600, y: 100 + Math.random() * 400 }
-
-    return `M ${start.x} ${start.y} C ${cp1.x} ${cp1.y}, ${cp2.x} ${cp2.y}, ${end.x} ${end.y}`
-}
-
-const MapController = () => {
-    const map = useMap()
     useEffect(() => {
         const interval = setInterval(() => {
-            map.panBy([0.5, 0.25], { animate: false })
-        }, 30)
+            setActiveSlide((prev) => (prev + 1) % VAGO_SLIDES.length)
+        }, 2600)
+
         return () => clearInterval(interval)
-    }, [map])
-    return null
-}
-
-const AnimatedTrack = ({ trackIndex }: { trackIndex: number }) => {
-    const [path, setPath] = useState(generateRandomPath)
-    const [animKey, setAnimKey] = useState(0)
-    const duration = 7 + Math.random() * 3
-
-    useEffect(() => {
-        const timer = setTimeout(() => {
-            setPath(generateRandomPath())
-            setAnimKey(k => k + 1)
-        }, (duration + 0.5) * 1000)
-        return () => clearTimeout(timer)
-    }, [animKey])
-
-    const animName = `draw-${trackIndex}-${animKey}`
-    const markerAnimName = `move-${trackIndex}-${animKey}`
+    }, [])
 
     return (
-        <g style={{ opacity: 1 }}>
-            <style dangerouslySetInnerHTML={{
-                __html: `
-                @keyframes ${animName} {
-                    0% { stroke-dashoffset: 3000; opacity: 0; }
-                    3% { opacity: 1; }
-                    85% { opacity: 1; }
-                    100% { stroke-dashoffset: 0; opacity: 0; }
-                }
-                @keyframes ${markerAnimName} {
-                    0% { offset-distance: 0%; opacity: 0; }
-                    3% { opacity: 1; }
-                    85% { opacity: 1; }
-                    100% { offset-distance: 100%; opacity: 0; }
-                }
-            `}} />
-            <path
-                d={path}
-                fill="none"
-                stroke="black"
-                strokeWidth="4"
-                strokeLinecap="round"
-                style={{
-                    strokeDasharray: 3000,
-                    strokeDashoffset: 3000,
-                    animation: `${animName} ${duration}s linear forwards`
-                }}
-            />
-            <circle r="6" fill="black" style={{
-                offsetPath: `path("${path}")`,
-                animation: `${markerAnimName} ${duration}s linear forwards`
-            }} />
-        </g>
-    )
-}
+        <div className="relative w-full h-full bg-black">
+            {VAGO_SLIDES.map((slide, index) => {
+                const isActive = index === activeSlide
+                return (
+                    <img
+                        key={slide}
+                        src={slide}
+                        alt={`Vago screen ${index + 1}`}
+                        className={`absolute inset-0 w-full h-full object-cover transition-all duration-[1100ms] ease-out ${isActive ? 'opacity-100 scale-100' : 'opacity-0 scale-105'}`}
+                        style={{
+                            transform: isActive
+                                ? 'scale(1) translate3d(0, 0, 0)'
+                                : 'scale(1.05) translate3d(0, -1.5%, 0)'
+                        }}
+                    />
+                )
+            })}
 
-const VagoRealMapBackground = () => {
-    return (
-        <div className="absolute inset-0 z-0">
-            <style dangerouslySetInnerHTML={{
-                __html: `
-                .leaflet-container {
-                    background: #92d3f5 !important;
-                    filter: grayscale(80%) contrast(150%);
-                }
-                .leaflet-layer {
-                    mix-blend-mode: multiply;
-                }
-                .leaflet-control-container { display: none; }
-            `}} />
-            <div className="absolute inset-0 bg-[#92d3f5] pointer-events-none z-[1] mix-blend-multiply opacity-55" />
-            <MapContainer
-                center={MAP_CENTER}
-                zoom={MAP_ZOOM}
-                style={{ height: '100%', width: '100%', background: '#92d3f5' }}
-                zoomControl={false}
-                scrollWheelZoom={false}
-                doubleClickZoom={false}
-                dragging={false}
-                attributionControl={false}
-            >
-                <TileLayer
-                    url="https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png"
-                />
-                <MapController />
-            </MapContainer>
-
-            <div className="absolute inset-0 pointer-events-none z-[2]">
-                <svg width="100%" height="100%" viewBox="0 0 800 600" preserveAspectRatio="xMidYMid slice">
-                    <AnimatedTrack trackIndex={0} />
-                    <AnimatedTrack trackIndex={1} />
-                    <AnimatedTrack trackIndex={2} />
-                </svg>
+            <div className="absolute inset-x-0 bottom-4 z-20 flex justify-center gap-2">
+                {VAGO_SLIDES.map((slide, index) => (
+                    <span
+                        key={`${slide}-dot`}
+                        className={`h-2 rounded-full border border-black/40 transition-all duration-300 ${index === activeSlide ? 'w-5 bg-white/90' : 'w-2 bg-white/45'}`}
+                    />
+                ))}
             </div>
+
+            <div className="absolute inset-0 bg-gradient-to-b from-white/10 via-transparent to-black/10 pointer-events-none" />
+            <GrainOverlay opacity={0.08} />
         </div>
     )
 }
@@ -187,26 +108,38 @@ const GooglePlayIcon = () => (
 )
 
 const StoreButton = ({ store, label }: { store: 'apple' | 'google', label: string }) => (
-    <button className="group flex items-center gap-3 bg-white text-black px-5 py-2.5 rounded-full border-4 border-black shadow-[6px_6px_0px_black] transition-all duration-200 hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-[3px_3px_0px_black] active:translate-x-1 active:translate-y-1 active:shadow-none">
-        <div className="flex items-center justify-center w-10 h-10 grayscale group-hover:grayscale-0 transition-all">
+    <button className="group flex items-center gap-2.5 bg-white text-black px-4 py-2 rounded-full border-4 border-black shadow-[6px_6px_0px_black] transition-all duration-200 hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-[3px_3px_0px_black] active:translate-x-1 active:translate-y-1 active:shadow-none">
+        <div className="flex items-center justify-center w-9 h-9 grayscale group-hover:grayscale-0 transition-all">
             {store === 'apple' ? <AppleIcon /> : <GooglePlayIcon />}
         </div>
         <div className="flex flex-col items-start leading-none">
             <span className="text-[10px] uppercase font-bold tracking-widest opacity-60">Télécharger sur</span>
-            <span className="text-lg font-black font-display tracking-tight">{label}</span>
+            <span className="text-base font-black font-display tracking-tight">{label}</span>
         </div>
     </button>
 )
-const PhoneMockup = ({ children, className = "" }: { children: React.ReactNode, className?: string }) => (
-    <div className={`relative w-[280px] h-[580px] md:w-[320px] md:h-[640px] bg-white border-4 border-black rounded-[40px] shadow-[12px_12px_0px_black] overflow-hidden flex flex-col ${className}`}>
-        {/* Notch / Dynamic Island */}
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-1/3 h-7 bg-black rounded-b-2xl z-20"></div>
-        {/* Screen Content */}
-        <div className="w-full h-full relative z-10 overflow-hidden bg-gray-100">
-            {children}
-        </div>
-        {/* Reflection Shine */}
-        <div className="absolute top-0 right-0 w-full h-full bg-gradient-to-bl from-white/20 to-transparent pointer-events-none z-30 opacity-50"></div>
+const PhoneMockup = ({
+    children,
+    className = "",
+    frame
+}: {
+    children: React.ReactNode
+    className?: string
+    frame?: Partial<IPhoneMockupProps>
+}) => (
+    <div className="w-auto">
+        <IPhoneMockup
+            screenType="island"
+            screenWidth={235}
+            frameColor="#000000"
+            hideStatusBar
+            hideNavBar
+            {...frame}
+        >
+            <div className={`w-full h-full overflow-hidden ${className}`}>
+                {children}
+            </div>
+        </IPhoneMockup>
     </div>
 )
 
@@ -340,9 +273,11 @@ export default function Showcase() {
 
                     {/* Phone Visual */}
                     <div ref={vagoPhone} className="w-full md:w-1/2 flex justify-center md:justify-end">
-                        <div className="transform transition-transform duration-500 group-hover:scale-105">
-                            <PhoneMockup className="bg-[#92d3f5]">
-                                <VagoRealMapBackground />
+                        <div>
+                            <PhoneMockup
+                                className="bg-[#92d3f5]"
+                            >
+                                <VagoPhoneSlideshow />
                                 {/* removed Logo from inside phone */}
                             </PhoneMockup>
                         </div>
@@ -352,16 +287,13 @@ export default function Showcase() {
                     <div ref={vagoText} className="w-full md:w-1/2 flex flex-col items-center md:items-start text-center md:text-left">
                         {/* Logo here instead */}
                         <div className="mb-8">
-                            <AppIcon src={vagoLogo} alt="Vago app icon" className="w-24 h-24 md:w-32 md:h-32" />
+                            <AppIcon src={vagoLogo} alt="Vago app icon" className="w-20 h-20 md:w-28 md:h-28" />
                         </div>
 
-                        <div className="bg-white border-4 border-black px-4 py-1 shadow-[4px_4px_0px_black] mb-6 -rotate-2">
-                            <span className="font-mono text-sm font-black tracking-widest uppercase">VAGO_GPS</span>
-                        </div>
-                        <h3 className="font-display text-5xl md:text-7xl font-black uppercase leading-none mb-8 drop-shadow-[4px_4px_0px_white]">
+                        <h3 className="font-display text-4xl md:text-6xl font-black uppercase leading-none mb-8 drop-shadow-[4px_4px_0px_white]">
                             L'APP QUI<br />PAIE TON<br />PLEIN.
                         </h3>
-                        <p className="font-sans text-xl font-medium leading-relaxed mb-8 max-w-md">
+                        <p className="font-sans text-lg md:text-xl font-medium leading-relaxed mb-8 max-w-md">
                             Un GPS communautaire qui récompense tes trajets. Gagne des points, convertis-les en carburant.
                         </p>
                         <div className="flex flex-row gap-4">
@@ -376,8 +308,10 @@ export default function Showcase() {
 
                     {/* Phone Visual */}
                     <div ref={whispPhone} className="w-full md:w-1/2 flex justify-center md:justify-start">
-                        <div className="transform transition-transform duration-500 group-hover:scale-105">
-                            <PhoneMockup className="bg-[#3279F7]">
+                        <div>
+                            <PhoneMockup
+                                className="bg-[#3279F7]"
+                            >
                                 <WhispOrganicBackground />
                                 {/* removed Logo from inside phone */}
                             </PhoneMockup>
@@ -388,16 +322,13 @@ export default function Showcase() {
                     <div ref={whispText} className="w-full md:w-1/2 flex flex-col items-center md:items-start text-center md:text-left">
                         {/* Logo here instead */}
                         <div className="mb-8">
-                            <AppIcon src={whispLogo} alt="Whisp app icon" className="w-24 h-24 md:w-32 md:h-32 shadow-[8px_8px_0px_white] border-white" />
+                            <AppIcon src={whispLogo} alt="Whisp app icon" className="w-20 h-20 md:w-28 md:h-28 shadow-[8px_8px_0px_white] border-white" />
                         </div>
 
-                        <div className="bg-black text-white border-4 border-white px-4 py-1 shadow-[4px_4px_0px_black] mb-6 rotate-1">
-                            <span className="font-mono text-sm font-black tracking-widest uppercase">WHISP_02</span>
-                        </div>
-                        <h3 className="font-display text-5xl md:text-7xl font-black uppercase leading-none mb-8 text-black drop-shadow-[4px_4px_0px_white]">
+                        <h3 className="font-display text-4xl md:text-6xl font-black uppercase leading-none mb-8 text-black drop-shadow-[4px_4px_0px_white]">
                             SOCIAL<br />RÉEL.
                         </h3>
-                        <p className="font-sans text-xl font-medium leading-relaxed mb-8 max-w-md">
+                        <p className="font-sans text-lg md:text-xl font-medium leading-relaxed mb-8 max-w-md">
                             Connecte-toi aux gens qui sont vraiment autour de toi. Sans algorithme. Sans filtre.
                         </p>
                         <div className="flex flex-row gap-4">
