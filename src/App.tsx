@@ -1,5 +1,7 @@
 import { useEffect, useRef } from 'react'
 import Lenis from 'lenis'
+import gsap from 'gsap'
+import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import Hero from './components/Hero'
 import Menu from './components/Menu'
 import Services from './components/Services'
@@ -7,6 +9,8 @@ import Showcase from './components/Showcase'
 import Footer from './components/Footer'
 import EasterEggs from './components/EasterEggs'
 import LogoExport from './components/LogoExport'
+
+gsap.registerPlugin(ScrollTrigger)
 
 function App() {
   const lenisRef = useRef<Lenis | null>(null)
@@ -23,13 +27,18 @@ function App() {
     })
     lenisRef.current = lenis
 
-    function raf(time: number) {
-      lenis.raf(time)
-      requestAnimationFrame(raf)
+    const onLenisTick = (time: number) => {
+      lenis.raf(time * 1000)
     }
-    requestAnimationFrame(raf)
+
+    lenis.on('scroll', ScrollTrigger.update)
+    gsap.ticker.add(onLenisTick)
+    gsap.ticker.lagSmoothing(0)
+    ScrollTrigger.refresh()
 
     return () => {
+      lenis.off('scroll', ScrollTrigger.update)
+      gsap.ticker.remove(onLenisTick)
       lenis.destroy()
     }
   }, [isLogoPage])
