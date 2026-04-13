@@ -1,141 +1,118 @@
-import { motion } from 'motion/react'
-import { ArrowUpRight } from '@phosphor-icons/react'
-import Asterisk from './Asterisk'
-
-const LINKS_STUDIO = [
-    { label: 'Work', href: '#work' },
-    { label: 'Index', href: '#index' },
-    { label: 'Studio', href: '#studio' },
-    { label: 'Contact', href: '#contact' },
-]
-
-const LINKS_ELSE = [
-    { label: 'Instagram', href: '#' },
-    { label: 'LinkedIn', href: '#' },
-    { label: 'GitHub', href: '#' },
-    { label: 'Dribbble', href: '#' },
-]
+import { useLayoutEffect, useRef } from 'react'
+import gsap from 'gsap'
+import { ScrollTrigger } from 'gsap/ScrollTrigger'
+import { useMagnetic } from '../hooks/useMagnetic'
 
 export default function Footer() {
+    const ref = useRef<HTMLDivElement>(null)
+    const mailRef = useRef<HTMLAnchorElement>(null)
+
+    useMagnetic(mailRef, 0.22)
+
+    useLayoutEffect(() => {
+        if (!ref.current) return
+        const ctx = gsap.context(() => {
+            const chars = ref.current?.querySelectorAll<HTMLSpanElement>('[data-char]')
+            if (chars) {
+                gsap.set(chars, { yPercent: 120, rotate: 6 })
+                gsap.to(chars, {
+                    yPercent: 0,
+                    rotate: 0,
+                    duration: 1.1,
+                    ease: 'expo.out',
+                    stagger: 0.035,
+                    scrollTrigger: { trigger: chars[0], start: 'top 80%' },
+                })
+            }
+            const word = ref.current?.querySelector('[data-wordmark]')
+            if (word) {
+                gsap.to(word, {
+                    xPercent: -10,
+                    ease: 'none',
+                    scrollTrigger: { trigger: word, start: 'top bottom', end: 'bottom top', scrub: 1 },
+                })
+            }
+        }, ref)
+        return () => { ctx.revert(); ScrollTrigger.refresh() }
+    }, [])
+
+    const makeChars = (text: string, italic = false) =>
+        text.split('').map((ch, i) => (
+            <span key={i} className="inline-block overflow-hidden align-bottom" style={{ lineHeight: 1 }}>
+                <span data-char className={`inline-block ${italic ? 'serif-italic' : ''}`}>
+                    {ch === ' ' ? '\u00A0' : ch}
+                </span>
+            </span>
+        ))
+
     return (
-        <>
-            {/* CONTACT — fond tomato profond */}
-            <section id="contact" className="relative bg-tomato text-paper border-t border-ink overflow-hidden">
-                {/* meta bar */}
-                <div className="grid-12 items-baseline border-b border-ink h-11 container-x">
-                    <div className="col-span-6 md:col-span-4 label">§ 05 — Contact</div>
-                    <div className="hidden md:block col-span-4 text-center label">One human replies</div>
-                    <div className="col-span-6 md:col-span-4 label text-right">&lt; 24h</div>
-                </div>
+        <div ref={ref}>
+            <section id="contact" className="relative bg-paper text-ink overflow-hidden">
+                {/* Klein glow back */}
+                <div aria-hidden className="pointer-events-none absolute -right-[10vw] top-[10%] w-[60vw] h-[60vw] rounded-full opacity-[0.1] blur-[120px] mix-blend-multiply"
+                     style={{ background: 'radial-gradient(circle, #1D1DBF 0%, transparent 70%)' }} />
 
-                {/* Titre */}
-                <div className="relative container-x section-y">
-                    <div aria-hidden className="pointer-events-none absolute left-[-12vw] bottom-[-10%] w-[70vw] md:w-[45vw] opacity-20">
-                        <Asterisk className="w-full h-full spin-slow" color="#EEE9DA" />
+                <div className="relative container-x pt-32 md:pt-48 pb-20 md:pb-28">
+                    <div className="grid grid-cols-12 gap-y-12 items-end">
+                        <div className="col-span-12 md:col-span-3">
+                            <div className="flex items-center gap-3">
+                                <span className="w-1.5 h-1.5 rounded-full bg-tomato animate-pulse" />
+                                <span className="label label-soft">Contact · under 24h</span>
+                            </div>
+                        </div>
+
+                        <h2 className="col-span-12 md:col-span-9 display text-[22vw] md:text-[14vw] leading-[0.84] tracking-[-0.055em]">
+                            <span className="block">{makeChars("Let's")}</span>
+                            <span className="block">{makeChars('make it.', true)}</span>
+                        </h2>
+
+                        <div className="col-span-12 md:col-span-3" />
+
+                        <div className="col-span-12 md:col-span-9 flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
+                            <p className="font-body text-lg md:text-xl max-w-[42ch] leading-[1.45] text-ink-soft">
+                                A product to launch, a refresh, or a half-formed idea —
+                                <span className="serif-italic text-ink"> write to us.</span> One human replies.
+                            </p>
+                            <a
+                                ref={mailRef}
+                                href="mailto:hello@undefined.fr"
+                                data-cursor="cta"
+                                data-cursor-label="send"
+                                className="btn self-start md:self-end"
+                            >
+                                hello@undefined.fr
+                                <span className="arrow">
+                                    <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                                        <path d="M3 9L9 3M9 3H4.5M9 3V7.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                                    </svg>
+                                </span>
+                            </a>
+                        </div>
                     </div>
-
-                    <div className="flex items-center gap-3 mb-6 relative">
-                        <Asterisk className="w-4 h-4 spin-slow" color="currentColor" />
-                        <span className="label">Brief · N° 05</span>
-                    </div>
-
-                    <motion.h2
-                        initial={{ opacity: 0, y: 30 }}
-                        whileInView={{ opacity: 1, y: 0 }}
-                        viewport={{ once: true }}
-                        transition={{ duration: 0.9 }}
-                        className="relative display text-[18vw] md:text-[11vw] leading-[0.86] tracking-[-0.055em]"
-                    >
-                        Let&apos;s<br/>
-                        <span className="serif-italic">make it.</span>
-                    </motion.h2>
-
-                    <p className="relative mt-10 font-body text-lg md:text-xl max-w-[42ch] leading-[1.3]">
-                        Un produit à lancer, un refresh, une idée ?
-                        <span className="serif-italic"> Écris-nous</span> — un humain répond.
-                    </p>
                 </div>
 
-                {/* CTA split */}
-                <div className="grid grid-cols-12 border-t border-ink">
-                    <a href="mailto:hello@undefined.fr" className="group col-span-12 md:col-span-8 md:border-r border-ink container-x py-10 md:py-16 flex items-center justify-between hover:bg-ink hover:text-paper transition-colors">
-                        <span className="display text-2xl md:text-5xl leading-none break-all md:break-normal">hello@undefined.fr</span>
-                        <ArrowUpRight size={32} weight="bold" className="shrink-0 group-hover:rotate-45 transition-transform" />
-                    </a>
-                    <a href="#" className="group col-span-12 md:col-span-4 container-x py-10 md:py-16 flex items-center justify-between border-t md:border-t-0 border-ink hover:bg-ink hover:text-paper transition-colors">
-                        <span className="display text-2xl md:text-3xl leading-none">Book a call</span>
-                        <ArrowUpRight size={26} weight="bold" className="shrink-0 group-hover:rotate-45 transition-transform" />
-                    </a>
-                </div>
-
-                {/* Wordmark */}
-                <div className="border-t border-ink overflow-hidden bg-paper text-ink">
-                    <div className="py-10 md:py-14 container-x flex justify-center">
-                        <span className="display text-[22vw] leading-none tracking-[-0.07em] whitespace-nowrap select-none">
-                            UNDEFINED<span className="serif-italic text-tomato">®</span>
+                <div className="hair-t overflow-hidden">
+                    <div data-wordmark className="py-8 md:py-12 flex justify-center whitespace-nowrap">
+                        <span className="display text-[26vw] leading-none tracking-[-0.075em] select-none">
+                            Undefined<span className="serif-italic text-tomato">®</span>
                         </span>
                     </div>
                 </div>
             </section>
 
-            {/* Footer final */}
-            <footer className="bg-ink text-paper">
-                <div className="grid-12 container-x py-14 md:py-20 gap-y-10">
-                    <div className="col-span-12 md:col-span-4 flex flex-col gap-4">
-                        <div className="flex items-center gap-2">
-                            <Asterisk className="w-3 h-3 spin-slow text-tomato" color="currentColor" />
-                            <span className="label text-paper/60">Studio</span>
-                        </div>
-                        <h3 className="display text-3xl leading-none">
-                            Undefined<span className="serif-italic text-tomato">.</span>Studio
-                        </h3>
-                        <p className="font-body text-sm max-w-[36ch] text-paper/70">
-                            Independent design &amp; dev studio. Paris · Toulouse.
-                        </p>
+            <footer className="bg-paper text-ink hair-t">
+                <div className="container-x py-6 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+                    <div className="flex items-center gap-6">
+                        <span className="label label-soft">© {new Date().getFullYear()} Undefined Studio</span>
+                        <span className="label label-soft hidden md:inline">Paris · Toulouse</span>
                     </div>
-
-                    <div className="col-span-6 md:col-span-2 flex flex-col gap-3">
-                        <span className="label text-paper/60">Index</span>
-                        <ul className="flex flex-col gap-2">
-                            {LINKS_STUDIO.map(l => (
-                                <li key={l.href}>
-                                    <a href={l.href} className="font-body text-sm hover:text-tomato transition-colors">{l.label}</a>
-                                </li>
-                            ))}
-                        </ul>
-                    </div>
-
-                    <div className="col-span-6 md:col-span-2 flex flex-col gap-3">
-                        <span className="label text-paper/60">Elsewhere</span>
-                        <ul className="flex flex-col gap-2">
-                            {LINKS_ELSE.map(l => (
-                                <li key={l.label}>
-                                    <a href={l.href} className="font-body text-sm hover:text-tomato transition-colors inline-flex items-center gap-1.5">
-                                        {l.label} <ArrowUpRight size={12} weight="bold" />
-                                    </a>
-                                </li>
-                            ))}
-                        </ul>
-                    </div>
-
-                    <div className="col-span-12 md:col-span-4 flex flex-col gap-3">
-                        <span className="label text-paper/60">Direct</span>
-                        <a href="mailto:hello@undefined.fr" className="display text-2xl u-draw w-fit">hello@undefined.fr</a>
-                        <span className="label text-paper/60">+33 · Sur demande</span>
-                    </div>
-                </div>
-
-                <div className="border-t border-paper/20 container-x py-5 grid-12 items-center gap-3">
-                    <div className="col-span-12 md:col-span-6 label text-paper/60">
-                        © {new Date().getFullYear()} Undefined Studio — Brutal but friendly.
-                    </div>
-                    <div className="col-span-12 md:col-span-6 flex md:justify-end gap-8 label text-paper/60">
-                        <a href="#" className="hover:text-tomato transition-colors">Privacy</a>
-                        <a href="#" className="hover:text-tomato transition-colors">Mentions</a>
-                        <a href="#top" className="hover:text-tomato transition-colors">↑ Top</a>
+                    <div className="flex items-center gap-6">
+                        <a href="#" className="label label-soft hover:text-tomato transition-colors">Instagram</a>
+                        <a href="#" className="label label-soft hover:text-tomato transition-colors">LinkedIn</a>
+                        <a href="#top" className="label label-soft hover:text-tomato transition-colors">↑ Top</a>
                     </div>
                 </div>
             </footer>
-        </>
+        </div>
     )
 }
