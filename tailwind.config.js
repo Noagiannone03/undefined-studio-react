@@ -7,21 +7,35 @@ export default {
     theme: {
         extend: {
             colors: {
-                lilac: '#E6E6FA',
-                lavender: '#DCD0FF',
-                black: '#000000',
-                white: '#FFFFFF',
+                paper: '#EEE9DA',
+                'paper-2': '#E0DACA',
+                ink: '#0A0A0A',
+                klein: '#1D1DBF',
+                tomato: '#E84A2A',
+                'ink-soft': 'rgba(10,10,10,0.62)',
+                'ink-mute': 'rgba(10,10,10,0.38)',
+                line: 'rgba(10,10,10,0.14)',
+
+                // legacy aliases
+                electric: '#1D1DBF',
+                sun: '#E84A2A',
+                acid: '#1D1DBF',
+                pink: '#E84A2A',
+                sky: '#1D1DBF',
+                violet: '#1D1DBF',
+                'pop-cream': '#EEE9DA',
+                'pop-black': '#0A0A0A',
+                'pop-coral': '#E84A2A',
+                'pop-pink': '#E84A2A',
+                'pop-mint': '#1D1DBF',
+                'pop-yellow': '#E84A2A',
+                'pop-indigo': '#1D1DBF',
             },
             fontFamily: {
-                display: ['"Archivo Black"', 'sans-serif'],
-                body: ['"DM Sans"', 'sans-serif'],
-            },
-            borderWidth: {
-                '3': '3px',
-            },
-            boxShadow: {
-                'hard': '4px 4px 0px 0px #000000',
-                'hard-sm': '2px 2px 0px 0px #000000',
+                display: ['"Archivo Black"', '"Archivo"', 'sans-serif'],
+                body: ['"Satoshi"', 'sans-serif'],
+                serif: ['"Boska"', '"Fraunces"', 'serif'],
+                mono: ['"JetBrains Mono"', 'monospace'],
             },
         },
     },

@@ -1,13 +1,8 @@
-import { useRef, useEffect, useState } from 'react'
-import gsap from 'gsap'
-import { useGSAP } from '@gsap/react'
-import { ScrollTrigger } from 'gsap/ScrollTrigger'
+import { useEffect, useState } from 'react'
+import { motion } from 'motion/react'
+import { ArrowUpRight } from '@phosphor-icons/react'
 import { IPhoneMockup } from 'react-device-mockup'
-import type { IPhoneMockupProps } from 'react-device-mockup'
-import vagoLogo from '../assets/logo/VAGO-logo.png'
-import whispLogo from '../assets/logo/WHISP-logo.png'
-import appleStoreIcon from '../assets/icones/applestore.jpg'
-import playStoreIcon from '../assets/icones/playstore.png'
+import Asterisk from './Asterisk'
 import vagoInterfaceOpen from '../assets/images/vago-illustrations/interface-open.jpeg'
 import vagoNoTripInterface from '../assets/images/vago-illustrations/no-trip-interface.png'
 import vagoRoad from '../assets/images/vago-illustrations/road.jpg'
@@ -16,341 +11,173 @@ import whispDetailProfile from '../assets/images/whisp/detail-profile.png'
 import whispDiscussion from '../assets/images/whisp/discussion.png'
 import whispHomescreen from '../assets/images/whisp/homescreen.png'
 import whispMap from '../assets/images/whisp/map.jpeg'
-import GrainOverlay from './GrainOverlay'
 
-gsap.registerPlugin(ScrollTrigger)
+type Project = {
+    n: string
+    name: string
+    year: string
+    tagline: string
+    category: string
+    slides: string[]
+    bg: string
+    text: string
+    accent: string
+}
 
-// --- GENERATIVE BACKGROUNDS ---
-const VAGO_SLIDES = [
-    vagoInterfaceOpen,
-    vagoNoTripInterface,
-    vagoRoad,
-    vagoStreak
+const PROJECTS: Project[] = [
+    {
+        n: '01',
+        name: 'Vago',
+        year: '2025',
+        tagline: 'Le jeu qui paie ton essence.',
+        category: 'Mobile · Game Loop',
+        slides: [vagoInterfaceOpen, vagoNoTripInterface, vagoRoad, vagoStreak],
+        bg: 'bg-klein',
+        text: 'text-paper',
+        accent: 'tomato',
+    },
+    {
+        n: '02',
+        name: 'Whisp',
+        year: '2026',
+        tagline: 'Social réel, sans algorithme.',
+        category: 'Mobile · Real-time',
+        slides: [whispHomescreen, whispDiscussion, whispDetailProfile, whispMap],
+        bg: 'bg-paper',
+        text: 'text-ink',
+        accent: 'klein',
+    },
 ]
 
-const WHISP_SLIDES = [
-    whispHomescreen,
-    whispDiscussion,
-    whispDetailProfile,
-    whispMap
-]
-
-const VagoPhoneSlideshow = () => {
-    const [activeSlide, setActiveSlide] = useState(0)
-
+function Slideshow({ images, interval = 2200 }: { images: string[]; interval?: number }) {
+    const [i, setI] = useState(0)
     useEffect(() => {
-        const interval = setInterval(() => {
-            setActiveSlide((prev) => (prev + 1) % VAGO_SLIDES.length)
-        }, 2600)
-
-        return () => clearInterval(interval)
-    }, [])
-
+        const id = setInterval(() => setI(p => (p + 1) % images.length), interval)
+        return () => clearInterval(id)
+    }, [images.length, interval])
     return (
-        <div className="relative w-full h-full bg-black">
-            {VAGO_SLIDES.map((slide, index) => {
-                const isActive = index === activeSlide
-                return (
-                    <img
-                        key={slide}
-                        src={slide}
-                        alt={`Vago screen ${index + 1}`}
-                        className={`absolute inset-0 w-full h-full object-cover transition-all duration-[1100ms] ease-out ${isActive ? 'opacity-100 scale-100' : 'opacity-0 scale-105'}`}
-                        style={{
-                            transform: isActive
-                                ? 'scale(1) translate3d(0, 0, 0)'
-                                : 'scale(1.05) translate3d(0, -1.5%, 0)'
-                        }}
-                    />
-                )
-            })}
-
+        <div className="relative w-full h-full bg-ink">
+            {images.map((src, idx) => (
+                <img
+                    key={src}
+                    src={src}
+                    alt=""
+                    className="absolute inset-0 w-full h-full object-cover transition-opacity duration-700"
+                    style={{ opacity: idx === i ? 1 : 0 }}
+                />
+            ))}
         </div>
     )
 }
-
-const WhispPhoneSlideshow = () => {
-    const [activeSlide, setActiveSlide] = useState(0)
-
-    useEffect(() => {
-        const interval = setInterval(() => {
-            setActiveSlide((prev) => (prev + 1) % WHISP_SLIDES.length)
-        }, 2600)
-
-        return () => clearInterval(interval)
-    }, [])
-
-    return (
-        <div className="relative w-full h-full bg-black">
-            {WHISP_SLIDES.map((slide, index) => {
-                const isActive = index === activeSlide
-                return (
-                    <img
-                        key={slide}
-                        src={slide}
-                        alt={`Whisp screen ${index + 1}`}
-                        className={`absolute inset-0 w-full h-full object-cover transition-all duration-[1100ms] ease-out ${isActive ? 'opacity-100 scale-100' : 'opacity-0 scale-105'}`}
-                        style={{
-                            transform: isActive
-                                ? 'scale(1) translate3d(0, 0, 0)'
-                                : 'scale(1.05) translate3d(0, -1.5%, 0)'
-                        }}
-                    />
-                )
-            })}
-
-        </div>
-    )
-}
-
-// --- ICONS & LOGOS ---
-const AppIcon = ({ src, alt, className = "" }: { src: string, alt: string, className?: string }) => (
-    <div
-        className={`rounded-[28px] border-4 border-black shadow-[8px_8px_0px_black] overflow-hidden bg-white ${className}`}
-    >
-        <img src={src} alt={alt} className="w-full h-full object-cover" />
-    </div>
-)
-
-const AppleIcon = () => (
-    <img src={appleStoreIcon} alt="App Store" className="w-full h-full object-contain" />
-)
-
-const GooglePlayIcon = () => (
-    <img src={playStoreIcon} alt="Google Play" className="w-full h-full object-contain scale-90" />
-)
-
-const StoreButton = ({ store, label }: { store: 'apple' | 'google', label: string }) => (
-    <button className="group flex items-center gap-2.5 bg-white text-black px-4 py-2 rounded-full border-4 border-black shadow-[6px_6px_0px_black] transition-all duration-200 hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-[3px_3px_0px_black] active:translate-x-1 active:translate-y-1 active:shadow-none">
-        <div className="flex items-center justify-center w-9 h-9 grayscale group-hover:grayscale-0 transition-all">
-            {store === 'apple' ? <AppleIcon /> : <GooglePlayIcon />}
-        </div>
-        <div className="flex flex-col items-start leading-none">
-            <span className="text-[10px] uppercase font-bold tracking-widest opacity-60">Télécharger sur</span>
-            <span className="text-base font-black font-display tracking-tight">{label}</span>
-        </div>
-    </button>
-)
-const PhoneMockup = ({
-    children,
-    className = "",
-    frame
-}: {
-    children: React.ReactNode
-    className?: string
-    frame?: Partial<IPhoneMockupProps>
-}) => (
-    <div className="w-auto">
-        <IPhoneMockup
-            screenType="island"
-            screenWidth={235}
-            frameColor="#000000"
-            hideStatusBar
-            hideNavBar
-            {...frame}
-        >
-            <div className={`w-full h-full overflow-hidden ${className}`}>
-                {children}
-            </div>
-        </IPhoneMockup>
-    </div>
-)
-
-
-
 
 export default function Showcase() {
-    const container = useRef<HTMLDivElement>(null)
-
-
-    // Project Refs for Animation
-    const vagoPhone = useRef<HTMLDivElement>(null)
-    const vagoText = useRef<HTMLDivElement>(null)
-    const whispPhone = useRef<HTMLDivElement>(null)
-    const whispText = useRef<HTMLDivElement>(null)
-    const headerRef = useRef<HTMLDivElement>(null)
-
-    useGSAP(() => {
-        // 1. Parallax for WORK Title REMOVED to match Services.tsx
-        // Static positioning is used instead.
-
-        // 2. Header Entrance
-        const headerEls = headerRef.current?.children
-        if (headerEls) {
-            gsap.fromTo(headerEls,
-                { y: 50, opacity: 0 },
-                {
-                    y: 0,
-                    opacity: 1,
-                    stagger: 0.1,
-                    duration: 1,
-                    ease: "power3.out",
-                    scrollTrigger: {
-                        trigger: headerRef.current,
-                        start: "top 80%"
-                    }
-                }
-            )
-        }
-
-        // 3. VAGO Animation
-        gsap.fromTo(vagoPhone.current,
-            { y: 100, opacity: 0, rotate: -10 },
-            {
-                y: 0, opacity: 1, rotate: -2,
-                duration: 1.2,
-                ease: "power3.out",
-                scrollTrigger: {
-                    trigger: vagoPhone.current,
-                    start: "top 85%"
-                }
-            }
-        )
-        gsap.fromTo(vagoText.current,
-            { x: 50, opacity: 0 },
-            {
-                x: 0, opacity: 1,
-                duration: 1,
-                delay: 0.2,
-                ease: "power3.out",
-                scrollTrigger: {
-                    trigger: vagoText.current,
-                    start: "top 85%"
-                }
-            }
-        )
-
-        // 4. WHISP Animation
-        gsap.fromTo(whispPhone.current,
-            { y: 100, opacity: 0, rotate: 10 },
-            {
-                y: 0, opacity: 1, rotate: 2,
-                duration: 1.2,
-                ease: "power3.out",
-                scrollTrigger: {
-                    trigger: whispPhone.current,
-                    start: "top 85%"
-                }
-            }
-        )
-        gsap.fromTo(whispText.current,
-            { x: -50, opacity: 0 },
-            {
-                x: 0, opacity: 1,
-                duration: 1,
-                delay: 0.2,
-                ease: "power3.out",
-                scrollTrigger: {
-                    trigger: whispText.current,
-                    start: "top 85%"
-                }
-            }
-        )
-
-    }, { scope: container })
-
     return (
-        <section
-            id="showcase-realworld"
-            ref={container}
-            className="w-full relative border-t-4 border-black bg-[#F0EFEB] overflow-hidden"
-        >
-            <GrainOverlay opacity={0.5} />
+        <section id="work" className="relative bg-paper text-ink border-t border-ink overflow-hidden">
+            {/* meta bar */}
+            <div className="grid-12 items-baseline border-b border-ink h-11 container-x">
+                <div className="col-span-6 md:col-span-4 label label-soft">§ 02 — Selected Work</div>
+                <div className="hidden md:block col-span-4 text-center label label-soft">Deux apps en production</div>
+                <div className="col-span-6 md:col-span-4 label label-soft text-right">2024 · 2026</div>
+            </div>
 
-            {/* Giant Background Title - Static like Services.tsx */}
-            <div className="absolute top-0 left-0 w-full overflow-hidden pointer-events-none opacity-5 select-none">
-                <h2 className="font-display text-[25vw] font-black uppercase text-black leading-none whitespace-nowrap text-center -translate-y-1/4">
-                    WORK
+            {/* Titre */}
+            <div className="relative container-x section-y">
+                <div className="flex items-center gap-3 mb-6">
+                    <Asterisk className="w-4 h-4 spin-slow text-tomato" color="currentColor" />
+                    <span className="label">Work · N° 02</span>
+                </div>
+                <h2 className="display text-[13vw] md:text-[8vw] leading-[0.86] tracking-[-0.05em]">
+                    Des <span className="serif-italic text-tomato">apps</span>, <br className="md:hidden"/>
+                    pas des decks.
                 </h2>
             </div>
 
-            <div className="container mx-auto px-4 py-24 md:py-32 relative z-10 flex flex-col gap-32">
+            {/* Projets — 2 grandes cards */}
+            <div className="flex flex-col gap-0 border-t border-ink">
+                {PROJECTS.map((p, idx) => (
+                    <motion.a
+                        key={p.n}
+                        href="#"
+                        initial={{ opacity: 0, y: 40 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        viewport={{ once: true, amount: 0.2 }}
+                        transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+                        className={`group relative ${p.bg} ${p.text} border-b border-ink grid grid-cols-12 gap-0 min-h-[560px] md:min-h-[620px]`}
+                    >
+                        {/* Info */}
+                        <div className="col-span-12 md:col-span-7 p-6 md:p-12 flex flex-col justify-between border-b md:border-b-0 md:border-r border-ink relative">
+                            {/* Top */}
+                            <div className="flex items-start justify-between">
+                                <div className="flex items-baseline gap-4">
+                                    <span className="display text-3xl md:text-4xl opacity-80">{p.n}</span>
+                                    <div>
+                                        <div className="label" style={{ color: 'currentColor', opacity: 0.7 }}>Project</div>
+                                        <div className="label mt-0.5" style={{ color: 'currentColor' }}>{p.year}</div>
+                                    </div>
+                                </div>
+                                <Asterisk className="w-8 h-8 md:w-10 md:h-10 spin-slow shrink-0" color="currentColor" />
+                            </div>
 
-                {/* --- HEADER --- */}
-                <div ref={headerRef} className="flex flex-col items-center justify-center text-center">
-                    <div className="bg-black text-white px-6 py-2 rotate-1 inline-block shadow-[6px_6px_0px_white] mb-8 border-2 border-transparent">
-                        <span className="font-mono font-bold uppercase tracking-widest">Track Record</span>
+                            {/* Nom massif */}
+                            <div className="my-10 md:my-0">
+                                <h3 className="display text-[22vw] md:text-[11vw] leading-[0.84] tracking-[-0.05em]">
+                                    {p.name}
+                                </h3>
+                                <p className="mt-6 font-body text-xl md:text-3xl serif-italic normal-case opacity-90 max-w-[22ch]">
+                                    {p.tagline}
+                                </p>
+                            </div>
+
+                            {/* Bottom */}
+                            <div className="flex items-end justify-between">
+                                <span className="label" style={{ color: 'currentColor', opacity: 0.7 }}>{p.category}</span>
+                                <span className="inline-flex items-center gap-2 badge" style={{ borderColor: 'currentColor', color: 'currentColor' }}>
+                                    View case <ArrowUpRight size={12} weight="bold" />
+                                </span>
+                            </div>
+                        </div>
+
+                        {/* Phone */}
+                        <div className="col-span-12 md:col-span-5 relative flex items-center justify-center p-8 md:p-12 min-h-[380px] md:min-h-0">
+                            <div aria-hidden className="absolute inset-0 dotgrid opacity-[0.18]" />
+                            <div className="relative z-10 w-[200px] md:w-[240px] transition-transform duration-700 group-hover:-rotate-3 group-hover:scale-[1.03]">
+                                <div className="drop-shadow-[10px_10px_0_rgba(10,10,10,1)]">
+                                    <IPhoneMockup
+                                        screenType="island"
+                                        screenWidth={200}
+                                        frameColor="#0A0A0A"
+                                        hideStatusBar
+                                        hideNavBar
+                                    >
+                                        <div className="w-full h-full overflow-hidden">
+                                            <Slideshow images={p.slides} interval={2200 + idx * 300} />
+                                        </div>
+                                    </IPhoneMockup>
+                                </div>
+                            </div>
+                        </div>
+                    </motion.a>
+                ))}
+
+                {/* Next */}
+                <motion.a
+                    href="#contact"
+                    initial={{ opacity: 0 }}
+                    whileInView={{ opacity: 1 }}
+                    viewport={{ once: true }}
+                    className="group grid grid-cols-12 items-center container-x py-12 md:py-20 border-b border-ink hover:bg-ink hover:text-paper transition-colors"
+                >
+                    <span className="col-span-2 md:col-span-1 label group-hover:text-paper/60 transition-colors">03</span>
+                    <h3 className="col-span-10 md:col-span-10 display text-4xl md:text-7xl leading-[0.9] tracking-[-0.04em]">
+                        <span className="text-outline group-hover:text-paper transition-colors">Next</span> —
+                        <span className="serif-italic text-tomato"> votre projet ?</span>
+                    </h3>
+                    <div className="col-span-12 md:col-span-1 flex md:justify-end mt-4 md:mt-0">
+                        <span className="w-11 h-11 rounded-full border border-current flex items-center justify-center group-hover:rotate-45 transition-transform">
+                            <ArrowUpRight size={18} weight="bold" />
+                        </span>
                     </div>
-                    <h2 className="font-display text-[12vw] md:text-[8vw] font-black uppercase text-black leading-none text-center drop-shadow-[6px_6px_0px_white]">
-                        SÉLECTION
-                    </h2>
-                    <p className="font-sans text-xl md:text-2xl font-bold text-center max-w-2xl mt-8 px-6 leading-tight">
-                        Des produits utilisés par de vrais gens.<br />
-                        Pas de prototypes qui dorment dans un placard.
-                    </p>
-                </div>
-
-
-                {/* --- PROJECT 01: VAGO --- */}
-                <div className="w-full flex flex-col md:flex-row items-center gap-12 md:gap-24 group">
-
-                    {/* Phone Visual */}
-                    <div ref={vagoPhone} className="w-full md:w-1/2 flex justify-center md:justify-end">
-                        <div>
-                            <PhoneMockup
-                                className="bg-[#92d3f5]"
-                            >
-                                <VagoPhoneSlideshow />
-                                {/* removed Logo from inside phone */}
-                            </PhoneMockup>
-                        </div>
-                    </div>
-
-                    {/* Info */}
-                    <div ref={vagoText} className="w-full md:w-1/2 flex flex-col items-center md:items-start text-center md:text-left">
-                        {/* Logo here instead */}
-                        <div className="mb-8">
-                            <AppIcon src={vagoLogo} alt="Vago app icon" className="w-20 h-20 md:w-28 md:h-28" />
-                        </div>
-
-                        <h3 className="font-display text-4xl md:text-6xl font-black uppercase leading-none mb-8 drop-shadow-[4px_4px_0px_white]">
-                            LE JEU QUI<br />PAIE VOTRE<br />ESSENCE.
-                        </h3>
-                        <p className="font-sans text-lg md:text-xl font-medium leading-relaxed mb-8 max-w-md">
-                            Marre des prix à la pompe ? Avec Vago, jouez et obtenez votre plein gratuit.
-                        </p>
-                        <div className="flex flex-row gap-4">
-                            <StoreButton store="apple" label="App Store" />
-                            <StoreButton store="google" label="Google Play" />
-                        </div>
-                    </div>
-                </div>
-
-                {/* --- PROJECT 02: WHISP --- */}
-                <div className="w-full flex flex-col md:flex-row-reverse items-center gap-12 md:gap-24 group">
-
-                    {/* Phone Visual */}
-                    <div ref={whispPhone} className="w-full md:w-1/2 flex justify-center md:justify-start">
-                        <div>
-                            <PhoneMockup
-                                className="bg-[#3279F7]"
-                            >
-                                <WhispPhoneSlideshow />
-                                {/* removed Logo from inside phone */}
-                            </PhoneMockup>
-                        </div>
-                    </div>
-
-                    {/* Info */}
-                    <div ref={whispText} className="w-full md:w-1/2 flex flex-col items-center md:items-start text-center md:text-left">
-                        {/* Logo here instead */}
-                        <div className="mb-8">
-                            <AppIcon src={whispLogo} alt="Whisp app icon" className="w-20 h-20 md:w-28 md:h-28 shadow-[8px_8px_0px_white] border-white" />
-                        </div>
-
-                        <h3 className="font-display text-4xl md:text-6xl font-black uppercase leading-none mb-8 text-black drop-shadow-[4px_4px_0px_white]">
-                            SOCIAL<br />RÉEL.
-                        </h3>
-                        <p className="font-sans text-lg md:text-xl font-medium leading-relaxed mb-8 max-w-md">
-                            Connecte-toi aux gens qui sont vraiment autour de toi. Sans algorithme. Sans filtre.
-                        </p>
-                        <div className="flex flex-row gap-4">
-                            <StoreButton store="apple" label="App Store" />
-                            <StoreButton store="google" label="Google Play" />
-                        </div>
-                    </div>
-                </div>
-
+                </motion.a>
             </div>
         </section>
     )

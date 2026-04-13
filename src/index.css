@@ -1,263 +1,242 @@
-@import url('https://fonts.googleapis.com/css2?family=Archivo+Black&family=DM+Sans:opsz,wght@9..40,400;500;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Archivo+Black&family=Archivo:wght@400;500;600;700;800;900&display=swap');
+@import url('https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700,900&f[]=boska@400,700,900,400i,700i,900i&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,400;1,9..144,600&family=JetBrains+Mono:wght@400;500;700&display=swap');
 
 @import "tailwindcss";
 
 /* ===============================================
-   UNDEFINED STUDIO - Néo-Brutalisme Soft/Pop
+   UNDEFINED STUDIO — Pop Neo-Brutalism
+   Palette: paper + ink + bleu klein + tomato
    =============================================== */
 
 @theme {
-  --font-display: 'Archivo Black', sans-serif;
-  --font-body: 'DM Sans', sans-serif;
-  --color-mint: #B8F4D4;
-  --color-lilac: #E6E6FA;
-  --color-peach: #FFD1DC;
-  --color-cream: #FFF8E7;
-  --color-lemon: #FFF44F;
-  --shadow-hard: 4px 4px 0px 0px #000000;
-  --shadow-hard-lg: 8px 8px 0px 0px #000000;
+  --font-display: 'Archivo Black', 'Archivo', sans-serif;
+  --font-body: 'Satoshi', 'Archivo', sans-serif;
+  --font-serif: 'Boska', 'Fraunces', serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+
+  /* 4 couleurs. Pas une de plus. */
+  --color-paper: #EEE9DA;
+  --color-paper-2: #E0DACA;
+  --color-ink: #0A0A0A;
+  --color-klein: #1D1DBF;
+  --color-tomato: #E84A2A;
+
+  /* dérivés */
+  --color-ink-soft: rgba(10,10,10,0.62);
+  --color-ink-mute: rgba(10,10,10,0.38);
+  --color-line: rgba(10,10,10,0.14);
+
+  --side-spacing: clamp(16px, 2.5vw, 40px);
+
+  /* compat (ne plus utiliser) */
+  --color-pop-cream: var(--color-paper);
+  --color-pop-black: var(--color-ink);
+  --color-pop-coral: var(--color-tomato);
+  --color-pop-pink: var(--color-tomato);
+  --color-pop-mint: var(--color-klein);
+  --color-pop-yellow: var(--color-tomato);
+  --color-pop-indigo: var(--color-klein);
+  --color-electric: var(--color-klein);
+  --color-sun: var(--color-tomato);
+  --color-acid: var(--color-klein);
+  --color-pink: var(--color-tomato);
+  --color-sky: var(--color-klein);
+  --color-violet: var(--color-klein);
 }
 
 :root {
-  font-family: 'DM Sans', sans-serif;
-  line-height: 1.4;
+  font-family: 'Satoshi', 'Archivo', system-ui, sans-serif;
   font-weight: 400;
+  line-height: 1.4;
   color-scheme: light;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background-color: #B8F4D4;
-  color: #000000;
+  background-color: var(--color-paper);
+  color: var(--color-ink);
+  letter-spacing: -0.005em;
 }
 
 body {
-  margin: 0;
-  padding: 0;
-  min-height: 100vh;
-  width: 100%;
+  margin: 0; padding: 0;
+  min-height: 100vh; width: 100%;
   overflow-x: hidden;
+  background: var(--color-paper);
+  color: var(--color-ink);
 }
 
-::selection {
-  background-color: #000000;
-  color: #B8F4D4;
-}
+::selection { background: var(--color-ink); color: var(--color-paper); }
 
-/* ===============================================
-   PLAYFUL ANIMATIONS
-   =============================================== */
+::-webkit-scrollbar { width: 10px; }
+::-webkit-scrollbar-track { background: var(--color-paper-2); }
+::-webkit-scrollbar-thumb { background: var(--color-ink); }
 
-@keyframes float {
-
-  0%,
-  100% {
-    transform: translateY(0) rotate(0deg);
-  }
-
-  50% {
-    transform: translateY(-20px) rotate(5deg);
-  }
-}
-
-@keyframes wiggle {
-
-  0%,
-  100% {
-    transform: rotate(-3deg);
-  }
-
-  50% {
-    transform: rotate(3deg);
-  }
-}
-
-@keyframes bounce-soft {
-
-  0%,
-  100% {
-    transform: translateY(0);
-  }
-
-  50% {
-    transform: translateY(-10px);
-  }
-}
-
-@keyframes spin-slow {
-  from {
-    transform: rotate(0deg);
-  }
-
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-@keyframes blob-morph {
-
-  0%,
-  100% {
-    border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
-  }
-
-  50% {
-    border-radius: 30% 60% 70% 40% / 50% 60% 30% 60%;
-  }
-}
-
-@keyframes stamp-pop {
-  0% {
-    transform: rotate(var(--stamp-rot)) scale(0.6);
-    opacity: 0;
-  }
-
-  30% {
-    opacity: 0.75;
-  }
-
-  100% {
-    transform: rotate(var(--stamp-rot)) scale(1.35);
-    opacity: 0;
-  }
-}
-
-.animate-float {
-  animation: float 6s ease-in-out infinite;
-}
-
-.animate-wiggle {
-  animation: wiggle 2s ease-in-out infinite;
-}
-
-.animate-bounce-soft {
-  animation: bounce-soft 3s ease-in-out infinite;
-}
-
-.animate-spin-slow {
-  animation: spin-slow 20s linear infinite;
-}
-
-.animate-blob {
-  animation: blob-morph 8s ease-in-out infinite;
-}
-
-.animate-stamp-pop {
-  animation: stamp-pop 900ms ease-out forwards;
-}
-
-/* ===============================================
-   NEO-BRUTALIST COMPONENTS
-   =============================================== */
-
-/* Skewed Buttons */
-.btn-skew {
-  display: inline-block;
-  padding: 16px 32px;
-  background: #000000;
-  color: #ffffff;
-  font-family: 'Space Grotesk', sans-serif;
-  font-weight: 700;
-  font-size: 14px;
+/* ===== TYPO ===== */
+.display {
+  font-family: 'Archivo Black', 'Archivo', sans-serif;
+  font-weight: 900;
+  letter-spacing: -0.045em;
+  line-height: 0.86;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
-  border: 3px solid #000000;
-  transform: skewX(-5deg);
-  transition: all 0.3s ease;
-  cursor: pointer;
-  position: relative;
+}
+.serif-italic {
+  font-family: 'Boska', 'Fraunces', serif;
+  font-style: italic;
+  font-weight: 900;
+  letter-spacing: -0.025em;
+  text-transform: lowercase;
+}
+.mono, .label {
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 11px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  font-weight: 600;
+  color: var(--color-ink);
+}
+.label-soft { color: var(--color-ink-soft); }
+
+/* ===== LAYOUT ===== */
+.container-x { padding-left: var(--side-spacing); padding-right: var(--side-spacing); }
+.section-y { padding-top: clamp(88px, 12vw, 200px); padding-bottom: clamp(88px, 12vw, 200px); }
+
+.grid-12 {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  column-gap: clamp(12px, 1.6vw, 24px);
 }
 
-.btn-skew:hover {
-  background: #ffffff;
-  color: #000000;
-  transform: skewX(-5deg) translateY(-4px);
-  box-shadow: 4px 4px 0px 0px #000000;
-}
+/* ===== BORDURES ===== */
+.hair { border: 1px solid var(--color-ink); }
+.hair-t { border-top: 1px solid var(--color-ink); }
+.hair-b { border-bottom: 1px solid var(--color-ink); }
+.hair-l { border-left: 1px solid var(--color-ink); }
+.hair-r { border-right: 1px solid var(--color-ink); }
 
-.btn-skew span {
-  display: inline-block;
-  transform: skewX(5deg);
-}
+.rule-2 { border: 2px solid var(--color-ink); }
+.rule-2-t { border-top: 2px solid var(--color-ink); }
+.rule-2-b { border-bottom: 2px solid var(--color-ink); }
 
-/* Sticker Style */
-.sticker {
-  display: inline-block;
-  padding: 12px 24px;
-  background: #ffffff;
-  border: 3px solid #000000;
-  border-radius: 100px;
-  font-family: 'Space Grotesk', sans-serif;
+/* ===== BOUTONS ===== */
+.btn-pill,
+.pop-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  height: 44px;
+  padding: 0 20px;
+  border: 1.5px solid var(--color-ink);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--color-ink);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  font-weight: 600;
+  transition: all 220ms cubic-bezier(.3,.7,.4,1);
+  white-space: nowrap;
+}
+.btn-pill:hover,
+.pop-btn:hover {
+  background: var(--color-ink);
+  color: var(--color-paper);
+}
+.btn-pill .dot,
+.pop-btn .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--color-tomato); }
+
+.btn-fill {
+  display: inline-flex;
+  align-items: center;
+  gap: 14px;
+  height: 68px;
+  padding: 0 34px 0 30px;
+  border: 1.5px solid var(--color-ink);
+  background: var(--color-ink);
+  color: var(--color-paper);
+  font-family: 'Archivo Black', sans-serif;
+  font-weight: 900;
+  font-size: 18px;
+  letter-spacing: -0.01em;
+  text-transform: uppercase;
+  border-radius: 999px;
+  transition: all 250ms cubic-bezier(.3,.7,.4,1);
+}
+.btn-fill:hover { background: var(--color-klein); }
+.btn-fill .arrow {
+  width: 32px; height: 32px; border-radius: 50%;
+  background: var(--color-tomato);
+  display: inline-flex; align-items: center; justify-content: center;
+  color: var(--color-paper);
+  transition: transform 300ms;
+}
+.btn-fill:hover .arrow { transform: rotate(45deg); }
+
+/* ===== BADGE ===== */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 12px;
+  border: 1.5px solid var(--color-ink);
+  border-radius: 999px;
+  background: transparent;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10.5px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
   font-weight: 700;
-  box-shadow: 4px 4px 0px 0px #000000;
-  transform: rotate(-2deg);
-  transition: all 0.3s ease;
+  color: var(--color-ink);
 }
 
-.sticker:hover {
-  transform: rotate(2deg) scale(1.05);
-}
+/* ===== ANIMATIONS ===== */
+@keyframes blink { 50% { opacity: 0.25; } }
+.blink { animation: blink 1.1s step-end infinite; }
 
-/* Blob Shapes */
-.blob {
-  position: absolute;
-  border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
-  animation: blob-morph 8s ease-in-out infinite;
-}
+@keyframes marq { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+.marq { animation: marq 50s linear infinite; }
 
-/* Star Decoration */
-.star {
-  position: absolute;
-  width: 40px;
-  height: 40px;
-  background: #000000;
-  clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
-}
+@keyframes spin-slow { to { transform: rotate(360deg); } }
+.spin-slow { animation: spin-slow 22s linear infinite; }
+.spin-fast { animation: spin-slow 9s linear infinite; }
 
-/* Squiggle Line */
-.squiggle {
-  position: absolute;
-  width: 100px;
-  height: 20px;
-  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 20'%3E%3Cpath d='M0 10 Q 12.5 0, 25 10 T 50 10 T 75 10 T 100 10' stroke='%23000' fill='none' stroke-width='3'/%3E%3C/svg%3E") no-repeat;
-}
+@keyframes pulse-dot { 0%,100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.4); opacity: 0.65; } }
+.pulse-dot { animation: pulse-dot 1.8s ease-in-out infinite; }
 
-/* Expressive/Liquid Title Effect */
-.title-liquid {
-  font-family: 'Space Grotesk', sans-serif;
-  font-weight: 700;
-  position: relative;
-  display: inline-block;
-}
-
-.title-liquid::before {
-  content: attr(data-text);
-  position: absolute;
-  left: 4px;
-  top: 4px;
-  color: transparent;
-  -webkit-text-stroke: 2px #000000;
-}
-
-/* Scrollbar */
-::-webkit-scrollbar {
-  width: 12px;
-}
-
-::-webkit-scrollbar-track {
-  background: #B8F4D4;
-}
-
-::-webkit-scrollbar-thumb {
-  background: #000000;
-  border: 3px solid #B8F4D4;
-}
-
-.text-stroke-white {
-  -webkit-text-stroke: 2px white;
+/* ===== TEXTE ===== */
+.text-outline {
+  -webkit-text-stroke: 1.3px var(--color-ink);
   color: transparent;
 }
-.text-stroke-black {
-  -webkit-text-stroke: 2px black;
-  color: transparent;
+
+.u-draw { position: relative; display: inline-block; }
+.u-draw::after {
+  content: '';
+  position: absolute;
+  left: 0; right: 0; bottom: -3px;
+  height: 1.5px;
+  background: currentColor;
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 450ms cubic-bezier(.6,.01,.1,1);
+}
+.u-draw:hover::after { transform: scaleX(1); }
+
+/* ===== PATTERNS ===== */
+.dotgrid {
+  background-image: radial-gradient(circle at 1px 1px, rgba(10,10,10,0.22) 1px, transparent 0);
+  background-size: 20px 20px;
+}
+
+.hatch-soft {
+  background-image: repeating-linear-gradient(135deg, rgba(10,10,10,0.18) 0 1px, transparent 1px 8px);
+}
+
+/* ===== LEGACY compat ===== */
+.pop-card {
+  background: var(--color-paper);
+  border: 1.5px solid var(--color-ink);
+  border-radius: 6px;
 }
