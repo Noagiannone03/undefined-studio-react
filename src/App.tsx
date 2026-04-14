@@ -3,11 +3,10 @@ import Lenis from 'lenis'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import Hero from './components/Hero'
-import Menu from './components/Menu'
-import Manifesto from './components/Manifesto'
-import Showcase from './components/Showcase'
-import Capabilities from './components/Capabilities'
 import Marquee from './components/Marquee'
+import Work from './components/Work'
+import About from './components/About'
+import Capabilities from './components/Capabilities'
 import Footer from './components/Footer'
 import LogoExport from './components/LogoExport'
 import Cursor from './components/Cursor'
@@ -44,16 +43,11 @@ function App() {
     return (
         <div className="w-full min-h-screen bg-paper text-ink font-body relative">
             <Cursor />
-            <Menu />
             <main className="w-full relative z-10 flex flex-col">
                 <Hero />
-                <Manifesto />
-                <Marquee
-                    items={['design', 'code', 'motion', 'brand', 'ship']}
-                    accent
-                    speed="slow"
-                />
-                <Showcase />
+                <Marquee />
+                <About />
+                <Work />
                 <Capabilities />
                 <Footer />
             </main>

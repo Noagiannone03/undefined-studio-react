@@ -1,118 +1,165 @@
-import { useLayoutEffect, useRef } from 'react'
+import { useRef } from 'react'
+import { useGSAP } from '@gsap/react'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { useMagnetic } from '../hooks/useMagnetic'
 
 export default function Footer() {
-    const ref = useRef<HTMLDivElement>(null)
-    const mailRef = useRef<HTMLAnchorElement>(null)
+    const sectionRef = useRef<HTMLElement>(null)
+    const btnRef = useRef<HTMLAnchorElement>(null)
 
-    useMagnetic(mailRef, 0.22)
+    useMagnetic(btnRef, 0.25)
 
-    useLayoutEffect(() => {
-        if (!ref.current) return
-        const ctx = gsap.context(() => {
-            const chars = ref.current?.querySelectorAll<HTMLSpanElement>('[data-char]')
-            if (chars) {
-                gsap.set(chars, { yPercent: 120, rotate: 6 })
-                gsap.to(chars, {
-                    yPercent: 0,
-                    rotate: 0,
-                    duration: 1.1,
-                    ease: 'expo.out',
-                    stagger: 0.035,
-                    scrollTrigger: { trigger: chars[0], start: 'top 80%' },
-                })
-            }
-            const word = ref.current?.querySelector('[data-wordmark]')
-            if (word) {
-                gsap.to(word, {
-                    xPercent: -10,
-                    ease: 'none',
-                    scrollTrigger: { trigger: word, start: 'top bottom', end: 'bottom top', scrub: 1 },
-                })
-            }
-        }, ref)
-        return () => { ctx.revert(); ScrollTrigger.refresh() }
-    }, [])
+    useGSAP(
+        () => {
+            gsap.from('.footer-line', {
+                yPercent: 110,
+                duration: 1.1,
+                stagger: 0.12,
+                ease: 'expo.out',
+                scrollTrigger: {
+                    trigger: sectionRef.current,
+                    start: 'top 75%',
+                    once: true,
+                },
+            })
 
-    const makeChars = (text: string, italic = false) =>
-        text.split('').map((ch, i) => (
-            <span key={i} className="inline-block overflow-hidden align-bottom" style={{ lineHeight: 1 }}>
-                <span data-char className={`inline-block ${italic ? 'serif-italic' : ''}`}>
-                    {ch === ' ' ? '\u00A0' : ch}
-                </span>
-            </span>
-        ))
+            gsap.from('.footer-cta', {
+                y: 30,
+                opacity: 0,
+                duration: 0.9,
+                ease: 'power3.out',
+                delay: 0.4,
+                scrollTrigger: {
+                    trigger: sectionRef.current,
+                    start: 'top 75%',
+                    once: true,
+                },
+            })
+
+            gsap.from('.footer-meta > *', {
+                opacity: 0,
+                y: 10,
+                duration: 0.6,
+                stagger: 0.08,
+                ease: 'power2.out',
+                scrollTrigger: {
+                    trigger: sectionRef.current,
+                    start: 'top 75%',
+                    once: true,
+                },
+            })
+
+            void ScrollTrigger
+        },
+        { scope: sectionRef }
+    )
 
     return (
-        <div ref={ref}>
-            <section id="contact" className="relative bg-paper text-ink overflow-hidden">
-                {/* Klein glow back */}
-                <div aria-hidden className="pointer-events-none absolute -right-[10vw] top-[10%] w-[60vw] h-[60vw] rounded-full opacity-[0.1] blur-[120px] mix-blend-multiply"
-                     style={{ background: 'radial-gradient(circle, #1D1DBF 0%, transparent 70%)' }} />
+        <footer
+            ref={sectionRef}
+            id="contact"
+            className="container-x relative"
+            style={{
+                background: 'var(--color-paper)',
+                paddingTop: 'clamp(100px, 14vw, 200px)',
+                paddingBottom: 40,
+                minHeight: '90vh',
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'space-between',
+            }}
+        >
+            <div className="grain" />
 
-                <div className="relative container-x pt-32 md:pt-48 pb-20 md:pb-28">
-                    <div className="grid grid-cols-12 gap-y-12 items-end">
-                        <div className="col-span-12 md:col-span-3">
-                            <div className="flex items-center gap-3">
-                                <span className="w-1.5 h-1.5 rounded-full bg-tomato animate-pulse" />
-                                <span className="label label-soft">Contact · under 24h</span>
-                            </div>
-                        </div>
+            <div style={{ position: 'relative', zIndex: 1 }}>
+                <span className="mono label-soft" style={{ display: 'block', marginBottom: 24 }}>
+                    ( 04 ) — Get in touch
+                </span>
 
-                        <h2 className="col-span-12 md:col-span-9 display text-[22vw] md:text-[14vw] leading-[0.84] tracking-[-0.055em]">
-                            <span className="block">{makeChars("Let's")}</span>
-                            <span className="block">{makeChars('make it.', true)}</span>
-                        </h2>
-
-                        <div className="col-span-12 md:col-span-3" />
-
-                        <div className="col-span-12 md:col-span-9 flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
-                            <p className="font-body text-lg md:text-xl max-w-[42ch] leading-[1.45] text-ink-soft">
-                                A product to launch, a refresh, or a half-formed idea —
-                                <span className="serif-italic text-ink"> write to us.</span> One human replies.
-                            </p>
-                            <a
-                                ref={mailRef}
-                                href="mailto:hello@undefined.fr"
-                                data-cursor="cta"
-                                data-cursor-label="send"
-                                className="btn self-start md:self-end"
-                            >
-                                hello@undefined.fr
-                                <span className="arrow">
-                                    <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-                                        <path d="M3 9L9 3M9 3H4.5M9 3V7.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                                    </svg>
-                                </span>
-                            </a>
-                        </div>
-                    </div>
-                </div>
-
-                <div className="hair-t overflow-hidden">
-                    <div data-wordmark className="py-8 md:py-12 flex justify-center whitespace-nowrap">
-                        <span className="display text-[26vw] leading-none tracking-[-0.075em] select-none">
-                            Undefined<span className="serif-italic text-tomato">®</span>
+                <h2
+                    className="display"
+                    style={{
+                        fontSize: 'clamp(64px, 11vw, 180px)',
+                        lineHeight: 0.88,
+                        letterSpacing: '-0.048em',
+                        margin: 0,
+                        marginBottom: 'clamp(40px, 5vw, 72px)',
+                    }}
+                >
+                    <span className="reveal-mask" style={{ display: 'block' }}>
+                        <span className="reveal-line footer-line" style={{ display: 'block' }}>
+                            LET’S MAKE
                         </span>
-                    </div>
-                </div>
-            </section>
+                    </span>
+                    <span className="reveal-mask" style={{ display: 'block' }}>
+                        <span className="reveal-line footer-line" style={{ display: 'block' }}>
+                            SOMETHING
+                        </span>
+                    </span>
+                    <span className="reveal-mask" style={{ display: 'block' }}>
+                        <span
+                            className="reveal-line footer-line"
+                            style={{ display: 'block', color: 'var(--color-klein)' }}
+                        >
+                            UNFORGETTABLE.
+                        </span>
+                    </span>
+                </h2>
 
-            <footer className="bg-paper text-ink hair-t">
-                <div className="container-x py-6 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
-                    <div className="flex items-center gap-6">
-                        <span className="label label-soft">© {new Date().getFullYear()} Undefined Studio</span>
-                        <span className="label label-soft hidden md:inline">Paris · Toulouse</span>
-                    </div>
-                    <div className="flex items-center gap-6">
-                        <a href="#" className="label label-soft hover:text-tomato transition-colors">Instagram</a>
-                        <a href="#" className="label label-soft hover:text-tomato transition-colors">LinkedIn</a>
-                        <a href="#top" className="label label-soft hover:text-tomato transition-colors">↑ Top</a>
-                    </div>
-                </div>
-            </footer>
-        </div>
+                <a
+                    ref={btnRef}
+                    href="mailto:hello@undefined.co"
+                    className="footer-cta"
+                    style={{
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: 16,
+                        padding: 'clamp(18px, 2vw, 26px) clamp(28px, 3vw, 40px)',
+                        border: '2px solid var(--color-ink)',
+                        boxShadow: '5px 5px 0 var(--color-ink)',
+                        background: 'var(--color-paper)',
+                        color: 'var(--color-ink)',
+                        textDecoration: 'none',
+                        fontFamily: 'Archivo Black, sans-serif',
+                        fontSize: 'clamp(18px, 2vw, 26px)',
+                        letterSpacing: '-0.02em',
+                        transition: 'box-shadow 200ms ease, transform 200ms ease',
+                    }}
+                    onMouseEnter={(e) => {
+                        e.currentTarget.style.boxShadow = 'none'
+                    }}
+                    onMouseLeave={(e) => {
+                        e.currentTarget.style.boxShadow = '5px 5px 0 var(--color-ink)'
+                    }}
+                >
+                    hello@undefined.co
+                    <span style={{ color: 'var(--color-tomato)' }}>→</span>
+                </a>
+            </div>
+
+            <div
+                className="footer-meta hair-t"
+                style={{
+                    position: 'relative',
+                    zIndex: 1,
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    paddingTop: 24,
+                    marginTop: 'clamp(80px, 10vw, 140px)',
+                    flexWrap: 'wrap',
+                    gap: 16,
+                }}
+            >
+                <span className="mono label-soft">© 2026 UNDEFINED STUDIO</span>
+                <span className="mono label-soft">PARIS, FRANCE</span>
+                <span className="mono label-soft">
+                    <a href="#" style={{ color: 'inherit', textDecoration: 'none' }} className="u-draw">
+                        Privacy
+                    </a>
+                </span>
+            </div>
+        </footer>
     )
 }

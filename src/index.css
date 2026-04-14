@@ -198,6 +198,40 @@ body {
   background: radial-gradient(120% 80% at 50% 60%, transparent 40%, rgba(14,14,12,0.06) 100%);
 }
 
+/* ===== NEO-BRUTAL ===== */
+.brutal-box {
+  border: 2px solid var(--color-ink);
+  box-shadow: 6px 6px 0 var(--color-ink);
+  transition: box-shadow 180ms ease, transform 180ms ease;
+}
+.brutal-box:hover {
+  box-shadow: none;
+  transform: translate(6px, 6px);
+}
+
+.brutal-box-klein {
+  border: 2px solid var(--color-klein);
+  box-shadow: 5px 5px 0 var(--color-klein);
+  transition: box-shadow 180ms ease, transform 180ms ease;
+}
+.brutal-box-klein:hover {
+  box-shadow: none;
+  transform: translate(5px, 5px);
+}
+
+/* Work horizontal scroll */
+.work-track {
+  display: flex;
+  gap: clamp(24px, 3vw, 48px);
+  will-change: transform;
+}
+
+/* Counter animation */
+@keyframes count-up {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
 /* legacy */
 .pop-card { border: 1px solid var(--color-hair); border-radius: 6px; }
 .badge {
