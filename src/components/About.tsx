@@ -22,13 +22,40 @@ export default function About() {
                 },
             })
 
-            gsap.from('.about-right > *', {
-                y: 30,
+            gsap.from('.about-bio', {
+                y: 24,
                 opacity: 0,
-                duration: 0.8,
+                duration: 0.9,
+                ease: 'power3.out',
+                delay: 0.5,
+                scrollTrigger: {
+                    trigger: sectionRef.current,
+                    start: 'top 70%',
+                    once: true,
+                },
+            })
+
+            gsap.from('.about-arrow', {
+                x: -16,
+                opacity: 0,
+                duration: 0.5,
+                stagger: 0.12,
+                ease: 'power3.out',
+                delay: 0.7,
+                scrollTrigger: {
+                    trigger: sectionRef.current,
+                    start: 'top 70%',
+                    once: true,
+                },
+            })
+
+            gsap.from('.about-value', {
+                xPercent: -3,
+                opacity: 0,
+                duration: 0.6,
                 stagger: 0.1,
                 ease: 'power3.out',
-                delay: 0.4,
+                delay: 0.85,
                 scrollTrigger: {
                     trigger: sectionRef.current,
                     start: 'top 70%',
@@ -40,6 +67,15 @@ export default function About() {
         },
         { scope: sectionRef }
     )
+
+    const onValueEnter = (arrow: HTMLElement | null) => {
+        if (!arrow) return
+        gsap.to(arrow, { scale: 1.2, duration: 0.3, ease: 'power3.out' })
+    }
+    const onValueLeave = (arrow: HTMLElement | null) => {
+        if (!arrow) return
+        gsap.to(arrow, { scale: 1, duration: 0.3, ease: 'power3.out' })
+    }
 
     return (
         <section
@@ -108,7 +144,7 @@ export default function About() {
                             — About us
                         </span>
                         <p
-                            className="serif"
+                            className="serif about-bio"
                             style={{
                                 fontSize: 'clamp(18px, 1.6vw, 22px)',
                                 lineHeight: 1.45,
@@ -136,22 +172,40 @@ export default function About() {
                                 gap: 12,
                             }}
                         >
-                            {VALUES.map((v) => (
-                                <li
-                                    key={v}
-                                    className="display"
-                                    style={{
-                                        fontSize: 'clamp(22px, 2.4vw, 34px)',
-                                        letterSpacing: '-0.03em',
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        gap: 16,
-                                    }}
-                                >
-                                    <span style={{ color: 'var(--color-klein)' }}>→</span>
-                                    {v}
-                                </li>
-                            ))}
+                            {VALUES.map((v) => {
+                                const arrowRef = { current: null as HTMLSpanElement | null }
+                                return (
+                                    <li
+                                        key={v}
+                                        className="display"
+                                        onMouseEnter={() => onValueEnter(arrowRef.current)}
+                                        onMouseLeave={() => onValueLeave(arrowRef.current)}
+                                        style={{
+                                            fontSize: 'clamp(22px, 2.4vw, 34px)',
+                                            letterSpacing: '-0.03em',
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            gap: 16,
+                                            cursor: 'default',
+                                        }}
+                                    >
+                                        <span
+                                            ref={(el) => {
+                                                arrowRef.current = el
+                                            }}
+                                            className="about-arrow"
+                                            style={{
+                                                color: 'var(--color-klein)',
+                                                display: 'inline-block',
+                                                transformOrigin: 'center',
+                                            }}
+                                        >
+                                            →
+                                        </span>
+                                        <span className="about-value">{v}</span>
+                                    </li>
+                                )
+                            })}
                         </ul>
                     </div>
                 </div>

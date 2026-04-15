@@ -1,11 +1,12 @@
 // Mark.tsx — The studio typographic mark.
-// The mark is an underscore `_` — a nod to "Undefined" (unused variable
-// in code), the blinking cursor of motion, and the geometry of a baseline.
-// Usage: <Mark size={48} color="var(--color-ink)" animate />
+// `>>` — double chevron. Speed, direction, forward motion.
+// References: right-shift operator, fast-forward, stream syntax.
+// Usage: <Mark size={48} color="var(--color-ink)" />
 
 type MarkProps = {
     size?: number | string
     color?: string
+    color2?: string
     className?: string
     animate?: boolean
 }
@@ -13,25 +14,44 @@ type MarkProps = {
 export default function Mark({
     size = 32,
     color = 'var(--color-ink)',
+    color2,
     className = '',
     animate = false,
 }: MarkProps) {
+    const px = typeof size === 'number' ? size : 32
+    const c2 = color2 ?? color
     return (
-        <span
+        <svg
+            width={px}
+            height={Math.round(px * 0.7)}
+            viewBox="0 0 40 28"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
             className={`${animate ? 'blink' : ''} ${className}`.trim()}
             aria-hidden
             style={{
-                fontFamily: 'JetBrains Mono, monospace',
-                fontSize: typeof size === 'number' ? `${size}px` : size,
-                color,
-                fontWeight: 700,
-                lineHeight: 1,
-                letterSpacing: '-0.05em',
                 display: 'inline-block',
+                verticalAlign: 'middle',
                 userSelect: 'none',
+                flexShrink: 0,
             }}
         >
-            _
-        </span>
+            {/* First chevron */}
+            <path
+                d="M2 2L16 14L2 26"
+                stroke={color}
+                strokeWidth="3"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+            />
+            {/* Second chevron */}
+            <path
+                d="M18 2L32 14L18 26"
+                stroke={c2}
+                strokeWidth="3"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+            />
+        </svg>
     )
 }

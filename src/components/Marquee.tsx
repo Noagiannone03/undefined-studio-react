@@ -1,69 +1,61 @@
 /**
- * Marquee — dark infinite scrolling band.
- * Uses the existing CSS `marq` keyframes from index.css.
- * Two identical track halves for a seamless loop.
+ * Marquee — neo-brutal scrolling strip.
+ * Paper background, display font, Mark separators bicolores (blue / orange).
  */
+import Mark from './Mark'
 
-const ITEMS = [
-    'DESIGN',
-    'MOTION',
-    'CODE',
-    'BRAND',
-    'EXPERIENCE',
-    'DIGITAL',
-    'UNDEFINED',
-]
-
-function Track() {
-    return (
-        <div className="flex items-center shrink-0">
-            {ITEMS.map((item) => (
-                <span
-                    key={item}
-                    className="mono flex items-center"
-                    style={{
-                        padding: '0 28px',
-                        fontSize: 13,
-                        letterSpacing: '0.22em',
-                        color: 'var(--color-paper)',
-                        whiteSpace: 'nowrap',
-                    }}
-                >
-                    {item}
-                    <span
-                        aria-hidden
-                        style={{
-                            color: 'var(--color-klein)',
-                            marginLeft: 28,
-                            fontSize: 14,
-                        }}
-                    >
-                        ★
-                    </span>
-                </span>
-            ))}
-        </div>
-    )
-}
+const ITEMS = ['DESIGN', 'MOTION', 'CODE', 'BRAND', 'EXPERIENCE', 'BUILD', 'SHIP', 'CRAFT', 'CREATE', 'DEFINE']
 
 export default function Marquee() {
     return (
         <section
             aria-label="brand marquee"
             style={{
-                background: 'var(--color-ink)',
-                color: 'var(--color-paper)',
-                height: 48,
+                background: 'var(--color-paper)',
+                borderTop: '2px solid var(--color-ink)',
+                borderBottom: '2px solid var(--color-ink)',
                 overflow: 'hidden',
-                position: 'relative',
-                width: '100%',
-                display: 'flex',
-                alignItems: 'center',
+                padding: 'clamp(14px, 2vw, 22px) 0',
+                userSelect: 'none',
             }}
         >
-            <div className="marq flex" style={{ width: 'max-content' }}>
-                <Track />
-                <Track />
+            <div
+                style={{
+                    display: 'flex',
+                    whiteSpace: 'nowrap',
+                    width: 'max-content',
+                    animation: 'marq 50s linear infinite',
+                    alignItems: 'center',
+                }}
+            >
+                {[0, 1].map((copy) => (
+                    <span key={copy} style={{ display: 'flex', alignItems: 'center' }}>
+                        {ITEMS.map((item, i) => (
+                            <span
+                                key={i}
+                                style={{ display: 'inline-flex', alignItems: 'center' }}
+                            >
+                                <span
+                                    className="display"
+                                    style={{
+                                        fontSize: 'clamp(22px, 3vw, 44px)',
+                                        letterSpacing: '-0.04em',
+                                        padding: '0 clamp(18px, 2.5vw, 36px)',
+                                        color: 'var(--color-ink)',
+                                        lineHeight: 1,
+                                    }}
+                                >
+                                    {item}
+                                </span>
+                                <Mark
+                                    size={i % 2 === 0 ? 26 : 22}
+                                    color={i % 2 === 0 ? 'var(--color-klein)' : 'var(--color-tomato)'}
+                                    color2={i % 2 === 0 ? 'var(--color-tomato)' : 'var(--color-klein)'}
+                                />
+                            </span>
+                        ))}
+                    </span>
+                ))}
             </div>
         </section>
     )

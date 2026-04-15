@@ -7,6 +7,7 @@ import Marquee from './components/Marquee'
 import Work from './components/Work'
 import About from './components/About'
 import Capabilities from './components/Capabilities'
+import Manifesto from './components/Manifesto'
 import Footer from './components/Footer'
 import LogoExport from './components/LogoExport'
 import Cursor from './components/Cursor'
@@ -47,6 +48,7 @@ function App() {
                 <Hero />
                 <Marquee />
                 <About />
+                <Manifesto />
                 <Work />
                 <Capabilities />
                 <Footer />

@@ -3,48 +3,46 @@ import { useGSAP } from '@gsap/react'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import Mark from './Mark'
+import { useSplitChars } from '../hooks/useSplitChars'
 
 /**
  * Hero — soft-pop neo-brutalist opener.
- * Massive stacked display headline, klein caption box, bottom meta row.
+ * Massive stacked display headline that fills the viewport width.
+ * Char-level animation on the two display lines via useSplitChars.
  * Registration of ScrollTrigger happens in App.tsx.
  */
 export default function Hero() {
     const containerRef = useRef<HTMLElement>(null)
 
+    // Pre-split [data-split] elements into .c-line > .c before GSAP runs
+    useSplitChars(containerRef)
+
     useGSAP(
         () => {
             gsap.from('.hero-topbar > *', {
-                y: -20,
+                y: -12,
                 opacity: 0,
                 duration: 0.8,
                 ease: 'power3.out',
                 stagger: 0.08,
             })
 
-            gsap.from('.hero-line', {
+            // Line 2 (serif italic) — keep as line reveal
+            gsap.from('.hero-line-2', {
                 yPercent: 110,
                 duration: 1.2,
-                stagger: 0.12,
                 ease: 'expo.out',
-                delay: 0.2,
+                delay: 0.5,
             })
 
-            gsap.from('.hero-caption', {
-                y: 30,
-                opacity: 0,
-                duration: 0.9,
-                ease: 'power3.out',
-                delay: 0.8,
-            })
-
-            gsap.from('.hero-bottom > *', {
-                opacity: 0,
-                y: 10,
-                duration: 0.7,
-                stagger: 0.06,
-                ease: 'power2.out',
-                delay: 1.1,
+            // Lines 1 and 3 — char-level reveal (after split runs)
+            gsap.from('.hero-chars .c', {
+                yPercent: 110,
+                rotation: 8,
+                duration: 1.0,
+                stagger: 0.025,
+                ease: 'expo.out',
+                delay: 0.15,
             })
 
             gsap.to('.hero-headline', {
@@ -72,63 +70,51 @@ export default function Hero() {
         >
             <div className="grain" />
 
-            <div className="hero-topbar flex items-center justify-between pt-8 pb-0 relative z-10">
-                <span
-                    className="mono"
-                    style={{ display: 'flex', alignItems: 'center', gap: 6 }}
-                >
-                    UNDEFINED
-                    <Mark size={14} animate />
-                </span>
-                <div className="flex items-center gap-6">
+            {/* Topbar */}
+            <div className="hero-topbar flex items-center justify-between pt-8 relative z-10">
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                    <Mark
+                        size={26}
+                        animate
+                        color="var(--color-tomato)"
+                        color2="var(--color-klein)"
+                    />
                     <span
-                        style={{
-                            border: '2px solid var(--color-ink)',
-                            padding: '4px 12px',
-                            fontSize: '11px',
-                            fontFamily: 'JetBrains Mono, monospace',
-                            letterSpacing: '0.2em',
-                            textTransform: 'uppercase',
-                            fontWeight: 500,
-                        }}
+                        className="display"
+                        style={{ fontSize: 'clamp(14px, 1.3vw, 17px)', letterSpacing: '-0.02em', lineHeight: 1 }}
                     >
-                        STUDIO
+                        UNDEFINED STUDIO
                     </span>
-                    <span className="mono label-soft">2026</span>
                 </div>
+                <span className="mono label-soft" style={{ fontSize: 11 }}>2026</span>
             </div>
 
-            <div
-                className="flex-1 flex flex-col justify-center relative z-10"
-                style={{ paddingTop: 'clamp(40px, 6vw, 80px)' }}
-            >
+            {/* Headline — fills vertical center, contains all three lines */}
+            <div className="flex-1 flex items-center relative z-10">
                 <h1
-                    className="hero-headline"
-                    style={{
-                        marginBottom: 'clamp(32px, 4vw, 64px)',
-                    }}
+                    className="hero-headline hero-chars"
+                    style={{ margin: 0, width: '100%' }}
                 >
-                    {/* Line 1 — brutal display */}
-                    <span className="reveal-mask" style={{ display: 'block' }}>
-                        <span
-                            className="reveal-line hero-line display"
-                            style={{
-                                display: 'block',
-                                fontSize: 'clamp(72px, 14vw, 210px)',
-                                lineHeight: 0.88,
-                                letterSpacing: '-0.045em',
-                            }}
-                        >
-                            WE BUILD
-                        </span>
+                    {/* Line 1 */}
+                    <span
+                        data-split
+                        className="display"
+                        style={{
+                            display: 'block',
+                            fontSize: 'clamp(56px, 17vw, 250px)',
+                            lineHeight: 0.88,
+                            letterSpacing: '-0.045em',
+                        }}
+                    >
+                        WE BUILD
                     </span>
-                    {/* Line 2 — serif italic contrast */}
+                    {/* Line 2 */}
                     <span className="reveal-mask" style={{ display: 'block' }}>
                         <span
-                            className="reveal-line hero-line serif-italic"
+                            className="reveal-line hero-line-2 serif-italic"
                             style={{
                                 display: 'block',
-                                fontSize: 'clamp(68px, 13vw, 195px)',
+                                fontSize: 'clamp(52px, 15.5vw, 230px)',
                                 lineHeight: 0.92,
                                 letterSpacing: '-0.03em',
                             }}
@@ -136,73 +122,38 @@ export default function Hero() {
                             things
                         </span>
                     </span>
-                    {/* Line 3 — brutal display with tomato accent */}
-                    <span className="reveal-mask" style={{ display: 'block' }}>
-                        <span
-                            className="reveal-line hero-line display"
-                            style={{
-                                display: 'block',
-                                fontSize: 'clamp(72px, 14vw, 210px)',
-                                lineHeight: 0.88,
-                                letterSpacing: '-0.045em',
-                            }}
-                        >
-                            THAT{' '}
-                            <span style={{ color: 'var(--color-tomato)' }}>MOVE.</span>
-                        </span>
-                    </span>
-                </h1>
-
-                <div
-                    className="hero-caption"
-                    style={{
-                        border: '2px solid var(--color-klein)',
-                        boxShadow: '5px 5px 0 var(--color-klein)',
-                        padding: 'clamp(16px, 2vw, 24px) clamp(20px, 3vw, 32px)',
-                        maxWidth: 'clamp(300px, 40vw, 560px)',
-                        marginBottom: 'clamp(40px, 6vw, 80px)',
-                        background: 'var(--color-paper)',
-                    }}
-                >
-                    <p
-                        className="serif"
+                    {/* Line 3 */}
+                    <span
+                        data-split
+                        className="display"
                         style={{
-                            fontSize: 'clamp(16px, 1.8vw, 24px)',
-                            lineHeight: 1.35,
-                            margin: 0,
+                            display: 'block',
+                            fontSize: 'clamp(44px, 13.5vw, 200px)',
+                            lineHeight: 0.88,
+                            letterSpacing: '-0.045em',
                         }}
                     >
-                        Digital experiences at the intersection of design &amp; technology.
-                    </p>
-                </div>
+                        THAT <span style={{ color: 'var(--color-tomato)' }}>MOVE.</span>
+                    </span>
+                </h1>
             </div>
 
-            <div className="hero-bottom flex items-center justify-between pb-8 hair-t pt-5 relative z-10">
-                <div className="flex items-center gap-6">
-                    {['DESIGN', 'MOTION', 'CODE', 'BRAND'].map((tag, i) => (
-                        <span key={tag} className="mono label-soft">
-                            {tag}
-                            {i < 3 ? (
-                                <span style={{ color: 'var(--color-klein)', marginLeft: 10 }}>
-                                    ★
-                                </span>
-                            ) : null}
-                        </span>
-                    ))}
-                </div>
-                <div className="flex items-center gap-3 mono">
-                    <span
-                        className="blink"
-                        style={{
-                            width: 6,
-                            height: 6,
-                            borderRadius: '50%',
-                            background: 'var(--color-tomato)',
-                            display: 'inline-block',
-                        }}
-                    />
-                    SCROLL ↓
-                </div>
+            {/* Minimal scroll indicator — just a dot and text */}
+            <div
+                className="relative z-10 pb-8 flex items-center gap-3 mono label-soft"
+                style={{ fontSize: 11 }}
+            >
+                <span
+                    className="blink"
+                    style={{
+                        width: 5,
+                        height: 5,
+                        borderRadius: '50%',
+                        background: 'var(--color-tomato)',
+                        display: 'inline-block',
+                    }}
+                />
+                SCROLL
             </div>
         </section>
     )
