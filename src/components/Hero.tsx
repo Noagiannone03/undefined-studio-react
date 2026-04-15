@@ -27,6 +27,31 @@ export default function Hero() {
                 stagger: 0.08,
             })
 
+            // Draw-in the two chevrons in sequence
+            gsap.fromTo(
+                '.hero-mark .mark-chev',
+                { strokeDashoffset: 80 },
+                {
+                    strokeDashoffset: 0,
+                    duration: 0.9,
+                    ease: 'expo.out',
+                    stagger: 0.12,
+                    delay: 0.3,
+                }
+            )
+
+            // Subtle infinite "stream" — chevrons slide right and fade, looping
+            gsap.to('.hero-mark .mark-chev', {
+                x: 6,
+                opacity: 0.55,
+                duration: 1.2,
+                ease: 'sine.inOut',
+                yoyo: true,
+                repeat: -1,
+                stagger: { each: 0.18, repeat: -1, yoyo: true },
+                delay: 1.4,
+            })
+
             // Line 2 (serif italic) — keep as line reveal
             gsap.from('.hero-line-2', {
                 yPercent: 110,
@@ -73,12 +98,14 @@ export default function Hero() {
             {/* Topbar */}
             <div className="hero-topbar flex items-center justify-between pt-8 relative z-10">
                 <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                    <Mark
-                        size={26}
-                        animate
-                        color="var(--color-tomato)"
-                        color2="var(--color-klein)"
-                    />
+                    <span className="hero-mark" style={{ display: 'inline-flex' }}>
+                        <Mark
+                            size={26}
+                            drawable
+                            color="var(--color-tomato)"
+                            color2="var(--color-klein)"
+                        />
+                    </span>
                     <span
                         className="display"
                         style={{ fontSize: 'clamp(14px, 1.3vw, 17px)', letterSpacing: '-0.02em', lineHeight: 1 }}
@@ -153,7 +180,7 @@ export default function Hero() {
                         display: 'inline-block',
                     }}
                 />
-                SCROLL
+                DÉFILER
             </div>
         </section>
     )

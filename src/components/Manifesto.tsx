@@ -5,21 +5,24 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger'
 type Word = { text: string; accent?: 'tomato' | 'klein' | 'italic' }
 
 const WORDS: Word[] = [
-    { text: 'Design' },
-    { text: 'is' },
-    { text: 'how', accent: 'italic' },
-    { text: 'something' },
-    { text: 'works.' },
-    { text: 'Motion' },
-    { text: 'is' },
-    { text: 'how', accent: 'italic' },
-    { text: 'it' },
-    { text: 'breathes.' },
-    { text: 'Code', accent: 'klein' },
-    { text: 'is' },
-    { text: 'how', accent: 'italic' },
-    { text: 'it' },
-    { text: 'lives.', accent: 'tomato' },
+    { text: 'Le' },
+    { text: 'design,' },
+    { text: "c'est", accent: 'italic' },
+    { text: 'comment' },
+    { text: 'ça' },
+    { text: 'marche.' },
+    { text: 'Le' },
+    { text: 'mouvement,' },
+    { text: "c'est", accent: 'italic' },
+    { text: 'comment' },
+    { text: 'ça' },
+    { text: 'respire.' },
+    { text: 'Le' },
+    { text: 'code,', accent: 'klein' },
+    { text: "c'est", accent: 'italic' },
+    { text: 'comment' },
+    { text: 'ça' },
+    { text: 'vit.', accent: 'tomato' },
 ]
 
 /**
@@ -116,7 +119,7 @@ export default function Manifesto() {
                             letterSpacing: '0.2em',
                         }}
                     >
-                        — MANIFESTO
+                        — MANIFESTE
                     </span>
                     <span
                         className="mono"

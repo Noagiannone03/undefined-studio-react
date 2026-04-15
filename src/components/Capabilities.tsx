@@ -14,19 +14,19 @@ type Service = {
 const SERVICES: Service[] = [
     {
         id: '01',
-        name: 'PRODUCT DESIGN',
-        tools: 'UX / UI · Systems · Interaction',
+        name: 'DESIGN PRODUIT',
+        tools: 'UX / UI · Systèmes · Interaction',
         accent: 'var(--color-klein)',
         description:
-            'We design interfaces that feel inevitable — from rough concepts to pixel-perfect systems. Every interaction is intentional.',
+            "On dessine des interfaces qui semblent évidentes — du concept brut aux systèmes au pixel près. Chaque interaction a une raison d'être.",
     },
     {
         id: '02',
-        name: 'DEVELOPMENT',
+        name: 'DÉVELOPPEMENT',
         tools: 'iOS · React · Node · APIs',
         accent: 'var(--color-tomato)',
         description:
-            'Full-stack product development. We build iOS apps, web platforms, and the APIs that connect them. We ship, fast.',
+            'Développement produit de bout en bout. Apps iOS, plateformes web, APIs qui les relient. On livre, et on livre vite.',
     },
     {
         id: '03',
@@ -34,15 +34,15 @@ const SERVICES: Service[] = [
         tools: 'GSAP · WebGL · R3F · Canvas',
         accent: 'var(--color-klein)',
         description:
-            'Animation and code as design tools. From microinteractions to full immersive WebGL experiences, we bring interfaces to life.',
+            "L'animation et le code comme outils de design. Des micro-interactions aux expériences WebGL immersives, on donne vie aux interfaces.",
     },
     {
         id: '04',
-        name: 'BRAND IDENTITY',
-        tools: 'Visual · Typography · Direction',
+        name: 'IDENTITÉ DE MARQUE',
+        tools: 'Visuel · Typographie · Direction',
         accent: 'var(--color-ink)',
         description:
-            'Visual identity systems built to last. Logotype, typography, color, motion — a coherent language for your product.',
+            "Systèmes d'identité pensés pour durer. Logotype, typo, couleur, motion — un langage cohérent pour votre produit.",
     },
 ]
 
@@ -93,7 +93,7 @@ export default function Capabilities() {
                 style={{ marginBottom: 'clamp(40px, 5vw, 72px)' }}
             >
                 <span className="mono label-soft" style={{ display: 'block', marginBottom: 14 }}>
-                    ( 03 ) — Our craft
+                    ( 04 ) — Notre métier
                 </span>
                 <h2
                     className="display"
@@ -104,9 +104,9 @@ export default function Capabilities() {
                         letterSpacing: '-0.045em',
                     }}
                 >
-                    WHAT WE{' '}
+                    CE QU'ON{' '}
                     <span className="serif-italic" style={{ letterSpacing: '-0.02em' }}>
-                        build.
+                        construit.
                     </span>
                 </h2>
             </div>

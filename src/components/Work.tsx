@@ -2,56 +2,161 @@ import { useEffect, useRef } from 'react'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 
-import vagoImg from '../assets/images/vago-illustrations/interface-open.jpeg'
-import whispImg from '../assets/images/whisp/homescreen.png'
+import vagoInterface from '../assets/images/vago-illustrations/interface-open.jpeg'
+import vagoNoTrip from '../assets/images/vago-illustrations/no-trip-interface.png'
+import vagoStreak from '../assets/images/vago-illustrations/streak.jpeg'
+import whispHome from '../assets/images/whisp/homescreen.png'
+import whispDiscussion from '../assets/images/whisp/discussion.png'
+import whispProfile from '../assets/images/whisp/detail-profile.png'
 
 type Project = {
     id: string
     name: string
     category: string
     year: string
-    tags: string[]
-    bg: string
-    textColor: string
-    img: string
-    imgAlt: string
-    tilt: number
+    role: string
+    client: string
+    stack: string[]
+    summary: string
+    accent: string
+    iconSrc?: string
+    screens: { src: string; alt: string }[]
 }
 
 const PROJECTS: Project[] = [
     {
         id: '01',
         name: 'VAGO',
-        category: 'Product Design & Motion',
+        category: 'Produit & Motion',
         year: '2024',
-        tags: ['iOS App', 'Brand', 'Motion'],
-        bg: '#1D1DBF',
-        textColor: '#EFEBDD',
-        img: vagoImg,
-        imgAlt: 'Vago app',
-        tilt: -9,
+        role: 'Design, branding, dev iOS',
+        client: 'Indépendant',
+        stack: ['SwiftUI', 'Figma', 'After Effects'],
+        summary:
+            "Un compagnon de voyage qui récompense le trajet lui-même. Mécaniques de streak, interactions tactiles, et une marque pensée pour l'élan.",
+        accent: 'var(--color-klein)',
+        iconSrc: undefined,
+        screens: [
+            { src: vagoInterface, alt: 'Vago — interface ouverte' },
+            { src: vagoStreak, alt: 'Vago — vue streak' },
+            { src: vagoNoTrip, alt: 'Vago — état vide' },
+        ],
     },
     {
         id: '02',
         name: 'WHISP',
-        category: 'Brand Identity & UX',
+        category: 'Identité & UX',
         year: '2024',
-        tags: ['iOS App', 'UX/UI', 'Brand'],
-        bg: '#E84A2A',
-        textColor: '#EFEBDD',
-        img: whispImg,
-        imgAlt: 'Whisp app',
-        tilt: 7,
+        role: 'Design produit complet',
+        client: 'Whisp Labs',
+        stack: ['iOS', 'Figma', 'Principle'],
+        summary:
+            "Des conversations anonymes sur les campus, repensées. Une plateforme vocale discrète avec une identité forte — portée par la typo et le mouvement.",
+        accent: 'var(--color-tomato)',
+        iconSrc: undefined,
+        screens: [
+            { src: whispHome, alt: 'Whisp — accueil' },
+            { src: whispDiscussion, alt: 'Whisp — discussion' },
+            { src: whispProfile, alt: 'Whisp — profil' },
+        ],
     },
 ]
 
 export default function Work() {
     const sectionRef = useRef<HTMLElement>(null)
+    const headerRef = useRef<HTMLDivElement>(null)
+    const counterRef = useRef<HTMLSpanElement>(null)
+
+    useEffect(() => {
+        const header = headerRef.current
+        if (!header) return
+
+        const ctx = gsap.context(() => {
+            // Char-by-char pop with rotation on the big title
+            const chars = header.querySelectorAll('.wh-title .c')
+            gsap.set(chars, { yPercent: 140, rotation: 10, opacity: 0 })
+            gsap.to(chars, {
+                yPercent: 0,
+                rotation: 0,
+                opacity: 1,
+                duration: 1.1,
+                ease: 'expo.out',
+                stagger: 0.035,
+                scrollTrigger: { trigger: header, start: 'top 80%', once: true },
+            })
+
+            // Italic word wipes in after
+            gsap.fromTo(
+                '.wh-italic',
+                { clipPath: 'inset(0 100% 0 0)' },
+                {
+                    clipPath: 'inset(0 0% 0 0)',
+                    duration: 1.1,
+                    ease: 'expo.out',
+                    delay: 0.45,
+                    scrollTrigger: { trigger: header, start: 'top 80%', once: true },
+                }
+            )
+
+            // Lead paragraph line reveal
+            gsap.from('.wh-lead', {
+                yPercent: 100,
+                duration: 1,
+                ease: 'expo.out',
+                delay: 0.65,
+                scrollTrigger: { trigger: header, start: 'top 80%', once: true },
+            })
+
+            // Counter — ticks from 00 to 02
+            if (counterRef.current) {
+                const obj = { n: 0 }
+                gsap.to(obj, {
+                    n: PROJECTS.length,
+                    duration: 1.4,
+                    ease: 'power3.out',
+                    delay: 0.4,
+                    onUpdate: () => {
+                        if (counterRef.current) {
+                            counterRef.current.textContent = String(
+                                Math.round(obj.n)
+                            ).padStart(2, '0')
+                        }
+                    },
+                    scrollTrigger: { trigger: header, start: 'top 80%', once: true },
+                })
+            }
+
+            // Side tag slides in
+            gsap.from('.wh-side > *', {
+                y: 20,
+                opacity: 0,
+                duration: 0.8,
+                stagger: 0.1,
+                ease: 'power3.out',
+                delay: 0.9,
+                scrollTrigger: { trigger: header, start: 'top 80%', once: true },
+            })
+        }, header)
+
+        return () => ctx.revert()
+    }, [])
+
+    const splitChars = (s: string) =>
+        s.split('').map((ch, i) => (
+            <span
+                key={i}
+                className="c"
+                style={{ display: 'inline-block', willChange: 'transform, opacity' }}
+            >
+                {ch === ' ' ? '\u00A0' : ch}
+            </span>
+        ))
 
     return (
         <section ref={sectionRef} id="work" style={{ background: 'var(--color-paper)' }}>
             {/* Header */}
             <div
+                ref={headerRef}
                 className="container-x work-header hair-b"
                 style={{
                     paddingTop: 'clamp(80px, 10vw, 140px)',
@@ -59,234 +164,581 @@ export default function Work() {
                     display: 'flex',
                     alignItems: 'flex-end',
                     justifyContent: 'space-between',
+                    gap: 32,
+                    flexWrap: 'wrap',
+                    position: 'relative',
                 }}
             >
-                <div>
-                    <span className="mono label-soft" style={{ display: 'block', marginBottom: 12 }}>
-                        ( 02 ) — Portfolio
+                <div style={{ maxWidth: 820, overflow: 'hidden' }}>
+                    <span
+                        className="mono label-soft"
+                        style={{ display: 'block', marginBottom: 14 }}
+                    >
+                        ( 02 ) — Au travail
                     </span>
                     <h2
-                        className="display"
+                        className="wh-title display"
                         style={{
-                            fontSize: 'clamp(44px, 7vw, 104px)',
-                            lineHeight: 0.9,
+                            fontSize: 'clamp(56px, 9vw, 160px)',
+                            lineHeight: 0.88,
                             margin: 0,
-                            letterSpacing: '-0.045em',
+                            letterSpacing: '-0.05em',
+                            overflow: 'hidden',
                         }}
                     >
-                        SELECTED <span className="serif-italic">work</span>
+                        <span style={{ display: 'block', overflow: 'hidden' }}>
+                            {splitChars('RÉCEMMENT')}
+                            <span style={{ color: 'var(--color-tomato)' }}>.</span>
+                        </span>
                     </h2>
+                    <div style={{ overflow: 'hidden', marginTop: 'clamp(8px, 1vw, 14px)' }}>
+                        <span
+                            className="wh-italic serif-italic"
+                            style={{
+                                display: 'block',
+                                fontSize: 'clamp(32px, 5vw, 82px)',
+                                letterSpacing: '-0.025em',
+                                lineHeight: 1,
+                                color: 'var(--color-ink-soft)',
+                            }}
+                        >
+                            deux projets.
+                        </span>
+                    </div>
+                    <div style={{ overflow: 'hidden', marginTop: 'clamp(24px, 3vw, 36px)' }}>
+                        <p
+                            className="wh-lead serif"
+                            style={{
+                                fontSize: 'clamp(17px, 1.5vw, 22px)',
+                                lineHeight: 1.4,
+                                color: 'var(--color-ink)',
+                                margin: 0,
+                                maxWidth: '38ch',
+                            }}
+                        >
+                            On prend peu de briefs. On les choisit lentement,
+                            on les fait longtemps.
+                        </p>
+                    </div>
                 </div>
-                <span className="mono label-soft" style={{ paddingBottom: 8 }}>
-                    02 PROJECTS
-                </span>
+
+                <div
+                    className="wh-side"
+                    style={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'flex-end',
+                        gap: 12,
+                    }}
+                >
+                    <span
+                        className="display"
+                        style={{
+                            fontSize: 'clamp(44px, 5vw, 84px)',
+                            lineHeight: 1,
+                            letterSpacing: '-0.04em',
+                            color: 'var(--color-klein)',
+                        }}
+                    >
+                        <span ref={counterRef}>00</span>
+                        <span
+                            style={{
+                                fontSize: '0.4em',
+                                color: 'var(--color-ink-mute)',
+                                marginLeft: 6,
+                                verticalAlign: 'super',
+                            }}
+                        >
+                            / 02
+                        </span>
+                    </span>
+                    <span className="mono label-soft" style={{ fontSize: 11 }}>
+                        PROJETS LIVRÉS
+                    </span>
+                </div>
             </div>
 
-            {/* Project sections */}
-            {PROJECTS.map((p) => (
-                <PosterSection key={p.id} project={p} />
+            {PROJECTS.map((p, i) => (
+                <ProjectEditorial key={p.id} project={p} index={i} />
             ))}
         </section>
     )
 }
 
-function PosterSection({ project }: { project: Project }) {
+function ProjectEditorial({ project, index }: { project: Project; index: number }) {
     const ref = useRef<HTMLDivElement>(null)
-    const phoneWrapRef = useRef<HTMLDivElement>(null)
-    const nameRef = useRef<HTMLParagraphElement>(null)
+    const heroScreenRef = useRef<HTMLDivElement>(null)
+    const spineRef = useRef<HTMLDivElement>(null)
+    const sideScreen1Ref = useRef<HTMLDivElement>(null)
+    const sideScreen2Ref = useRef<HTMLDivElement>(null)
 
     useEffect(() => {
         const el = ref.current
-        const wrap = phoneWrapRef.current
-        const name = nameRef.current
-        if (!el || !wrap || !name) return
-
-        // Phone: reveal + scale entrée
-        gsap.fromTo(
-            wrap,
-            { scale: 0.9, opacity: 0, y: 40 },
-            {
-                scale: 1,
-                opacity: 1,
-                y: 0,
-                duration: 1.4,
+        if (!el) return
+        const ctx = gsap.context(() => {
+            // Title & meta wipe
+            gsap.from(el.querySelectorAll('.ed-reveal'), {
+                yPercent: 110,
+                duration: 1.1,
                 ease: 'expo.out',
-                scrollTrigger: { trigger: el, start: 'top 75%', once: true },
-            }
-        )
+                stagger: 0.08,
+                scrollTrigger: { trigger: el, start: 'top 72%', once: true },
+            })
 
-        // Nom: wipe from left
-        gsap.fromTo(
-            name,
-            { clipPath: 'inset(0 100% 0 0)' },
-            {
-                clipPath: 'inset(0 0% 0 0)',
-                duration: 1.2,
+            // Coloured spine grows up from bottom
+            if (spineRef.current) {
+                gsap.fromTo(
+                    spineRef.current,
+                    { scaleY: 0 },
+                    {
+                        scaleY: 1,
+                        duration: 1.3,
+                        ease: 'expo.out',
+                        scrollTrigger: { trigger: el, start: 'top 70%', once: true },
+                    }
+                )
+            }
+
+            // Hero screen — reveal from bottom
+            if (heroScreenRef.current) {
+                gsap.fromTo(
+                    heroScreenRef.current,
+                    { y: 60, opacity: 0 },
+                    {
+                        y: 0,
+                        opacity: 1,
+                        duration: 1.3,
+                        ease: 'expo.out',
+                        delay: 0.15,
+                        scrollTrigger: { trigger: el, start: 'top 70%', once: true },
+                    }
+                )
+            }
+
+            // Side screens — staggered fade in
+            gsap.from([sideScreen1Ref.current, sideScreen2Ref.current], {
+                y: 50,
+                opacity: 0,
+                duration: 1.1,
                 ease: 'expo.out',
-                delay: 0.25,
-                scrollTrigger: { trigger: el, start: 'top 75%', once: true },
-            }
-        )
+                stagger: 0.12,
+                delay: 0.3,
+                scrollTrigger: { trigger: el, start: 'top 65%', once: true },
+            })
 
-        // Parallax léger sur le téléphone
-        gsap.to(wrap, {
-            yPercent: -8,
-            ease: 'none',
-            scrollTrigger: {
-                trigger: el,
-                start: 'top bottom',
-                end: 'bottom top',
-                scrub: 2,
-            },
-        })
+            // Parallax on hero — subtle, screens stay "posed"
+            if (heroScreenRef.current) {
+                gsap.to(heroScreenRef.current, {
+                    yPercent: -6,
+                    ease: 'none',
+                    scrollTrigger: {
+                        trigger: el,
+                        start: 'top bottom',
+                        end: 'bottom top',
+                        scrub: 1.5,
+                    },
+                })
+            }
+            // Side screens parallax — slightly different rates
+            if (sideScreen1Ref.current) {
+                gsap.to(sideScreen1Ref.current, {
+                    yPercent: -10,
+                    ease: 'none',
+                    scrollTrigger: {
+                        trigger: el,
+                        start: 'top bottom',
+                        end: 'bottom top',
+                        scrub: 1.8,
+                    },
+                })
+            }
+            if (sideScreen2Ref.current) {
+                gsap.to(sideScreen2Ref.current, {
+                    yPercent: -3,
+                    ease: 'none',
+                    scrollTrigger: {
+                        trigger: el,
+                        start: 'top bottom',
+                        end: 'bottom top',
+                        scrub: 2,
+                    },
+                })
+            }
+
+            // Giant outlined name drifts horizontally
+            const name = el.querySelector('.ed-outline')
+            if (name) {
+                gsap.fromTo(
+                    name,
+                    { xPercent: -3 },
+                    {
+                        xPercent: 3,
+                        ease: 'none',
+                        scrollTrigger: {
+                            trigger: el,
+                            start: 'top bottom',
+                            end: 'bottom top',
+                            scrub: 1.5,
+                        },
+                    }
+                )
+            }
+        }, el)
 
         return () => {
+            ctx.revert()
             ScrollTrigger.getAll()
                 .filter((t) => t.vars.trigger === el)
                 .forEach((t) => t.kill())
         }
     }, [])
 
+    const reversed = index % 2 === 1
+
     return (
         <div
             ref={ref}
-            data-poster={project.id}
+            data-project={project.id}
             style={{
-                background: project.bg,
-                minHeight: '100vh',
-                display: 'flex',
-                flexDirection: 'column',
-                padding: 'clamp(28px, 4vw, 52px) var(--side-spacing)',
+                background: 'var(--color-paper)',
+                color: 'var(--color-ink)',
+                padding:
+                    'clamp(80px, 12vw, 160px) var(--side-spacing) clamp(80px, 12vw, 160px)',
                 position: 'relative',
                 overflow: 'hidden',
+                borderTop: '1px solid var(--color-hair)',
             }}
         >
-            {/* Top meta */}
+            {/* Giant outlined name — drifts in background */}
+            <p
+                className="ed-outline display"
+                aria-hidden
+                style={{
+                    position: 'absolute',
+                    top: '50%',
+                    left: '50%',
+                    transform: 'translate(-50%, -50%)',
+                    fontSize: 'clamp(240px, 38vw, 680px)',
+                    letterSpacing: '-0.06em',
+                    lineHeight: 0.8,
+                    margin: 0,
+                    color: 'transparent',
+                    WebkitTextStroke: `1.5px ${project.accent}`,
+                    opacity: 0.28,
+                    whiteSpace: 'nowrap',
+                    pointerEvents: 'none',
+                    zIndex: 0,
+                    userSelect: 'none',
+                }}
+            >
+                {project.name}
+            </p>
+
+            {/* Top meta row */}
             <div
                 style={{
                     display: 'flex',
                     justifyContent: 'space-between',
                     alignItems: 'center',
-                    marginBottom: 'clamp(24px, 4vh, 48px)',
+                    position: 'relative',
+                    zIndex: 2,
+                    borderBottom: '1px solid var(--color-hair)',
+                    paddingBottom: 'clamp(16px, 2vw, 24px)',
+                    marginBottom: 'clamp(40px, 6vw, 80px)',
+                    flexWrap: 'wrap',
+                    gap: 20,
                 }}
             >
-                <span
-                    className="mono"
-                    style={{
-                        color: project.textColor,
-                        opacity: 0.55,
-                        fontSize: 11,
-                        letterSpacing: '0.22em',
-                    }}
-                >
-                    {project.id} / 02
-                </span>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+                    {/* Icon slot — falls back to coloured dot */}
+                    {project.iconSrc ? (
+                        <img
+                            src={project.iconSrc}
+                            alt={`${project.name} icon`}
+                            style={{
+                                width: 48,
+                                height: 48,
+                                borderRadius: 12,
+                                objectFit: 'cover',
+                                boxShadow: '0 4px 14px rgba(0,0,0,0.12)',
+                            }}
+                        />
+                    ) : (
+                        <span
+                            aria-hidden
+                            style={{
+                                width: 12,
+                                height: 12,
+                                borderRadius: '50%',
+                                background: project.accent,
+                                display: 'inline-block',
+                            }}
+                        />
+                    )}
+                    <span
+                        className="mono"
+                        style={{
+                            color: 'var(--color-ink)',
+                            opacity: 0.6,
+                            fontSize: 11,
+                            letterSpacing: '0.22em',
+                        }}
+                    >
+                        {project.id} / 02 — {project.year}
+                    </span>
+                </div>
                 <span
                     className="serif-italic"
                     style={{
-                        color: project.textColor,
-                        opacity: 0.7,
-                        fontSize: 'clamp(14px, 1.3vw, 17px)',
+                        color: 'var(--color-ink-soft)',
+                        fontSize: 'clamp(15px, 1.4vw, 19px)',
                     }}
                 >
                     {project.category}
                 </span>
             </div>
 
-            {/* Phone — centré, incliné, ombre brutale */}
+            {/* Main grid — title + hero screen with coloured spine */}
             <div
                 style={{
-                    flex: 1,
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    padding: 'clamp(16px, 3vh, 40px) 0',
+                    display: 'grid',
+                    gridTemplateColumns: 'repeat(12, 1fr)',
+                    gap: 'clamp(16px, 2.5vw, 40px)',
+                    position: 'relative',
+                    zIndex: 2,
+                    alignItems: 'stretch',
                 }}
             >
-                <div ref={phoneWrapRef} style={{ position: 'relative', display: 'inline-block' }}>
-                    {/* Ombre décalée style brutalist */}
+                {/* Title column */}
+                <div
+                    style={{
+                        gridColumn: reversed ? '7 / span 6' : '1 / span 6',
+                        order: reversed ? 2 : 1,
+                        display: 'flex',
+                        flexDirection: 'column',
+                        justifyContent: 'space-between',
+                        paddingTop: 'clamp(16px, 3vw, 40px)',
+                        paddingBottom: 'clamp(16px, 3vw, 40px)',
+                    }}
+                >
+                    <div>
+                        <div style={{ overflow: 'hidden' }}>
+                            <h3
+                                className="ed-reveal display"
+                                style={{
+                                    fontSize: 'clamp(56px, 8vw, 128px)',
+                                    lineHeight: 0.85,
+                                    letterSpacing: '-0.05em',
+                                    margin: 0,
+                                    color: project.accent,
+                                }}
+                            >
+                                {project.name}
+                            </h3>
+                        </div>
+                        <div style={{ overflow: 'hidden', marginTop: 'clamp(16px, 2vw, 28px)' }}>
+                            <p
+                                className="ed-reveal serif"
+                                style={{
+                                    fontSize: 'clamp(18px, 1.6vw, 24px)',
+                                    lineHeight: 1.4,
+                                    maxWidth: '36ch',
+                                    margin: 0,
+                                    color: 'var(--color-ink)',
+                                }}
+                            >
+                                {project.summary}
+                            </p>
+                        </div>
+                    </div>
+
+                    {/* Meta row under title */}
                     <div
+                        style={{
+                            display: 'grid',
+                            gridTemplateColumns: '1fr 1fr 1fr',
+                            gap: 'clamp(12px, 2vw, 24px)',
+                            marginTop: 'clamp(32px, 4vw, 56px)',
+                            paddingTop: 'clamp(18px, 2vw, 24px)',
+                            borderTop: '1px solid var(--color-hair)',
+                        }}
+                    >
+                        <MetaCol label="Rôle" value={project.role} />
+                        <MetaCol label="Client" value={project.client} />
+                        <MetaCol label="Outils" value={project.stack.join(' · ')} />
+                    </div>
+                </div>
+
+                {/* Hero screen with coloured spine */}
+                <div
+                    style={{
+                        gridColumn: reversed ? '1 / span 6' : '7 / span 6',
+                        order: reversed ? 1 : 2,
+                        position: 'relative',
+                        minHeight: 'clamp(520px, 75vh, 880px)',
+                        display: 'flex',
+                        alignItems: 'stretch',
+                        justifyContent: reversed ? 'flex-end' : 'flex-start',
+                    }}
+                >
+                    {/* Coloured spine — grows from bottom */}
+                    <div
+                        ref={spineRef}
                         aria-hidden
                         style={{
                             position: 'absolute',
-                            inset: 0,
-                            background: 'rgba(0,0,0,0.28)',
-                            transform: `rotate(${project.tilt}deg) translate(18px, 18px)`,
+                            [reversed ? 'right' : 'left']: '8%',
+                            top: 0,
+                            bottom: 0,
+                            width: '78%',
+                            background: project.accent,
+                            transformOrigin: 'bottom',
                             zIndex: 0,
                         }}
                     />
-                    <img
-                        src={project.img}
-                        alt={project.imgAlt}
+                    {/* Hero screen — portrait, centred on spine */}
+                    <div
+                        ref={heroScreenRef}
                         style={{
-                            height: 'clamp(340px, 58vh, 640px)',
-                            width: 'auto',
-                            aspectRatio: '9/16',
-                            objectFit: 'cover',
-                            display: 'block',
-                            transform: `rotate(${project.tilt}deg)`,
                             position: 'relative',
                             zIndex: 1,
-                            boxShadow: '0 32px 80px rgba(0,0,0,0.30)',
-                            outline: '1px solid rgba(255,255,255,0.12)',
+                            height: '100%',
+                            aspectRatio: '9/19.5',
+                            margin: reversed ? '0 14% 0 auto' : '0 auto 0 14%',
+                            borderRadius: 34,
+                            overflow: 'hidden',
+                            backgroundImage: `url(${project.screens[0].src})`,
+                            backgroundSize: 'cover',
+                            backgroundPosition: 'center top',
+                            boxShadow:
+                                '0 50px 110px rgba(0,0,0,0.28), 0 20px 40px rgba(0,0,0,0.18), 0 4px 8px rgba(0,0,0,0.08)',
+                            border: '6px solid var(--color-ink)',
+                            outline: '1px solid rgba(14,14,12,0.08)',
                         }}
+                        role="img"
+                        aria-label={project.screens[0].alt}
                     />
                 </div>
             </div>
 
-            {/* Nom du projet — massif */}
-            <div style={{ overflow: 'hidden' }}>
-                <p
-                    ref={nameRef}
-                    className="display"
-                    style={{
-                        fontSize: 'clamp(72px, 18vw, 260px)',
-                        lineHeight: 0.85,
-                        letterSpacing: '-0.05em',
-                        margin: 0,
-                        color: project.textColor,
-                    }}
-                >
-                    {project.name}
-                </p>
-            </div>
-
-            {/* Bottom bar */}
+            {/* Secondary screens row */}
             <div
                 style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                    marginTop: 'clamp(16px, 2vw, 28px)',
-                    paddingTop: 16,
-                    borderTop: '1px solid rgba(239,235,221,0.2)',
+                    display: 'grid',
+                    gridTemplateColumns: 'repeat(12, 1fr)',
+                    gap: 'clamp(16px, 2.5vw, 40px)',
+                    marginTop: 'clamp(64px, 8vw, 120px)',
+                    position: 'relative',
+                    zIndex: 2,
+                    alignItems: 'start',
                 }}
             >
-                <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-                    {project.tags.map((tag) => (
-                        <span
-                            key={tag}
-                            className="mono"
-                            style={{
-                                padding: '4px 10px',
-                                border: '1px solid rgba(239,235,221,0.35)',
-                                color: project.textColor,
-                                fontSize: 10,
-                                letterSpacing: '0.18em',
-                                opacity: 0.8,
-                            }}
-                        >
-                            {tag}
-                        </span>
-                    ))}
-                </div>
-                <span
-                    className="mono"
-                    style={{ color: project.textColor, opacity: 0.5, fontSize: 11 }}
+                {/* Second screen */}
+                <div
+                    style={{
+                        gridColumn: reversed ? '2 / span 4' : '2 / span 4',
+                        aspectRatio: '9/19.5',
+                        position: 'relative',
+                        minHeight: 'clamp(420px, 55vh, 640px)',
+                    }}
                 >
-                    {project.year}
-                </span>
+                    <div
+                        ref={sideScreen1Ref}
+                        style={{
+                            position: 'absolute',
+                            inset: 0,
+                            backgroundImage: `url(${project.screens[1].src})`,
+                            backgroundSize: 'cover',
+                            backgroundPosition: 'center top',
+                            borderRadius: 28,
+                            boxShadow:
+                                '0 36px 80px rgba(0,0,0,0.18), 0 14px 28px rgba(0,0,0,0.12), 0 2px 6px rgba(0,0,0,0.06)',
+                            border: '5px solid var(--color-ink)',
+                        }}
+                        role="img"
+                        aria-label={project.screens[1].alt}
+                    />
+                </div>
+
+                {/* Caption for this pair */}
+                <div
+                    style={{
+                        gridColumn: '6 / span 2',
+                        alignSelf: 'center',
+                        textAlign: 'center',
+                    }}
+                >
+                    <span
+                        className="mono label-soft"
+                        style={{ display: 'block', marginBottom: 8 }}
+                    >
+                        FIG. {project.id}
+                    </span>
+                    <span
+                        className="serif-italic"
+                        style={{
+                            fontSize: 'clamp(14px, 1.2vw, 17px)',
+                            color: 'var(--color-ink-soft)',
+                        }}
+                    >
+                        Dans l'app
+                    </span>
+                </div>
+
+                {/* Third screen */}
+                <div
+                    style={{
+                        gridColumn: '8 / span 4',
+                        aspectRatio: '9/19.5',
+                        position: 'relative',
+                        minHeight: 'clamp(420px, 55vh, 640px)',
+                    }}
+                >
+                    <div
+                        ref={sideScreen2Ref}
+                        style={{
+                            position: 'absolute',
+                            inset: 0,
+                            backgroundImage: `url(${project.screens[2].src})`,
+                            backgroundSize: 'cover',
+                            backgroundPosition: 'center top',
+                            borderRadius: 28,
+                            boxShadow:
+                                '0 36px 80px rgba(0,0,0,0.18), 0 14px 28px rgba(0,0,0,0.12), 0 2px 6px rgba(0,0,0,0.06)',
+                            border: '5px solid var(--color-ink)',
+                        }}
+                        role="img"
+                        aria-label={project.screens[2].alt}
+                    />
+                </div>
             </div>
+        </div>
+    )
+}
+
+function MetaCol({ label, value }: { label: string; value: string }) {
+    return (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+            <span
+                className="mono"
+                style={{
+                    fontSize: 10,
+                    letterSpacing: '0.22em',
+                    color: 'var(--color-ink-mute)',
+                }}
+            >
+                {label}
+            </span>
+            <span
+                style={{
+                    fontFamily: 'Satoshi, sans-serif',
+                    fontSize: 'clamp(13px, 1.1vw, 15px)',
+                    color: 'var(--color-ink)',
+                    lineHeight: 1.35,
+                }}
+            >
+                {value}
+            </span>
         </div>
     )
 }

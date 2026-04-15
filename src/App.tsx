@@ -6,6 +6,8 @@ import Hero from './components/Hero'
 import Marquee from './components/Marquee'
 import Work from './components/Work'
 import About from './components/About'
+import BrandMark from './components/BrandMark'
+import Currently from './components/Currently'
 import Capabilities from './components/Capabilities'
 import Manifesto from './components/Manifesto'
 import Footer from './components/Footer'
@@ -49,8 +51,10 @@ function App() {
                 <Marquee />
                 <About />
                 <Manifesto />
+                <BrandMark />
                 <Work />
                 <Capabilities />
+                <Currently />
                 <Footer />
             </main>
         </div>

@@ -3,7 +3,7 @@ import { useGSAP } from '@gsap/react'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 
-const VALUES = ['Quality', 'Precision', 'Impact', 'Boldness']
+const VALUES = ['Soin', 'Précision', 'Impact', 'Audace']
 
 export default function About() {
     const sectionRef = useRef<HTMLElement>(null)
@@ -94,10 +94,10 @@ export default function About() {
                     >
                         {(
                             [
-                                { text: "WE DON’T", style: 'display', fontSize: 'clamp(48px, 7vw, 110px)' },
-                                { text: 'make websites.', style: 'serif-italic', fontSize: 'clamp(44px, 6.5vw, 100px)' },
-                                { text: 'WE CRAFT', style: 'display', fontSize: 'clamp(48px, 7vw, 110px)' },
-                                { text: 'EXPERIENCES.', style: 'display', fontSize: 'clamp(48px, 7vw, 110px)' },
+                                { text: 'ON NE FAIT PAS', style: 'display', fontSize: 'clamp(44px, 6.2vw, 96px)' },
+                                { text: 'de sites.', style: 'serif-italic', fontSize: 'clamp(42px, 6vw, 92px)' },
+                                { text: 'ON CRÉE', style: 'display', fontSize: 'clamp(44px, 6.2vw, 96px)' },
+                                { text: 'DES EXPÉRIENCES.', style: 'display', fontSize: 'clamp(44px, 6.2vw, 96px)' },
                             ] as const
                         ).map((line, i) => (
                             <span
@@ -141,7 +141,7 @@ export default function About() {
                 >
                     <div>
                         <span className="mono label-soft" style={{ display: 'block', marginBottom: 18 }}>
-                            — About us
+                            — Le studio
                         </span>
                         <p
                             className="serif about-bio"
@@ -152,15 +152,15 @@ export default function About() {
                                 maxWidth: 440,
                             }}
                         >
-                            Undefined is an independent studio building digital products,
-                            brands and motion systems for people who care about detail.
-                            We move fast, think long, and ship with intent.
+                            Undefined est un studio indépendant. On construit des produits,
+                            des marques et des systèmes de motion pour des gens qui
+                            aiment les détails. On avance vite, on pense long, on livre propre.
                         </p>
                     </div>
 
                     <div>
                         <span className="mono label-soft" style={{ display: 'block', marginBottom: 18 }}>
-                            — Values
+                            — Ce qui compte
                         </span>
                         <ul
                             style={{

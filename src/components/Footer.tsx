@@ -84,7 +84,7 @@ export default function Footer() {
                         color: 'rgba(239,235,221,0.4)',
                     }}
                 >
-                    ( 04 ) — Get in touch
+                    ( 05 ) — Contact
                 </span>
 
                 {/* Headline — overflow géré par contain + taille réduite */}
@@ -102,12 +102,12 @@ export default function Footer() {
                 >
                     <span className="reveal-mask" style={{ display: 'block' }}>
                         <span className="reveal-line footer-line" style={{ display: 'block' }}>
-                            LET'S MAKE
+                            CONSTRUISONS
                         </span>
                     </span>
                     <span className="reveal-mask" style={{ display: 'block' }}>
                         <span className="reveal-line footer-line" style={{ display: 'block' }}>
-                            SOMETHING
+                            QUELQUE CHOSE
                         </span>
                     </span>
                     <span className="reveal-mask" style={{ display: 'block' }}>
@@ -115,7 +115,7 @@ export default function Footer() {
                             className="reveal-line footer-line"
                             style={{ display: 'block', color: 'var(--color-klein)' }}
                         >
-                            UNFORGETTABLE.
+                            D'INOUBLIABLE.
                         </span>
                     </span>
                 </h2>
@@ -132,7 +132,7 @@ export default function Footer() {
                             letterSpacing: '0.2em',
                         }}
                     >
-                        WRITE US
+                        ÉCRIVEZ-NOUS
                     </span>
                     <a
                         ref={emailRef}
@@ -201,7 +201,7 @@ export default function Footer() {
                         style={{ color: 'inherit', textDecoration: 'none' }}
                         className="u-draw"
                     >
-                        Privacy
+                        Confidentialité
                     </a>
                 </span>
             </div>
