@@ -91,7 +91,7 @@ export default function Hero() {
         <section
             ref={containerRef}
             id="hero"
-            className="relative min-h-screen flex flex-col container-x overflow-hidden"
+            className="hero-section relative min-h-screen flex flex-col container-x overflow-hidden"
         >
             <div className="grain" />
 
@@ -113,11 +113,11 @@ export default function Hero() {
                         UNDEFINED STUDIO
                     </span>
                 </div>
-                <span className="mono label-soft" style={{ fontSize: 11 }}>2026</span>
+                <span className="mono label-soft" style={{ fontSize: 11 }}>PARIS</span>
             </div>
 
             {/* Headline — fills vertical center, contains all three lines */}
-            <div className="flex-1 flex items-center relative z-10">
+            <div className="hero-body flex-1 flex items-center relative z-10">
                 <h1
                     className="hero-headline hero-chars"
                     style={{ margin: 0, width: '100%' }}
@@ -125,7 +125,7 @@ export default function Hero() {
                     {/* Line 1 */}
                     <span
                         data-split
-                        className="display"
+                        className="display hero-line hero-line-1"
                         style={{
                             display: 'block',
                             fontSize: 'clamp(56px, 17vw, 250px)',
@@ -138,7 +138,7 @@ export default function Hero() {
                     {/* Line 2 */}
                     <span className="reveal-mask" style={{ display: 'block' }}>
                         <span
-                            className="reveal-line hero-line-2 serif-italic"
+                            className="reveal-line hero-line-2 serif-italic hero-line"
                             style={{
                                 display: 'block',
                                 fontSize: 'clamp(52px, 15.5vw, 230px)',
@@ -152,7 +152,7 @@ export default function Hero() {
                     {/* Line 3 */}
                     <span
                         data-split
-                        className="display"
+                        className="display hero-line hero-line-3"
                         style={{
                             display: 'block',
                             fontSize: 'clamp(44px, 13.5vw, 200px)',
@@ -165,23 +165,7 @@ export default function Hero() {
                 </h1>
             </div>
 
-            {/* Minimal scroll indicator — just a dot and text */}
-            <div
-                className="relative z-10 pb-8 flex items-center gap-3 mono label-soft"
-                style={{ fontSize: 11 }}
-            >
-                <span
-                    className="blink"
-                    style={{
-                        width: 5,
-                        height: 5,
-                        borderRadius: '50%',
-                        background: 'var(--color-tomato)',
-                        display: 'inline-block',
-                    }}
-                />
-                DÉFILER
-            </div>
+            <div className="relative z-10 pb-8" />
         </section>
     )
 }

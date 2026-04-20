@@ -3,7 +3,7 @@ import { useGSAP } from '@gsap/react'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 
-const VALUES = ['Soin', 'Précision', 'Impact', 'Audace']
+const VALUES = ['Parti-pris', 'Exigence technique', 'Fluidité', 'Franchise']
 
 export default function About() {
     const sectionRef = useRef<HTMLElement>(null)
@@ -81,12 +81,12 @@ export default function About() {
         <section
             ref={sectionRef}
             id="about"
-            className="container-x section-y relative"
+            className="about-section container-x section-y relative"
             style={{ background: 'var(--color-paper)', minHeight: '100vh' }}
         >
             <div className="grid-12">
                 {/* Left — massive statement */}
-                <div className="col-span-12 md:col-span-7" style={{ gridColumn: 'span 7 / span 7' }}>
+                <div className="about-left col-span-12 md:col-span-7" style={{ gridColumn: 'span 7 / span 7' }}>
                     <h2
                         style={{
                             margin: 0,
@@ -94,10 +94,10 @@ export default function About() {
                     >
                         {(
                             [
-                                { text: 'ON NE FAIT PAS', style: 'display', fontSize: 'clamp(44px, 6.2vw, 96px)' },
-                                { text: 'de sites.', style: 'serif-italic', fontSize: 'clamp(42px, 6vw, 92px)' },
-                                { text: 'ON CRÉE', style: 'display', fontSize: 'clamp(44px, 6.2vw, 96px)' },
-                                { text: 'DES EXPÉRIENCES.', style: 'display', fontSize: 'clamp(44px, 6.2vw, 96px)' },
+                                { text: 'ON REFUSE', style: 'display', fontSize: 'clamp(44px, 6.2vw, 96px)' },
+                                { text: 'le design', style: 'serif-italic', fontSize: 'clamp(42px, 6vw, 92px)' },
+                                { text: 'PRÊT-À-', style: 'display', fontSize: 'clamp(44px, 6.2vw, 96px)' },
+                                { text: 'PORTER.', style: 'display', fontSize: 'clamp(44px, 6.2vw, 96px)' },
                             ] as const
                         ).map((line, i) => (
                             <span
@@ -152,9 +152,7 @@ export default function About() {
                                 maxWidth: 440,
                             }}
                         >
-                            Undefined est un studio indépendant. On construit des produits,
-                            des marques et des systèmes de motion pour des gens qui
-                            aiment les détails. On avance vite, on pense long, on livre propre.
+                            Nous sommes un studio créatif spécialisé dans ce que nous aimons faire : des produits digitaux qui ont du caractère. Pas de réunions pour préparer des réunions. Nous combinons un design radical et une technologie pointue pour ceux qui ont envie de bousculer leur marché.
                         </p>
                     </div>
 
@@ -163,6 +161,7 @@ export default function About() {
                             — Ce qui compte
                         </span>
                         <ul
+                            className="about-values"
                             style={{
                                 listStyle: 'none',
                                 padding: 0,

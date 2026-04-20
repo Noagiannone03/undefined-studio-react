@@ -5,24 +5,22 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger'
 type Word = { text: string; accent?: 'tomato' | 'klein' | 'italic' }
 
 const WORDS: Word[] = [
+    { text: 'Si' },
+    { text: 'ce' },
+    { text: "n'est" },
+    { text: 'pas', accent: 'italic' },
+    { text: 'mémorable,' },
+    { text: 'le' },
+    { text: 'travail' },
+    { text: "n'est" },
+    { text: 'pas', accent: 'italic' },
+    { text: 'fini.' },
     { text: 'Le' },
-    { text: 'design,' },
-    { text: "c'est", accent: 'italic' },
-    { text: 'comment' },
-    { text: 'ça' },
-    { text: 'marche.' },
-    { text: 'Le' },
-    { text: 'mouvement,' },
-    { text: "c'est", accent: 'italic' },
-    { text: 'comment' },
-    { text: 'ça' },
-    { text: 'respire.' },
-    { text: 'Le' },
-    { text: 'code,', accent: 'klein' },
-    { text: "c'est", accent: 'italic' },
-    { text: 'comment' },
-    { text: 'ça' },
-    { text: 'vit.', accent: 'tomato' },
+    { text: 'web' },
+    { text: 'mérite', accent: 'klein' },
+    { text: 'mieux', accent: 'tomato' },
+    { text: 'que' },
+    { text: "l'ennui." },
 ]
 
 /**
@@ -39,6 +37,7 @@ export default function Manifesto() {
             const stickyEl = stickyRef.current
             const words = ref.current?.querySelectorAll<HTMLSpanElement>('[data-word]')
             if (!stickyEl || !words || words.length === 0) return
+            const isMobile = window.matchMedia('(max-width: 767px)').matches
 
             // Set initial state on all words
             gsap.set(words, {
@@ -53,8 +52,8 @@ export default function Manifesto() {
                 scrollTrigger: {
                     trigger: stickyEl,
                     start: 'top top',
-                    end: `+=${window.innerHeight * 2.5}`,
-                    scrub: 1.2,
+                    end: `+=${window.innerHeight * (isMobile ? 1.55 : 2.5)}`,
+                    scrub: isMobile ? 0.8 : 1.2,
                     pin: true,
                     anticipatePin: 1,
                 },
@@ -92,6 +91,7 @@ export default function Manifesto() {
         <section
             ref={ref}
             id="manifesto"
+            className="manifesto-section"
             style={{ background: 'var(--color-ink)', color: 'var(--color-paper)' }}
         >
             {/* Top label row */}
@@ -103,6 +103,7 @@ export default function Manifesto() {
                 }}
             >
                 <div
+                    className="manifesto-topbar"
                     style={{
                         display: 'flex',
                         alignItems: 'center',
@@ -146,7 +147,7 @@ export default function Manifesto() {
             >
                 <div className="container-x" style={{ width: '100%' }}>
                     <p
-                        className="display"
+                        className="display manifesto-copy"
                         style={{
                             fontSize: 'clamp(48px, 6.5vw, 104px)',
                             lineHeight: 1.08,
@@ -173,46 +174,7 @@ export default function Manifesto() {
                 </div>
             </div>
 
-            {/* Bottom label row */}
-            <div
-                className="container-x"
-                style={{ paddingBottom: 'clamp(64px, 8vw, 120px)' }}
-            >
-                <div
-                    style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: 20,
-                        borderTop: '1px solid rgba(239,235,221,0.14)',
-                        paddingTop: 24,
-                    }}
-                >
-                    <span
-                        style={{
-                            flex: 1,
-                            height: 1,
-                            background: 'rgba(239,235,221,0.12)',
-                        }}
-                    />
-                    <span
-                        className="mono"
-                        style={{
-                            color: 'rgba(239,235,221,0.4)',
-                            fontSize: 11,
-                            letterSpacing: '0.2em',
-                        }}
-                    >
-                        DESIGN · MOTION · CODE
-                    </span>
-                    <span
-                        style={{
-                            flex: 1,
-                            height: 1,
-                            background: 'rgba(239,235,221,0.12)',
-                        }}
-                    />
-                </div>
-            </div>
+            <div style={{ height: 'clamp(24px, 4vw, 56px)' }} />
         </section>
     )
 }

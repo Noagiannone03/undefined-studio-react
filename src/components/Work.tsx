@@ -33,7 +33,7 @@ const PROJECTS: Project[] = [
         client: 'Indépendant',
         stack: ['SwiftUI', 'Figma', 'After Effects'],
         summary:
-            "Un compagnon de voyage qui récompense le trajet lui-même. Mécaniques de streak, interactions tactiles, et une marque pensée pour l'élan.",
+            "Une application qui dépoussière le trajet quotidien. Nous avons bâti un système de streaks addictif et un design percutant pour valoriser ceux qui lâchent la voiture solo.",
         accent: 'var(--color-klein)',
         iconSrc: undefined,
         screens: [
@@ -51,7 +51,7 @@ const PROJECTS: Project[] = [
         client: 'Whisp Labs',
         stack: ['iOS', 'Figma', 'Principle'],
         summary:
-            "Des conversations anonymes sur les campus, repensées. Une plateforme vocale discrète avec une identité forte — portée par la typo et le mouvement.",
+            "Un réseau social vocal délesté de la toxicité ambiante. L'enjeu : imposer une identité visuelle forte tout en conservant une fluidité d'usage absolue sur iOS.",
         accent: 'var(--color-tomato)',
         iconSrc: undefined,
         screens: [
@@ -72,41 +72,6 @@ export default function Work() {
         if (!header) return
 
         const ctx = gsap.context(() => {
-            // Char-by-char pop with rotation on the big title
-            const chars = header.querySelectorAll('.wh-title .c')
-            gsap.set(chars, { yPercent: 140, rotation: 10, opacity: 0 })
-            gsap.to(chars, {
-                yPercent: 0,
-                rotation: 0,
-                opacity: 1,
-                duration: 1.1,
-                ease: 'expo.out',
-                stagger: 0.035,
-                scrollTrigger: { trigger: header, start: 'top 80%', once: true },
-            })
-
-            // Italic word wipes in after
-            gsap.fromTo(
-                '.wh-italic',
-                { clipPath: 'inset(0 100% 0 0)' },
-                {
-                    clipPath: 'inset(0 0% 0 0)',
-                    duration: 1.1,
-                    ease: 'expo.out',
-                    delay: 0.45,
-                    scrollTrigger: { trigger: header, start: 'top 80%', once: true },
-                }
-            )
-
-            // Lead paragraph line reveal
-            gsap.from('.wh-lead', {
-                yPercent: 100,
-                duration: 1,
-                ease: 'expo.out',
-                delay: 0.65,
-                scrollTrigger: { trigger: header, start: 'top 80%', once: true },
-            })
-
             // Counter — ticks from 00 to 02
             if (counterRef.current) {
                 const obj = { n: 0 }
@@ -114,7 +79,6 @@ export default function Work() {
                     n: PROJECTS.length,
                     duration: 1.4,
                     ease: 'power3.out',
-                    delay: 0.4,
                     onUpdate: () => {
                         if (counterRef.current) {
                             counterRef.current.textContent = String(
@@ -126,14 +90,11 @@ export default function Work() {
                 })
             }
 
-            // Side tag slides in
-            gsap.from('.wh-side > *', {
-                y: 20,
+            gsap.from('.wh-side', {
+                y: 16,
                 opacity: 0,
                 duration: 0.8,
-                stagger: 0.1,
                 ease: 'power3.out',
-                delay: 0.9,
                 scrollTrigger: { trigger: header, start: 'top 80%', once: true },
             })
         }, header)
@@ -141,100 +102,42 @@ export default function Work() {
         return () => ctx.revert()
     }, [])
 
-    const splitChars = (s: string) =>
-        s.split('').map((ch, i) => (
-            <span
-                key={i}
-                className="c"
-                style={{ display: 'inline-block', willChange: 'transform, opacity' }}
-            >
-                {ch === ' ' ? '\u00A0' : ch}
-            </span>
-        ))
-
     return (
-        <section ref={sectionRef} id="work" style={{ background: 'var(--color-paper)' }}>
-            {/* Header */}
+        <section ref={sectionRef} id="work" className="work-section" style={{ background: 'var(--color-paper)' }}>
+            {/* Header — minimal, BrandMark above serves as intro */}
             <div
                 ref={headerRef}
                 className="container-x work-header hair-b"
                 style={{
-                    paddingTop: 'clamp(80px, 10vw, 140px)',
+                    paddingTop: 'clamp(40px, 5vw, 64px)',
                     paddingBottom: 'clamp(32px, 4vw, 56px)',
                     display: 'flex',
-                    alignItems: 'flex-end',
+                    alignItems: 'center',
                     justifyContent: 'space-between',
                     gap: 32,
                     flexWrap: 'wrap',
                     position: 'relative',
                 }}
             >
-                <div style={{ maxWidth: 820, overflow: 'hidden' }}>
-                    <span
-                        className="mono label-soft"
-                        style={{ display: 'block', marginBottom: 14 }}
-                    >
-                        ( 02 ) — Au travail
-                    </span>
-                    <h2
-                        className="wh-title display"
-                        style={{
-                            fontSize: 'clamp(56px, 9vw, 160px)',
-                            lineHeight: 0.88,
-                            margin: 0,
-                            letterSpacing: '-0.05em',
-                            overflow: 'hidden',
-                        }}
-                    >
-                        <span style={{ display: 'block', overflow: 'hidden' }}>
-                            {splitChars('RÉCEMMENT')}
-                            <span style={{ color: 'var(--color-tomato)' }}>.</span>
-                        </span>
-                    </h2>
-                    <div style={{ overflow: 'hidden', marginTop: 'clamp(8px, 1vw, 14px)' }}>
-                        <span
-                            className="wh-italic serif-italic"
-                            style={{
-                                display: 'block',
-                                fontSize: 'clamp(32px, 5vw, 82px)',
-                                letterSpacing: '-0.025em',
-                                lineHeight: 1,
-                                color: 'var(--color-ink-soft)',
-                            }}
-                        >
-                            deux projets.
-                        </span>
-                    </div>
-                    <div style={{ overflow: 'hidden', marginTop: 'clamp(24px, 3vw, 36px)' }}>
-                        <p
-                            className="wh-lead serif"
-                            style={{
-                                fontSize: 'clamp(17px, 1.5vw, 22px)',
-                                lineHeight: 1.4,
-                                color: 'var(--color-ink)',
-                                margin: 0,
-                                maxWidth: '38ch',
-                            }}
-                        >
-                            On prend peu de briefs. On les choisit lentement,
-                            on les fait longtemps.
-                        </p>
-                    </div>
-                </div>
+                <span
+                    className="mono label-soft"
+                    style={{ fontSize: 11 }}
+                >
+                    ( 02 ) — Nos projets
+                </span>
 
                 <div
                     className="wh-side"
                     style={{
                         display: 'flex',
-                        flexDirection: 'column',
-                        alignItems: 'flex-end',
+                        alignItems: 'center',
                         gap: 12,
                     }}
                 >
                     <span
                         className="display"
                         style={{
-                            fontSize: 'clamp(44px, 5vw, 84px)',
+                            fontSize: 'clamp(28px, 3vw, 48px)',
                             lineHeight: 1,
                             letterSpacing: '-0.04em',
                             color: 'var(--color-klein)',
@@ -251,9 +154,6 @@ export default function Work() {
                         >
                             / 02
                         </span>
-                    </span>
-                    <span className="mono label-soft" style={{ fontSize: 11 }}>
-                        PROJETS LIVRÉS
                     </span>
                 </div>
             </div>
@@ -398,6 +298,7 @@ function ProjectEditorial({ project, index }: { project: Project; index: number 
     return (
         <div
             ref={ref}
+            className="project-editorial"
             data-project={project.id}
             style={{
                 background: 'var(--color-paper)',
@@ -411,7 +312,7 @@ function ProjectEditorial({ project, index }: { project: Project; index: number 
         >
             {/* Giant outlined name — drifts in background */}
             <p
-                className="ed-outline display"
+                className="ed-outline display project-outline"
                 aria-hidden
                 style={{
                     position: 'absolute',
@@ -436,6 +337,7 @@ function ProjectEditorial({ project, index }: { project: Project; index: number 
 
             {/* Top meta row */}
             <div
+                className="project-meta-row"
                 style={{
                     display: 'flex',
                     justifyContent: 'space-between',
@@ -500,6 +402,7 @@ function ProjectEditorial({ project, index }: { project: Project; index: number 
 
             {/* Main grid — title + hero screen with coloured spine */}
             <div
+                className="project-main-grid"
                 style={{
                     display: 'grid',
                     gridTemplateColumns: 'repeat(12, 1fr)',
@@ -511,6 +414,7 @@ function ProjectEditorial({ project, index }: { project: Project; index: number 
             >
                 {/* Title column */}
                 <div
+                    className="project-copy-col"
                     style={{
                         gridColumn: reversed ? '7 / span 6' : '1 / span 6',
                         order: reversed ? 2 : 1,
@@ -554,6 +458,7 @@ function ProjectEditorial({ project, index }: { project: Project; index: number 
 
                     {/* Meta row under title */}
                     <div
+                        className="project-meta-grid"
                         style={{
                             display: 'grid',
                             gridTemplateColumns: '1fr 1fr 1fr',
@@ -571,11 +476,12 @@ function ProjectEditorial({ project, index }: { project: Project; index: number 
 
                 {/* Hero screen with coloured spine */}
                 <div
+                    className="project-hero-col"
                     style={{
                         gridColumn: reversed ? '1 / span 6' : '7 / span 6',
                         order: reversed ? 1 : 2,
                         position: 'relative',
-                        minHeight: 'clamp(520px, 75vh, 880px)',
+                        minHeight: 'clamp(380px, 55vh, 620px)',
                         display: 'flex',
                         alignItems: 'stretch',
                         justifyContent: reversed ? 'flex-end' : 'flex-start',
@@ -584,6 +490,7 @@ function ProjectEditorial({ project, index }: { project: Project; index: number 
                     {/* Coloured spine — grows from bottom */}
                     <div
                         ref={spineRef}
+                        className="project-spine"
                         aria-hidden
                         style={{
                             position: 'absolute',
@@ -599,6 +506,7 @@ function ProjectEditorial({ project, index }: { project: Project; index: number 
                     {/* Hero screen — portrait, centred on spine */}
                     <div
                         ref={heroScreenRef}
+                        className="project-hero-screen"
                         style={{
                             position: 'relative',
                             zIndex: 1,
@@ -623,6 +531,7 @@ function ProjectEditorial({ project, index }: { project: Project; index: number 
 
             {/* Secondary screens row */}
             <div
+                className="project-secondary-grid"
                 style={{
                     display: 'grid',
                     gridTemplateColumns: 'repeat(12, 1fr)',
@@ -635,11 +544,12 @@ function ProjectEditorial({ project, index }: { project: Project; index: number 
             >
                 {/* Second screen */}
                 <div
+                    className="project-side project-side-left"
                     style={{
                         gridColumn: reversed ? '2 / span 4' : '2 / span 4',
                         aspectRatio: '9/19.5',
                         position: 'relative',
-                        minHeight: 'clamp(420px, 55vh, 640px)',
+                        minHeight: 'clamp(300px, 42vh, 480px)',
                     }}
                 >
                     <div
@@ -662,6 +572,7 @@ function ProjectEditorial({ project, index }: { project: Project; index: number 
 
                 {/* Caption for this pair */}
                 <div
+                    className="project-caption"
                     style={{
                         gridColumn: '6 / span 2',
                         alignSelf: 'center',
@@ -687,11 +598,12 @@ function ProjectEditorial({ project, index }: { project: Project; index: number 
 
                 {/* Third screen */}
                 <div
+                    className="project-side project-side-right"
                     style={{
                         gridColumn: '8 / span 4',
                         aspectRatio: '9/19.5',
                         position: 'relative',
-                        minHeight: 'clamp(420px, 55vh, 640px)',
+                        minHeight: 'clamp(300px, 42vh, 480px)',
                     }}
                 >
                     <div
@@ -718,7 +630,7 @@ function ProjectEditorial({ project, index }: { project: Project; index: number 
 
 function MetaCol({ label, value }: { label: string; value: string }) {
     return (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+        <div className="project-meta-col" style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
             <span
                 className="mono"
                 style={{

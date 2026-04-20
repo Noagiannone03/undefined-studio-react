@@ -60,7 +60,7 @@ export default function Footer() {
         <footer
             ref={sectionRef}
             id="contact"
-            className="container-x relative"
+            className="footer-section container-x relative"
             style={{
                 background: 'var(--color-ink)',
                 color: 'var(--color-paper)',
@@ -102,12 +102,12 @@ export default function Footer() {
                 >
                     <span className="reveal-mask" style={{ display: 'block' }}>
                         <span className="reveal-line footer-line" style={{ display: 'block' }}>
-                            CONSTRUISONS
+                            UN PROJET
                         </span>
                     </span>
                     <span className="reveal-mask" style={{ display: 'block' }}>
-                        <span className="reveal-line footer-line" style={{ display: 'block' }}>
-                            QUELQUE CHOSE
+                        <span className="reveal-line footer-line serif-italic" style={{ display: 'block' }}>
+                            qui sort
                         </span>
                     </span>
                     <span className="reveal-mask" style={{ display: 'block' }}>
@@ -115,7 +115,7 @@ export default function Footer() {
                             className="reveal-line footer-line"
                             style={{ display: 'block', color: 'var(--color-klein)' }}
                         >
-                            D'INOUBLIABLE.
+                            DU LOT ?
                         </span>
                     </span>
                 </h2>
@@ -132,7 +132,7 @@ export default function Footer() {
                             letterSpacing: '0.2em',
                         }}
                     >
-                        ÉCRIVEZ-NOUS
+                        ON PASSE À L'ACTION
                     </span>
                     <a
                         ref={emailRef}
