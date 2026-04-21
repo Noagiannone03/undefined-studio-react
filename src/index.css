@@ -293,6 +293,11 @@ body {
     max-width: 100%;
   }
 
+  /* Hero fills viewport width on tablet */
+  .hero-line-1 { font-size: clamp(80px, 18vw, 200px) !important; line-height: 0.86 !important; }
+  .hero-line-2 { font-size: clamp(72px, 16.5vw, 185px) !important; line-height: 0.90 !important; }
+  .hero-line-3 { font-size: clamp(62px, 14.5vw, 165px) !important; line-height: 0.86 !important; }
+
   .manifesto-topbar {
     gap: 12px;
   }
@@ -366,19 +371,20 @@ body {
     padding-bottom: 6px;
   }
 
+  /* Hero — remplit la largeur viewport sur mobile */
   .hero-line-1 {
-    font-size: clamp(42px, 17vw, 76px) !important;
-    line-height: 0.9 !important;
+    font-size: clamp(68px, 22vw, 140px) !important;
+    line-height: 0.84 !important;
   }
 
   .hero-line-2 {
-    font-size: clamp(42px, 16vw, 72px) !important;
-    line-height: 0.94 !important;
+    font-size: clamp(60px, 20vw, 126px) !important;
+    line-height: 0.90 !important;
   }
 
   .hero-line-3 {
-    font-size: clamp(36px, 13.8vw, 62px) !important;
-    line-height: 0.9 !important;
+    font-size: clamp(52px, 17.5vw, 112px) !important;
+    line-height: 0.84 !important;
   }
 
   .about-section {
@@ -386,8 +392,8 @@ body {
   }
 
   .about-left .about-line {
-    font-size: clamp(38px, 12vw, 58px) !important;
-    line-height: 0.94 !important;
+    font-size: clamp(52px, 16.5vw, 80px) !important;
+    line-height: 0.90 !important;
   }
 
   .about-right {
@@ -409,9 +415,9 @@ body {
   }
 
   .manifesto-copy {
-    font-size: clamp(34px, 9.8vw, 52px) !important;
-    line-height: 1.02 !important;
-    max-width: 11ch !important;
+    font-size: clamp(40px, 12.5vw, 64px) !important;
+    line-height: 0.98 !important;
+    max-width: 13ch !important;
   }
 
   .brand-mark {
@@ -455,94 +461,105 @@ body {
     gap: 22px !important;
   }
 
+  /* Titre projet — massif, remplit la largeur */
   .project-copy-col h3 {
-    font-size: clamp(44px, 16vw, 70px) !important;
-    line-height: 0.9 !important;
+    font-size: clamp(72px, 26vw, 140px) !important;
+    line-height: 0.84 !important;
   }
 
   .project-copy-col p {
+    font-size: clamp(15px, 4.2vw, 18px) !important;
+    line-height: 1.55 !important;
     max-width: 100% !important;
   }
 
   .project-meta-grid {
-    grid-template-columns: 1fr !important;
+    grid-template-columns: 1fr 1fr !important;
     gap: 14px !important;
-    margin-top: 24px !important;
-    padding-top: 16px !important;
+    margin-top: 28px !important;
+    padding-top: 18px !important;
   }
 
+  /* Écran principal — hauteur généreuse */
   .project-hero-col {
-    min-height: clamp(260px, 96vw, 460px) !important;
+    min-height: clamp(300px, 88vw, 480px) !important;
     justify-content: center !important;
   }
 
   .project-spine {
-    left: 10% !important;
+    left: 8% !important;
     right: auto !important;
-    width: 80% !important;
+    width: 84% !important;
   }
 
   .project-hero-screen {
     margin: 0 auto !important;
-    border-radius: 24px !important;
+    border-radius: 28px !important;
     border-width: 4px !important;
   }
 
+  /* Écrans secondaires — 2 colonnes côte à côte */
   .project-secondary-grid {
-    grid-template-columns: 1fr !important;
-    gap: 14px !important;
-    margin-top: 28px !important;
+    grid-template-columns: 1fr 1fr !important;
+    gap: 12px !important;
+    margin-top: 32px !important;
   }
 
   .project-side-left,
-  .project-caption,
   .project-side-right {
-    grid-column: 1 / -1 !important;
+    grid-column: auto !important;
+    justify-self: auto !important;
+    max-width: 100% !important;
+  }
+
+  /* Caption cachée sur mobile */
+  .project-caption {
+    display: none !important;
   }
 
   .project-side {
-    min-height: clamp(220px, 72vw, 360px) !important;
-    max-width: min(72vw, 260px);
-  }
-
-  .project-side-left {
-    justify-self: start;
-  }
-
-  .project-side-right {
-    justify-self: end;
+    min-height: clamp(180px, 44vw, 280px) !important;
+    max-width: 100% !important;
   }
 
   .project-side > div {
-    border-radius: 22px !important;
-    border-width: 4px !important;
+    border-radius: 20px !important;
+    border-width: 3px !important;
   }
 
-  .project-caption {
-    text-align: left !important;
-    margin: 4px 0;
-  }
-
+  /* Capabilities mobile */
   .capabilities-section .cap-header {
-    margin-bottom: 34px !important;
+    margin-bottom: 32px !important;
+  }
+
+  .capabilities-section h2 {
+    font-size: clamp(52px, 17vw, 80px) !important;
   }
 
   .cap-row {
-    padding: 20px 0 !important;
+    padding: 22px 0 !important;
   }
 
   .cap-row-main {
-    flex-direction: column;
-    gap: 8px !important;
-    align-items: flex-start !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    gap: 12px !important;
+    flex-wrap: nowrap !important;
+  }
+
+  .cap-row-main h3 {
+    font-size: clamp(28px, 9vw, 44px) !important;
+    flex: 1 !important;
+    min-width: 0 !important;
   }
 
   .cap-brief {
     opacity: 1 !important;
     transform: none !important;
     padding-left: 0 !important;
-    margin-top: 14px !important;
+    margin-top: 12px !important;
     max-width: 100% !important;
+    font-size: clamp(14px, 3.8vw, 16px) !important;
   }
 
   /* Hide sticky preview card on mobile — brief expands inline */
