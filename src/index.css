@@ -211,6 +211,11 @@ body {
   .brief-mobile-only { display: none !important; }
 }
 
+/* Hero — font sizes live here so media queries override cleanly, no !important needed */
+.hero-line-1 { font-size: clamp(56px, 17vw, 250px); line-height: 0.88; }
+.hero-line-2 { font-size: clamp(52px, 15.5vw, 230px); line-height: 0.92; }
+.hero-line-3 { font-size: clamp(44px, 13.5vw, 200px); line-height: 0.88; }
+
 .brand-mark-stage {
   min-height: 100svh;
 }
@@ -293,10 +298,9 @@ body {
     max-width: 100%;
   }
 
-  /* Hero fills viewport width on tablet */
-  .hero-line-1 { font-size: clamp(80px, 18vw, 200px) !important; line-height: 0.86 !important; }
-  .hero-line-2 { font-size: clamp(72px, 16.5vw, 185px) !important; line-height: 0.90 !important; }
-  .hero-line-3 { font-size: clamp(62px, 14.5vw, 165px) !important; line-height: 0.86 !important; }
+  .hero-line-1 { font-size: clamp(80px, 18vw, 200px); line-height: 0.86; }
+  .hero-line-2 { font-size: clamp(72px, 16.5vw, 185px); line-height: 0.90; }
+  .hero-line-3 { font-size: clamp(62px, 14.5vw, 165px); line-height: 0.86; }
 
   .manifesto-topbar {
     gap: 12px;
@@ -304,11 +308,6 @@ body {
 
   .manifesto-copy {
     max-width: 13ch !important;
-  }
-
-  .work-header {
-    align-items: flex-end !important;
-    gap: 18px !important;
   }
 
   .project-outline {
@@ -362,30 +361,14 @@ body {
   }
 
   .hero-body {
-    align-items: flex-end;
-    padding-top: 12px;
-    padding-bottom: 28px;
+    align-items: center;
+    padding-top: 0;
+    padding-bottom: 0;
   }
 
-  .hero-headline {
-    padding-bottom: 6px;
-  }
-
-  /* Hero — remplit la largeur viewport sur mobile */
-  .hero-line-1 {
-    font-size: clamp(68px, 22vw, 140px) !important;
-    line-height: 0.84 !important;
-  }
-
-  .hero-line-2 {
-    font-size: clamp(60px, 20vw, 126px) !important;
-    line-height: 0.90 !important;
-  }
-
-  .hero-line-3 {
-    font-size: clamp(52px, 17.5vw, 112px) !important;
-    line-height: 0.84 !important;
-  }
+  .hero-line-1 { font-size: clamp(72px, 23vw, 148px); line-height: 0.86; }
+  .hero-line-2 { font-size: clamp(64px, 21vw, 132px); }
+  .hero-line-3 { font-size: clamp(55px, 18.5vw, 116px); line-height: 0.86; }
 
   .about-section {
     min-height: auto !important;
@@ -431,12 +414,6 @@ body {
   .brand-mark-chevron {
     width: clamp(122px, 35vw, 168px) !important;
     top: 49% !important;
-  }
-
-  .work-header {
-    padding-top: 28px !important;
-    padding-bottom: 22px !important;
-    align-items: flex-start !important;
   }
 
   .project-editorial {

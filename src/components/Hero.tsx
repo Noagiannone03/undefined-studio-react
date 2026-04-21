@@ -113,7 +113,6 @@ export default function Hero() {
                         UNDEFINED STUDIO
                     </span>
                 </div>
-                <span className="mono label-soft" style={{ fontSize: 11 }}>PARIS</span>
             </div>
 
             {/* Headline — fills vertical center, contains all three lines */}
@@ -126,12 +125,7 @@ export default function Hero() {
                     <span
                         data-split
                         className="display hero-line hero-line-1"
-                        style={{
-                            display: 'block',
-                            fontSize: 'clamp(56px, 17vw, 250px)',
-                            lineHeight: 0.88,
-                            letterSpacing: '-0.045em',
-                        }}
+                        style={{ display: 'block', letterSpacing: '-0.045em' }}
                     >
                         WE BUILD
                     </span>
@@ -139,12 +133,7 @@ export default function Hero() {
                     <span className="reveal-mask" style={{ display: 'block' }}>
                         <span
                             className="reveal-line hero-line-2 serif-italic hero-line"
-                            style={{
-                                display: 'block',
-                                fontSize: 'clamp(52px, 15.5vw, 230px)',
-                                lineHeight: 0.92,
-                                letterSpacing: '-0.03em',
-                            }}
+                            style={{ display: 'block', letterSpacing: '-0.03em' }}
                         >
                             things
                         </span>
@@ -153,12 +142,7 @@ export default function Hero() {
                     <span
                         data-split
                         className="display hero-line hero-line-3"
-                        style={{
-                            display: 'block',
-                            fontSize: 'clamp(44px, 13.5vw, 200px)',
-                            lineHeight: 0.88,
-                            letterSpacing: '-0.045em',
-                        }}
+                        style={{ display: 'block', letterSpacing: '-0.045em' }}
                     >
                         THAT <span style={{ color: 'var(--color-tomato)' }}>MOVE.</span>
                     </span>
