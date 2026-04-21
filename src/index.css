@@ -571,6 +571,11 @@ body {
   transform: translate(5px, 5px);
 }
 
+/* Brief visible only on mobile — desktop uses floating cursor card */
+@media (min-width: 769px) {
+  .brief-mobile-only { display: none !important; }
+}
+
 /* Work horizontal scroll */
 .work-track {
   display: flex;
