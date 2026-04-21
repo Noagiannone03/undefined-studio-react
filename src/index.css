@@ -216,6 +216,9 @@ body {
 .hero-line-2 { font-size: clamp(52px, 15.5vw, 230px); line-height: 0.92; }
 .hero-line-3 { font-size: clamp(44px, 13.5vw, 200px); line-height: 0.88; }
 
+/* Capabilities grid — defined in CSS so mobile override works without fighting inline styles */
+.cap-inner { grid-template-columns: 1fr clamp(260px, 35vw, 420px); }
+
 .brand-mark-stage {
   min-height: 100svh;
 }
@@ -497,16 +500,16 @@ body {
   }
 
   .cap-row-main {
-    flex-direction: row !important;
-    align-items: center !important;
-    gap: 12px !important;
-    flex-wrap: nowrap !important;
+    flex-direction: row;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
   }
 
-  .cap-row-main h3 {
-    font-size: clamp(36px, 11.5vw, 54px) !important;
-    flex: 1 !important;
-    min-width: 0 !important;
+  .cap-service-name {
+    font-size: clamp(28px, 8.5vw, 40px) !important;
+    min-width: 0;
+    flex: 1;
   }
 
   .cap-brief {
@@ -520,7 +523,7 @@ body {
 
   /* Hide sticky preview card on mobile — brief expands inline */
   .cap-preview { display: none !important; }
-  .cap-inner { grid-template-columns: 1fr !important; }
+  .cap-inner { grid-template-columns: 1fr; }
 
   .footer-section {
     min-height: auto !important;

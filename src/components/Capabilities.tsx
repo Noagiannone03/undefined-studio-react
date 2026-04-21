@@ -69,7 +69,6 @@ export default function Capabilities() {
             {/* ── Desktop layout: 2 columns ── */}
             <div className="cap-inner" style={{
                 display: 'grid',
-                gridTemplateColumns: '1fr clamp(260px, 35vw, 420px)',
                 gap: 'clamp(40px, 6vw, 96px)',
                 alignItems: 'start',
             }}>
@@ -328,14 +327,14 @@ function ServiceRow({
                     <motion.h3
                         animate={{ color: isActive ? 'var(--color-paper)' : 'var(--color-ink)' }}
                         transition={{ duration: 0.16 }}
-                        className="display"
+                        className="display cap-service-name"
                         style={{
                             fontSize: 'clamp(24px, 3.6vw, 52px)',
                             lineHeight: 0.9,
                             letterSpacing: '-0.04em',
                             margin: 0,
                             flex: 1,
-                            minWidth: 160,
+                            minWidth: 0,
                         }}
                     >
                         {service.name}
