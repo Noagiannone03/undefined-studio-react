@@ -33,7 +33,7 @@ const PROJECTS: Project[] = [
         client: 'Indépendant',
         stack: ['SwiftUI', 'Figma', 'After Effects'],
         summary:
-            "Une application qui dépoussière le trajet quotidien. Nous avons bâti un système de streaks addictif et un design percutant pour valoriser ceux qui lâchent la voiture solo.",
+            "Abandonner la voiture solo mérite mieux qu'une app générique. On a conçu un système de streaks pour ancrer l'habitude, et une direction artistique tranchante pour la rendre désirable.",
         accent: 'var(--color-klein)',
         iconSrc: undefined,
         screens: [
@@ -51,7 +51,7 @@ const PROJECTS: Project[] = [
         client: 'Whisp Labs',
         stack: ['iOS', 'Figma', 'Principle'],
         summary:
-            "Un réseau social vocal délesté de la toxicité ambiante. L'enjeu : imposer une identité visuelle forte tout en conservant une fluidité d'usage absolue sur iOS.",
+            "Un réseau social vocal, sans la toxicité qui va avec. Défi : une identité forte — couleur, typographie, son — sans alourdir l'expérience iOS. Chaque écran tient debout seul.",
         accent: 'var(--color-tomato)',
         iconSrc: undefined,
         screens: [

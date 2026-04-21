@@ -3,7 +3,7 @@ import { useGSAP } from '@gsap/react'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 
-const VALUES = ['Parti-pris', 'Exigence technique', 'Fluidité', 'Franchise']
+const VALUES = ['Opinions tranchées', 'Le code est un craft', 'Zéro sous-traitance', 'On signe ce qu\'on fait']
 
 export default function About() {
     const sectionRef = useRef<HTMLElement>(null)
@@ -152,7 +152,7 @@ export default function About() {
                                 maxWidth: 440,
                             }}
                         >
-                            Nous sommes un studio créatif spécialisé dans ce que nous aimons faire : des produits digitaux qui ont du caractère. Pas de réunions pour préparer des réunions. Nous combinons un design radical et une technologie pointue pour ceux qui ont envie de bousculer leur marché.
+                            Deux personnes à Paris. On fait des applications iOS, des sites animés et des identités qu'on reconnaît au premier coup d'œil. On refuse beaucoup de projets pour bien faire ceux qu'on accepte.
                         </p>
                     </div>
 

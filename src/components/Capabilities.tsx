@@ -18,7 +18,7 @@ const SERVICES: Service[] = [
         nameItalic: '',
         stack: ['Stratégie', 'Architecture', 'UX Design'],
         accent: 'var(--color-klein)',
-        brief: "On ne colorie pas des cases. On pose d'abord les vraies questions pour s'assurer que le produit tient debout avant même la première maquette.",
+        brief: "La plupart des projets ratent avant même d'avoir commencé — mauvais périmètre, mauvaises questions, mauvaise direction. On démêle ça en premier.",
         gradient: 'linear-gradient(135deg, #1D1DBF 0%, #0E0E0C 100%)',
     },
     {
@@ -27,7 +27,7 @@ const SERVICES: Service[] = [
         nameItalic: 'artistique.',
         stack: ['UI Design', 'Identité Visuelle', 'Systèmes'],
         accent: 'var(--color-ink)',
-        brief: "La première impression est toujours visuelle. On crée des interfaces avec un vrai parti-pris, pour que vous ne ressembliez à personne d'autre.",
+        brief: "Votre produit devrait être reconnaissable à dix mètres, sans le logo. On construit des systèmes visuels avec un point de vue — pas des interfaces qui ressemblent à tout le monde.",
         gradient: 'linear-gradient(135deg, #0E0E0C 0%, #2d2d28 100%)',
     },
     {
@@ -36,7 +36,7 @@ const SERVICES: Service[] = [
         nameItalic: 'front.',
         stack: ['React', 'TypeScript', 'WebGL'],
         accent: 'var(--color-tomato)',
-        brief: "Un beau design ne vaut rien s'il rame. On écrit un code robuste, optimisé et pensé dès le premier jour pour la performance absolue.",
+        brief: "Un design qui rame reste un mauvais produit. On code avec la même obsession qu'on design — structure propre, animations à 60fps, zéro compromis sur ce qui se voit.",
         gradient: 'linear-gradient(135deg, #E84A2A 0%, #8B2A16 100%)',
     },
     {
@@ -45,7 +45,7 @@ const SERVICES: Service[] = [
         nameItalic: 'motion.',
         stack: ['GSAP', 'Animations', 'Micro-interactions'],
         accent: 'var(--color-klein)',
-        brief: "L'immobilité c'est la mort. On ajoute de la gravité, de la friction et du rythme pour rendre chaque interaction organique et foudroyante.",
+        brief: "Les interfaces statiques sont honnêtes — elles sont plates. On travaille le timing, le poids, la physique pour que chaque interaction se sente juste. Ni trop, ni trop peu.",
         gradient: 'linear-gradient(135deg, #1D1DBF 0%, #E84A2A 100%)',
     },
 ]

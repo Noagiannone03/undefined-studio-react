@@ -107,7 +107,7 @@ export default function Footer() {
                     </span>
                     <span className="reveal-mask" style={{ display: 'block' }}>
                         <span className="reveal-line footer-line serif-italic" style={{ display: 'block' }}>
-                            qui sort
+                            qui mérite
                         </span>
                     </span>
                     <span className="reveal-mask" style={{ display: 'block' }}>
@@ -115,7 +115,7 @@ export default function Footer() {
                             className="reveal-line footer-line"
                             style={{ display: 'block', color: 'var(--color-klein)' }}
                         >
-                            DU LOT ?
+                            MIEUX ?
                         </span>
                     </span>
                 </h2>
@@ -132,7 +132,7 @@ export default function Footer() {
                             letterSpacing: '0.2em',
                         }}
                     >
-                        ON PASSE À L'ACTION
+                        PARLER, C'EST GRATUIT
                     </span>
                     <a
                         ref={emailRef}

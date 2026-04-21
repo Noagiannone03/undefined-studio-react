@@ -5,22 +5,22 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger'
 type Word = { text: string; accent?: 'tomato' | 'klein' | 'italic' }
 
 const WORDS: Word[] = [
-    { text: 'Si' },
-    { text: 'ce' },
-    { text: "n'est" },
-    { text: 'pas', accent: 'italic' },
-    { text: 'mémorable,' },
-    { text: 'le' },
-    { text: 'travail' },
-    { text: "n'est" },
-    { text: 'pas', accent: 'italic' },
-    { text: 'fini.' },
-    { text: 'Le' },
-    { text: 'web' },
-    { text: 'mérite', accent: 'klein' },
-    { text: 'mieux', accent: 'tomato' },
-    { text: 'que' },
-    { text: "l'ennui." },
+    { text: 'Ce' },
+    { text: "qu'on" },
+    { text: 'construit' },
+    { text: 'doit', accent: 'italic' },
+    { text: 'tenir' },
+    { text: 'dans' },
+    { text: 'dix', accent: 'tomato' },
+    { text: 'ans.' },
+    { text: 'Pas' },
+    { text: "jusqu'à" },
+    { text: 'la' },
+    { text: 'prochaine', accent: 'italic' },
+    { text: 'tendance.', accent: 'klein' },
+    { text: 'On' },
+    { text: 'y' },
+    { text: 'tient.' },
 ]
 
 /**
