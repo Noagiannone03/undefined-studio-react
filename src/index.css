@@ -302,10 +302,6 @@ body {
   .hero-line-2 { font-size: clamp(72px, 16.5vw, 185px); line-height: 0.90; }
   .hero-line-3 { font-size: clamp(62px, 14.5vw, 165px); line-height: 0.86; }
 
-  .manifesto-topbar {
-    gap: 12px;
-  }
-
   .manifesto-copy {
     max-width: 13ch !important;
   }
@@ -351,31 +347,22 @@ body {
     padding-top: 18px !important;
   }
 
-  .hero-topbar .display {
-    font-size: 13px !important;
-  }
-
-  .hero-topbar .mono {
-    font-size: 10px !important;
-    letter-spacing: 0.16em !important;
-  }
-
   .hero-body {
     align-items: center;
     padding-top: 0;
     padding-bottom: 0;
   }
 
-  .hero-line-1 { font-size: clamp(72px, 23vw, 148px); line-height: 0.86; }
-  .hero-line-2 { font-size: clamp(64px, 21vw, 132px); }
-  .hero-line-3 { font-size: clamp(55px, 18.5vw, 116px); line-height: 0.86; }
+  .hero-line-1 { font-size: clamp(88px, 25.5vw, 152px); line-height: 0.86; }
+  .hero-line-2 { font-size: clamp(78px, 24vw, 136px); }
+  .hero-line-3 { font-size: clamp(70px, 21.5vw, 120px); line-height: 0.86; }
 
   .about-section {
     min-height: auto !important;
   }
 
   .about-left .about-line {
-    font-size: clamp(52px, 16.5vw, 80px) !important;
+    font-size: clamp(64px, 19.5vw, 96px) !important;
     line-height: 0.90 !important;
   }
 
@@ -385,20 +372,12 @@ body {
   }
 
   .about-values li {
-    font-size: clamp(20px, 6vw, 28px) !important;
+    font-size: clamp(26px, 7.5vw, 36px) !important;
     gap: 12px !important;
   }
 
-  .manifesto-topbar {
-    flex-direction: column;
-    align-items: flex-start !important;
-    justify-content: flex-start !important;
-    gap: 8px;
-    padding-bottom: 18px !important;
-  }
-
   .manifesto-copy {
-    font-size: clamp(40px, 12.5vw, 64px) !important;
+    font-size: clamp(52px, 15.5vw, 80px) !important;
     line-height: 0.98 !important;
     max-width: 13ch !important;
   }
@@ -445,7 +424,7 @@ body {
   }
 
   .project-copy-col p {
-    font-size: clamp(15px, 4.2vw, 18px) !important;
+    font-size: clamp(16px, 4.5vw, 19px) !important;
     line-height: 1.55 !important;
     max-width: 100% !important;
   }
@@ -510,7 +489,7 @@ body {
   }
 
   .capabilities-section h2 {
-    font-size: clamp(52px, 17vw, 80px) !important;
+    font-size: clamp(62px, 20vw, 96px) !important;
   }
 
   .cap-row {
@@ -525,7 +504,7 @@ body {
   }
 
   .cap-row-main h3 {
-    font-size: clamp(28px, 9vw, 44px) !important;
+    font-size: clamp(36px, 11.5vw, 54px) !important;
     flex: 1 !important;
     min-width: 0 !important;
   }
@@ -536,7 +515,7 @@ body {
     padding-left: 0 !important;
     margin-top: 12px !important;
     max-width: 100% !important;
-    font-size: clamp(14px, 3.8vw, 16px) !important;
+    font-size: clamp(16px, 4.5vw, 18px) !important;
   }
 
   /* Hide sticky preview card on mobile — brief expands inline */
@@ -547,6 +526,15 @@ body {
     min-height: auto !important;
     padding-top: clamp(72px, 18vw, 120px) !important;
     padding-bottom: 24px !important;
+  }
+
+  .footer-section h2 {
+    font-size: clamp(56px, 18vw, 100px) !important;
+    margin-bottom: clamp(28px, 6vw, 48px) !important;
+  }
+
+  .footer-email .display {
+    font-size: clamp(28px, 8vw, 48px) !important;
   }
 
   .footer-meta {

@@ -94,47 +94,6 @@ export default function Manifesto() {
             className="manifesto-section"
             style={{ background: 'var(--color-ink)', color: 'var(--color-paper)' }}
         >
-            {/* Top label row */}
-            <div
-                className="container-x"
-                style={{
-                    paddingTop: 'clamp(64px, 8vw, 120px)',
-                    paddingBottom: 'clamp(32px, 4vw, 48px)',
-                }}
-            >
-                <div
-                    className="manifesto-topbar"
-                    style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'space-between',
-                        borderBottom: '1px solid rgba(239,235,221,0.14)',
-                        paddingBottom: 24,
-                    }}
-                >
-                    <span
-                        className="mono"
-                        style={{
-                            color: 'rgba(239,235,221,0.45)',
-                            fontSize: 11,
-                            letterSpacing: '0.2em',
-                        }}
-                    >
-                        — MANIFESTE
-                    </span>
-                    <span
-                        className="mono"
-                        style={{
-                            color: 'rgba(239,235,221,0.45)',
-                            fontSize: 11,
-                            letterSpacing: '0.2em',
-                        }}
-                    >
-                        UNDEFINED STUDIO
-                    </span>
-                </div>
-            </div>
-
             {/* Pinned sticky phrase */}
             <div
                 ref={stickyRef}

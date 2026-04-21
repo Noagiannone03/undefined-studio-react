@@ -127,12 +127,12 @@ export default function Menu() {
                                         <span className="label label-soft">
                                             {String(i + 1).padStart(2, '0')}
                                         </span>
-                                        <span className="display text-4xl">{s.label}</span>
+                                        <span className="display" style={{ fontSize: 'clamp(44px, 13vw, 72px)' }}>{s.label}</span>
                                     </div>
                                 </motion.a>
                             ))}
                         </div>
-                        <a href="mailto:hello@undefined.fr" className="mt-auto py-8 serif-italic text-2xl u-draw self-start">
+                        <a href="mailto:hello@undefined.fr" className="mt-auto py-8 serif-italic u-draw self-start" style={{ fontSize: 'clamp(26px, 7vw, 36px)' }}>
                             hello@undefined.fr
                         </a>
                     </motion.div>

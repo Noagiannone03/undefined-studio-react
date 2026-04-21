@@ -308,7 +308,7 @@ function ServiceRow({
                 transition={{ duration: 0.36, ease: EXPO }}
                 style={{ position: 'relative', zIndex: 2, padding: '0 clamp(2px, 0.8vw, 12px)' }}
             >
-                <div style={{
+                <div className="cap-row-main" style={{
                     display: 'flex',
                     alignItems: 'center',
                     gap: 'clamp(12px, 2.4vw, 36px)',

@@ -97,22 +97,14 @@ export default function Hero() {
 
             {/* Topbar */}
             <div className="hero-topbar flex items-center justify-between pt-8 relative z-10">
-                <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                    <span className="hero-mark" style={{ display: 'inline-flex' }}>
-                        <Mark
-                            size={26}
-                            drawable
-                            color="var(--color-tomato)"
-                            color2="var(--color-klein)"
-                        />
-                    </span>
-                    <span
-                        className="display"
-                        style={{ fontSize: 'clamp(14px, 1.3vw, 17px)', letterSpacing: '-0.02em', lineHeight: 1 }}
-                    >
-                        UNDEFINED STUDIO
-                    </span>
-                </div>
+                <span className="hero-mark" style={{ display: 'inline-flex' }}>
+                    <Mark
+                        size={26}
+                        drawable
+                        color="var(--color-tomato)"
+                        color2="var(--color-klein)"
+                    />
+                </span>
             </div>
 
             {/* Headline — fills vertical center, contains all three lines */}
