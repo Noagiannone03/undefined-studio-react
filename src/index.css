@@ -197,6 +197,15 @@ body {
   isolation: isolate;
 }
 
+/* BrandMark: show/hide desktop vs mobile versions */
+.bm-mobile  { display: none; }
+.bm-desktop { display: block; }
+
+@media (max-width: 768px) {
+  .bm-desktop { display: none !important; }
+  .bm-mobile  { display: block !important; }
+}
+
 /* Capabilities 2-col: brief only visible on mobile (card shows it on desktop) */
 @media (min-width: 641px) {
   .brief-mobile-only { display: none !important; }
