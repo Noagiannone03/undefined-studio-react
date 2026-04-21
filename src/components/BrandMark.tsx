@@ -7,7 +7,7 @@ import {
     useSpring,
 } from 'motion/react'
 
-const SCROLL_VH = 280
+const SCROLL_VH = 260
 
 export default function BrandMark() {
     const wrapperRef = useRef<HTMLDivElement>(null)
@@ -17,57 +17,31 @@ export default function BrandMark() {
         offset: ['start start', 'end end'],
     })
 
-    const s = useSpring(scrollYProgress, { stiffness: 52, damping: 24, restDelta: 0.0001 })
+    const s = useSpring(scrollYProgress, { stiffness: 50, damping: 22, restDelta: 0.0001 })
 
-    // ── Background: ink → paper ──────────────────────────────────────────
-    const bgR = useTransform(s, [0.56, 0.84], [14, 239])
-    const bgG = useTransform(s, [0.56, 0.84], [14, 235])
-    const bgB = useTransform(s, [0.56, 0.84], [12, 221])
-    const bgColor = useMotionTemplate`rgb(${bgR}, ${bgG}, ${bgB})`
+    // ── Chevrons ─────────────────────────────────────────────────────────
+    const chevLX  = useTransform(s, [0.02, 0.18], [-300, 0])
+    const chevLOp = useTransform(s, [0.02, 0.16], [0, 1])
+    const chevRX  = useTransform(s, [0.05, 0.22], [300, 0])
+    const chevROp = useTransform(s, [0.05, 0.20], [0, 1])
 
-    // ── Chevron stroke colors ─────────────────────────────────────────────
-    // Left (Klein) → Ink as bg lightens
-    const chLR = useTransform(s, [0.56, 0.84], [29, 14])
-    const chLG = useTransform(s, [0.56, 0.84], [29, 14])
-    const chLB = useTransform(s, [0.56, 0.84], [191, 12])
-    const chevLColor = useMotionTemplate`rgb(${chLR}, ${chLG}, ${chLB})`
+    // glow intensity
+    const glowL = useTransform(s, [0.05, 0.30, 0.70], [0, 0.8, 0.5])
+    const glowR = useTransform(s, [0.08, 0.34, 0.70], [0, 0.8, 0.5])
+    const filterL = useMotionTemplate`drop-shadow(0 0 40px rgba(29,29,191,${glowL}))`
+    const filterR = useMotionTemplate`drop-shadow(0 0 40px rgba(232,74,42,${glowR}))`
 
-    // Right (Tomato) → Ink as bg lightens
-    const chRR = useTransform(s, [0.56, 0.84], [232, 14])
-    const chRG = useTransform(s, [0.56, 0.84], [74, 14])
-    const chRB = useTransform(s, [0.56, 0.84], [42, 12])
-    const chevRColor = useMotionTemplate`rgb(${chRR}, ${chRG}, ${chRB})`
+    // ── "CE QU'ON" — arrive de gauche, hors écran ─────────────────────────
+    const line1X  = useTransform(s, [0.20, 0.40], ['-110vw', '0vw'])
+    const line1Op = useTransform(s, [0.20, 0.36], [0, 1])
 
-    // ── Text: paper → ink ─────────────────────────────────────────────────
-    const tR = useTransform(s, [0.56, 0.84], [239, 14])
-    const tG = useTransform(s, [0.56, 0.84], [235, 14])
-    const tB = useTransform(s, [0.56, 0.84], [221, 12])
-    const textColor = useMotionTemplate`rgb(${tR}, ${tG}, ${tB})`
+    // ── "a fait." — arrive de droite ──────────────────────────────────────
+    const line2X  = useTransform(s, [0.28, 0.48], ['110vw', '0vw'])
+    const line2Op = useTransform(s, [0.28, 0.44], [0, 1])
 
-    // ── Left chevron: slides in from left ────────────────────────────────
-    const chevLX   = useTransform(s, [0.04, 0.22], [-220, 0])
-    const chevLOp  = useTransform(s, [0.04, 0.20, 0.72, 0.88], [0, 1, 1, 0])
-    const chevLSc  = useTransform(s, [0.04, 0.24], [0.72, 1])
-    const chevLGlow = useTransform(s, [0.04, 0.28, 0.52, 0.72], [0, 0.7, 0.7, 0])
-
-    // ── Right chevron: slides in from right ───────────────────────────────
-    const chevRX   = useTransform(s, [0.08, 0.26], [220, 0])
-    const chevROp  = useTransform(s, [0.08, 0.24, 0.72, 0.88], [0, 1, 1, 0])
-    const chevRSc  = useTransform(s, [0.08, 0.28], [0.72, 1])
-    const chevRGlow = useTransform(s, [0.08, 0.32, 0.52, 0.72], [0, 0.7, 0.7, 0])
-
-    // ── UNDEFINED wordmark ────────────────────────────────────────────────
-    const wordClip  = useTransform(s, [0.26, 0.40], [100, 0])
-    const wordClipPath = useMotionTemplate`inset(0 0 ${wordClip}% 0)`
-    const wordOp    = useTransform(s, [0.26, 0.38, 0.72, 0.86], [0, 1, 1, 0])
-
-    // ── Separator ─────────────────────────────────────────────────────────
-    const lineScX   = useTransform(s, [0.34, 0.46], [0, 1])
-    const lineOp    = useTransform(s, [0.34, 0.44, 0.72, 0.86], [0, 1, 1, 0])
-
-    // ── Transition statement ──────────────────────────────────────────────
-    const stmtOp    = useTransform(s, [0.40, 0.52, 0.72, 0.86], [0, 1, 1, 0])
-    const stmtY     = useTransform(s, [0.40, 0.52], [16, 0])
+    // ── Label bas ─────────────────────────────────────────────────────────
+    const labelOp = useTransform(s, [0.42, 0.56], [0, 1])
+    const labelY  = useTransform(s, [0.42, 0.56], [14, 0])
 
     return (
         <section
@@ -75,137 +49,116 @@ export default function BrandMark() {
             id="brand-mark"
             style={{ height: `${SCROLL_VH}vh`, position: 'relative' }}
         >
-            <motion.div
-                style={{
-                    position: 'sticky',
-                    top: 0,
-                    minHeight: '100vh',
-                    overflow: 'hidden',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    backgroundColor: bgColor,
-                }}
-            >
+            <div style={{
+                position: 'sticky',
+                top: 0,
+                minHeight: '100vh',
+                overflow: 'hidden',
+                background: 'var(--color-ink)',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'center',
+            }}>
                 {/* Grain */}
-                <div className="grain" style={{ opacity: 0.04, zIndex: 1, pointerEvents: 'none' }} />
+                <div className="grain" style={{ opacity: 0.05, zIndex: 1, pointerEvents: 'none' }} />
 
-                {/* ── Composition ── */}
                 <div style={{
                     position: 'relative',
                     zIndex: 5,
+                    width: '100%',
                     display: 'flex',
                     flexDirection: 'column',
                     alignItems: 'center',
-                    textAlign: 'center',
+                    gap: 'clamp(12px, 2vw, 32px)',
                     userSelect: 'none',
                 }}>
 
-                    {/* >> Chevrons */}
+                    {/* ── >> Chevrons ── */}
                     <div style={{
                         display: 'flex',
                         alignItems: 'center',
-                        gap: 'clamp(6px, 1.6vw, 28px)',
+                        gap: 'clamp(4px, 1vw, 18px)',
                     }}>
-                        {/* Left chevron — Klein blue */}
                         <motion.svg
-                            viewBox="0 0 28 40"
-                            fill="none"
-                            overflow="visible"
+                            viewBox="0 0 28 40" fill="none" overflow="visible"
                             style={{
-                                width: 'clamp(52px, 10vw, 160px)',
+                                width: 'clamp(36px, 6.5vw, 100px)',
                                 x: chevLX,
                                 opacity: chevLOp,
-                                scale: chevLSc,
-                                display: 'block',
-                                filter: useMotionTemplate`drop-shadow(0 0 32px rgba(29,29,191,${chevLGlow}))`,
+                                filter: filterL,
                             }}
                         >
-                            <motion.path
-                                d="M4 4L22 20L4 36"
-                                strokeWidth="3.2"
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                fill="none"
-                                style={{ stroke: chevLColor }}
-                            />
+                            <path d="M4 4L22 20L4 36" stroke="#1D1DBF" strokeWidth="3.4"
+                                strokeLinecap="round" strokeLinejoin="round" />
                         </motion.svg>
 
-                        {/* Right chevron — Tomato */}
                         <motion.svg
-                            viewBox="0 0 28 40"
-                            fill="none"
-                            overflow="visible"
+                            viewBox="0 0 28 40" fill="none" overflow="visible"
                             style={{
-                                width: 'clamp(52px, 10vw, 160px)',
+                                width: 'clamp(36px, 6.5vw, 100px)',
                                 x: chevRX,
                                 opacity: chevROp,
-                                scale: chevRSc,
-                                display: 'block',
-                                filter: useMotionTemplate`drop-shadow(0 0 32px rgba(232,74,42,${chevRGlow}))`,
+                                filter: filterR,
                             }}
                         >
-                            <motion.path
-                                d="M4 4L22 20L4 36"
-                                strokeWidth="3.2"
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                fill="none"
-                                style={{ stroke: chevRColor }}
-                            />
+                            <path d="M4 4L22 20L4 36" stroke="#E84A2A" strokeWidth="3.4"
+                                strokeLinecap="round" strokeLinejoin="round" />
                         </motion.svg>
                     </div>
 
-                    {/* UNDEFINED wordmark */}
-                    <motion.div style={{
-                        marginTop: 'clamp(20px, 3.2vw, 52px)',
-                        overflow: 'hidden',
-                    }}>
+                    {/* ── Ligne 1 : CE QU'ON — déboule depuis la gauche ── */}
+                    <div style={{ overflow: 'hidden', width: '100%', textAlign: 'center' }}>
                         <motion.span
                             className="display"
                             style={{
                                 display: 'block',
-                                fontSize: 'clamp(22px, 4vw, 68px)',
-                                color: textColor,
-                                letterSpacing: '0.26em',
-                                lineHeight: 1.0,
-                                clipPath: wordClipPath,
-                                opacity: wordOp,
+                                fontSize: 'clamp(64px, 16vw, 240px)',
+                                color: 'var(--color-paper)',
+                                letterSpacing: '-0.048em',
+                                lineHeight: 0.88,
+                                x: line1X,
+                                opacity: line1Op,
                             }}
                         >
-                            UNDEFINED
+                            CE QU'ON
                         </motion.span>
-                    </motion.div>
+                    </div>
 
-                    {/* Separator */}
-                    <motion.div style={{
-                        width: 'clamp(32px, 5vw, 80px)',
-                        height: 1,
-                        background: textColor,
-                        scaleX: lineScX,
-                        transformOrigin: 'center',
-                        opacity: lineOp,
-                        marginTop: 'clamp(16px, 2.4vw, 36px)',
-                    }} />
+                    {/* ── Ligne 2 : a fait. — déboule depuis la droite ── */}
+                    <div style={{ overflow: 'hidden', width: '100%', textAlign: 'center' }}>
+                        <motion.span
+                            className="serif-italic"
+                            style={{
+                                display: 'block',
+                                fontSize: 'clamp(60px, 15vw, 220px)',
+                                color: 'var(--color-paper)',
+                                letterSpacing: '-0.03em',
+                                lineHeight: 0.90,
+                                x: line2X,
+                                opacity: line2Op,
+                            }}
+                        >
+                            a fait.
+                        </motion.span>
+                    </div>
 
-                    {/* Transition statement */}
-                    <motion.p
-                        className="serif-italic"
+                    {/* ── Label de transition ── */}
+                    <motion.span
+                        className="mono label-soft"
                         style={{
-                            fontSize: 'clamp(14px, 1.6vw, 22px)',
-                            color: textColor,
-                            opacity: stmtOp,
-                            y: stmtY,
-                            margin: 0,
-                            marginTop: 'clamp(14px, 2vw, 28px)',
-                            letterSpacing: '-0.01em',
-                            lineHeight: 1.5,
+                            fontSize: 10,
+                            letterSpacing: '0.28em',
+                            color: 'var(--color-paper)',
+                            opacity: labelOp,
+                            y: labelY,
+                            marginTop: 'clamp(8px, 1.4vw, 20px)',
                         }}
                     >
-                        Ce qu'on a construit, c'est juste après.
-                    </motion.p>
+                        — Nos projets
+                    </motion.span>
                 </div>
-            </motion.div>
+            </div>
         </section>
     )
 }
