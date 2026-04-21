@@ -1,96 +1,63 @@
-import { useRef, useState, useCallback } from 'react'
-import { motion, useInView, AnimatePresence, useMotionValue, useSpring } from 'motion/react'
+import { useRef, useState } from 'react'
+import { motion, useInView, AnimatePresence } from 'motion/react'
 
 type Service = {
     id: string
     name: string
+    nameItalic: string
     stack: string[]
     accent: string
     brief: string
-    visual: string
+    gradient: string
 }
 
 const SERVICES: Service[] = [
     {
         id: '01',
         name: 'FONDATIONS',
+        nameItalic: '',
         stack: ['Stratégie', 'Architecture', 'UX Design'],
         accent: 'var(--color-klein)',
         brief: "On ne colorie pas des cases. On pose d'abord les vraies questions pour s'assurer que le produit tient debout avant même la première maquette.",
-        visual: 'linear-gradient(135deg, #1D1DBF 0%, #0E0E0C 100%)',
+        gradient: 'linear-gradient(135deg, #1D1DBF 0%, #0E0E0C 100%)',
     },
     {
         id: '02',
-        name: 'DIRECTION ARTISTIQUE',
+        name: 'DIRECTION',
+        nameItalic: 'artistique.',
         stack: ['UI Design', 'Identité Visuelle', 'Systèmes'],
         accent: 'var(--color-ink)',
         brief: "La première impression est toujours visuelle. On crée des interfaces avec un vrai parti-pris, pour que vous ne ressembliez à personne d'autre.",
-        visual: 'linear-gradient(135deg, #0E0E0C 0%, #2d2d28 100%)',
+        gradient: 'linear-gradient(135deg, #0E0E0C 0%, #2d2d28 100%)',
     },
     {
         id: '03',
-        name: 'INGÉNIERIE FRONT',
+        name: 'INGÉNIERIE',
+        nameItalic: 'front.',
         stack: ['React', 'TypeScript', 'WebGL'],
         accent: 'var(--color-tomato)',
         brief: "Un beau design ne vaut rien s'il rame. On écrit un code robuste, optimisé et pensé dès le premier jour pour la performance absolue.",
-        visual: 'linear-gradient(135deg, #E84A2A 0%, #8B2A16 100%)',
+        gradient: 'linear-gradient(135deg, #E84A2A 0%, #8B2A16 100%)',
     },
     {
         id: '04',
-        name: 'PHYSIQUE & MOTION',
+        name: 'PHYSIQUE &',
+        nameItalic: 'motion.',
         stack: ['GSAP', 'Animations', 'Micro-interactions'],
         accent: 'var(--color-klein)',
         brief: "L'immobilité c'est la mort. On ajoute de la gravité, de la friction et du rythme pour rendre chaque interaction organique et foudroyante.",
-        visual: 'linear-gradient(135deg, #1D1DBF 0%, #E84A2A 100%)',
+        gradient: 'linear-gradient(135deg, #1D1DBF 0%, #E84A2A 100%)',
     },
 ]
 
-const EXPO_OUT = [0.16, 1, 0.3, 1] as const
-
-const containerVariants = {
-    hidden: {},
-    visible: { transition: { staggerChildren: 0.1, delayChildren: 0.05 } },
-}
-
-const headerVariants = {
-    hidden: { opacity: 0, y: 28 },
-    visible: {
-        opacity: 1,
-        y: 0,
-        transition: { duration: 0.8, ease: EXPO_OUT },
-    },
-}
-
-const rowVariants = {
-    hidden: { opacity: 0, y: 40, clipPath: 'inset(0 0 100% 0)' },
-    visible: {
-        opacity: 1,
-        y: 0,
-        clipPath: 'inset(0 0 0% 0)',
-        transition: { duration: 0.7, ease: EXPO_OUT },
-    },
-}
+const EXPO = [0.16, 1, 0.3, 1] as const
 
 export default function Capabilities() {
     const sectionRef = useRef<HTMLElement>(null)
-    const isInView = useInView(sectionRef, { once: true, margin: '-15%' })
-    const [activeId, setActiveId] = useState<string | null>(null)
+    const isInView = useInView(sectionRef, { once: true, margin: '-12%' })
+    const [activeId, setActiveId] = useState<string>('01')
 
-    // Spring-tracked cursor for floating card
-    const rawX = useMotionValue(-600)
-    const rawY = useMotionValue(-600)
-    const cardX = useSpring(rawX, { stiffness: 130, damping: 18, mass: 0.5 })
-    const cardY = useSpring(rawY, { stiffness: 130, damping: 18, mass: 0.5 })
-
-    const handleMouseMove = useCallback(
-        (e: React.MouseEvent) => {
-            rawX.set(e.clientX + 28)
-            rawY.set(e.clientY + 28)
-        },
-        [rawX, rawY]
-    )
-
-    const activeService = SERVICES.find((s) => s.id === activeId) ?? null
+    const activeService = SERVICES.find((s) => s.id === activeId) ?? SERVICES[0]
 
     return (
         <section
@@ -98,97 +65,110 @@ export default function Capabilities() {
             id="services"
             className="capabilities-section container-x section-y"
             style={{ background: 'var(--color-paper)', position: 'relative' }}
-            onMouseMove={handleMouseMove}
         >
-            <motion.div
-                variants={containerVariants}
-                initial="hidden"
-                animate={isInView ? 'visible' : 'hidden'}
-            >
-                {/* Header */}
-                <motion.div
-                    variants={headerVariants}
-                    className="cap-header"
-                    style={{ marginBottom: 'clamp(48px, 6vw, 80px)' }}
-                >
-                    <span className="mono label-soft" style={{ display: 'block', marginBottom: 14 }}>
-                        ( 04 ) — Ce qu'on fait
-                    </span>
-                    <h2
-                        className="display"
-                        style={{
-                            fontSize: 'clamp(44px, 6.5vw, 96px)',
-                            lineHeight: 0.9,
-                            margin: 0,
-                            letterSpacing: '-0.045em',
-                        }}
-                    >
-                        NOS{' '}
-                        <span className="serif-italic" style={{ letterSpacing: '-0.02em' }}>
-                            métiers.
-                        </span>
-                    </h2>
-                </motion.div>
+            {/* ── Desktop layout: 2 columns ── */}
+            <div className="cap-inner" style={{
+                display: 'grid',
+                gridTemplateColumns: '1fr clamp(260px, 35vw, 420px)',
+                gap: 'clamp(40px, 6vw, 96px)',
+                alignItems: 'start',
+            }}>
 
-                {/* Service list */}
-                <div className="cap-list" style={{ borderTop: '1px solid var(--color-hair)' }}>
-                    {SERVICES.map((service, i) => (
-                        <motion.div key={service.id} variants={rowVariants} custom={i}>
-                            <ServiceRow
-                                service={service}
-                                onEnter={() => setActiveId(service.id)}
-                                onLeave={() => setActiveId(null)}
-                            />
-                        </motion.div>
-                    ))}
-                </div>
-            </motion.div>
-
-            {/* Floating cursor card — desktop only (no touch events) */}
-            <AnimatePresence mode="wait">
-                {activeService && (
+                {/* LEFT: header + list */}
+                <div>
+                    {/* Header */}
                     <motion.div
-                        key={activeService.id}
-                        initial={{ opacity: 0, scale: 0.86, filter: 'blur(10px)' }}
-                        animate={{ opacity: 1, scale: 1, filter: 'blur(0px)' }}
-                        exit={{ opacity: 0, scale: 0.86, filter: 'blur(10px)' }}
-                        transition={{ duration: 0.20, ease: [0.16, 1, 0.3, 1] }}
-                        style={{
-                            position: 'fixed',
-                            left: 0,
-                            top: 0,
-                            x: cardX,
-                            y: cardY,
-                            zIndex: 9999,
-                            pointerEvents: 'none',
-                            width: 268,
-                        }}
+                        initial={{ opacity: 0, y: 28 }}
+                        animate={isInView ? { opacity: 1, y: 0 } : {}}
+                        transition={{ duration: 0.8, ease: EXPO }}
+                        style={{ marginBottom: 'clamp(40px, 5.5vw, 72px)' }}
                     >
-                        <div
+                        <span className="mono label-soft" style={{ display: 'block', marginBottom: 14 }}>
+                            ( 04 ) — Ce qu'on fait
+                        </span>
+                        <h2
+                            className="display"
+                            style={{
+                                fontSize: 'clamp(48px, 7.5vw, 112px)',
+                                lineHeight: 0.88,
+                                margin: 0,
+                                letterSpacing: '-0.048em',
+                            }}
+                        >
+                            NOS{' '}
+                            <span className="serif-italic" style={{ letterSpacing: '-0.02em' }}>
+                                métiers.
+                            </span>
+                        </h2>
+                    </motion.div>
+
+                    {/* Service rows */}
+                    <div style={{ borderTop: '1px solid var(--color-hair)' }}>
+                        {SERVICES.map((service, i) => (
+                            <motion.div
+                                key={service.id}
+                                initial={{ opacity: 0, clipPath: 'inset(0 0 100% 0)' }}
+                                animate={isInView ? { opacity: 1, clipPath: 'inset(0 0 0% 0)' } : {}}
+                                transition={{ duration: 0.65, ease: EXPO, delay: 0.08 + i * 0.10 }}
+                            >
+                                <ServiceRow
+                                    service={service}
+                                    isActive={activeId === service.id}
+                                    onEnter={() => setActiveId(service.id)}
+                                />
+                            </motion.div>
+                        ))}
+                    </div>
+                </div>
+
+                {/* RIGHT: sticky preview card */}
+                <motion.div
+                    initial={{ opacity: 0, y: 32 }}
+                    animate={isInView ? { opacity: 1, y: 0 } : {}}
+                    transition={{ duration: 0.9, ease: EXPO, delay: 0.22 }}
+                    style={{
+                        position: 'sticky',
+                        top: 'clamp(80px, 10vh, 120px)',
+                    }}
+                    className="cap-preview"
+                >
+                    <AnimatePresence mode="wait">
+                        <motion.div
+                            key={activeService.id}
+                            initial={{ opacity: 0, y: 16, filter: 'blur(6px)' }}
+                            animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+                            exit={{ opacity: 0, y: -10, filter: 'blur(4px)' }}
+                            transition={{ duration: 0.28, ease: EXPO }}
                             style={{
                                 border: '2px solid var(--color-ink)',
-                                boxShadow: `7px 7px 0 ${activeService.accent}`,
+                                boxShadow: `8px 8px 0 ${activeService.accent}`,
                                 background: 'var(--color-paper)',
                                 overflow: 'hidden',
                             }}
                         >
                             {/* Visual header */}
-                            <div
-                                style={{
-                                    height: 88,
-                                    background: activeService.visual,
-                                    position: 'relative',
-                                    overflow: 'hidden',
-                                }}
-                            >
-                                <div className="grain" style={{ opacity: 0.08 }} />
+                            <div style={{
+                                height: 'clamp(100px, 14vw, 160px)',
+                                background: activeService.gradient,
+                                position: 'relative',
+                                overflow: 'hidden',
+                            }}>
+                                <div className="grain" style={{ opacity: 0.09 }} />
+
+                                {/* Accent bar top */}
+                                <div style={{
+                                    position: 'absolute', top: 0, left: 0, right: 0,
+                                    height: 3, background: 'rgba(255,255,255,0.20)',
+                                }} />
+
+                                {/* Giant number watermark */}
                                 <span
                                     className="display"
                                     style={{
                                         position: 'absolute',
-                                        bottom: -10,
-                                        right: 10,
-                                        fontSize: 72,
+                                        bottom: -16,
+                                        right: 12,
+                                        fontSize: 'clamp(80px, 12vw, 130px)',
                                         color: 'rgba(255,255,255,0.10)',
                                         lineHeight: 1,
                                         letterSpacing: '-0.06em',
@@ -197,87 +177,93 @@ export default function Capabilities() {
                                 >
                                     {activeService.id}
                                 </span>
-                                {/* Accent bar top */}
-                                <div
-                                    style={{
-                                        position: 'absolute',
-                                        top: 0,
-                                        left: 0,
-                                        right: 0,
-                                        height: 3,
-                                        background: 'rgba(255,255,255,0.18)',
-                                    }}
-                                />
+
+                                {/* Service name overlay */}
+                                <div style={{ position: 'absolute', bottom: 16, left: 20 }}>
+                                    <span className="display" style={{
+                                        fontSize: 'clamp(11px, 1.4vw, 16px)',
+                                        color: 'rgba(255,255,255,0.88)',
+                                        letterSpacing: '0.22em',
+                                        display: 'block',
+                                    }}>
+                                        {activeService.name}
+                                        {activeService.nameItalic && (
+                                            <span className="serif-italic" style={{ letterSpacing: '0.1em', marginLeft: '0.3em' }}>
+                                                {activeService.nameItalic}
+                                            </span>
+                                        )}
+                                    </span>
+                                </div>
                             </div>
 
-                            {/* Brief */}
-                            <div style={{ padding: '14px 16px 18px' }}>
-                                <span
-                                    className="mono"
-                                    style={{
-                                        display: 'block',
-                                        fontSize: 9,
-                                        letterSpacing: '0.2em',
-                                        color: 'var(--color-ink)',
-                                        opacity: 0.38,
-                                        marginBottom: 9,
-                                    }}
-                                >
-                                    {activeService.stack.join(' · ')}
-                                </span>
-                                <p
-                                    style={{
-                                        margin: 0,
-                                        fontFamily: 'Satoshi, sans-serif',
-                                        fontSize: 12.5,
-                                        lineHeight: 1.55,
-                                        color: 'var(--color-ink)',
-                                        opacity: 0.82,
-                                    }}
-                                >
+                            {/* Content */}
+                            <div style={{ padding: 'clamp(16px, 2vw, 24px)' }}>
+                                {/* Stack pills */}
+                                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 14 }}>
+                                    {activeService.stack.map((tag) => (
+                                        <span
+                                            key={tag}
+                                            className="mono"
+                                            style={{
+                                                fontSize: 9,
+                                                letterSpacing: '0.18em',
+                                                color: 'var(--color-ink)',
+                                                border: '1px solid var(--color-hair)',
+                                                padding: '3px 8px',
+                                                display: 'inline-block',
+                                            }}
+                                        >
+                                            {tag}
+                                        </span>
+                                    ))}
+                                </div>
+
+                                {/* Brief */}
+                                <p style={{
+                                    margin: 0,
+                                    fontFamily: 'Satoshi, sans-serif',
+                                    fontSize: 'clamp(13px, 1.1vw, 15px)',
+                                    lineHeight: 1.58,
+                                    color: 'var(--color-ink)',
+                                    opacity: 0.82,
+                                }}>
                                     {activeService.brief}
                                 </p>
                             </div>
-                        </div>
-                    </motion.div>
-                )}
-            </AnimatePresence>
+                        </motion.div>
+                    </AnimatePresence>
+                </motion.div>
+            </div>
         </section>
     )
 }
 
 function ServiceRow({
     service,
+    isActive,
     onEnter,
-    onLeave,
 }: {
     service: Service
+    isActive: boolean
     onEnter: () => void
-    onLeave: () => void
 }) {
-    const [hovered, setHovered] = useState(false)
-
-    const handleEnter = () => { setHovered(true); onEnter() }
-    const handleLeave = () => { setHovered(false); onLeave() }
-
     return (
         <div
             className="cap-row"
-            onMouseEnter={handleEnter}
-            onMouseLeave={handleLeave}
+            onMouseEnter={onEnter}
             style={{
                 position: 'relative',
-                padding: 'clamp(26px, 3.2vw, 44px) 0',
+                padding: 'clamp(22px, 2.8vw, 38px) 0',
                 borderBottom: '1px solid var(--color-hair)',
                 cursor: 'default',
                 overflow: 'hidden',
             }}
         >
-            {/* Fill — slides from left */}
+            {/* Fill slides from left on active */}
             <motion.div
                 initial={false}
-                animate={{ scaleX: hovered ? 1 : 0 }}
-                transition={{ duration: 0.42, ease: EXPO_OUT }}
+                animate={{ scaleX: isActive ? 1 : 0 }}
+                transition={{ duration: 0.40, ease: EXPO }}
                 style={{
                     position: 'absolute',
                     inset: 0,
@@ -288,22 +274,22 @@ function ServiceRow({
                 }}
             />
 
-            {/* Decorative large number */}
+            {/* Large ghost number */}
             <AnimatePresence>
-                {hovered && (
+                {isActive && (
                     <motion.span
-                        key="bignum"
-                        initial={{ opacity: 0, x: 24 }}
-                        animate={{ opacity: 0.07, x: 0 }}
-                        exit={{ opacity: 0, x: 14 }}
-                        transition={{ duration: 0.35, ease: 'easeOut' }}
+                        key="num"
+                        initial={{ opacity: 0, x: 20 }}
+                        animate={{ opacity: 0.06, x: 0 }}
+                        exit={{ opacity: 0, x: 12 }}
+                        transition={{ duration: 0.32, ease: 'easeOut' }}
                         className="display"
                         style={{
                             position: 'absolute',
-                            right: 'clamp(8px, 2vw, 24px)',
+                            right: 'clamp(6px, 1.5vw, 20px)',
                             top: '50%',
                             transform: 'translateY(-50%)',
-                            fontSize: 'clamp(80px, 16vw, 200px)',
+                            fontSize: 'clamp(72px, 14vw, 180px)',
                             lineHeight: 1,
                             color: 'var(--color-paper)',
                             pointerEvents: 'none',
@@ -316,96 +302,89 @@ function ServiceRow({
                 )}
             </AnimatePresence>
 
-            {/* Row content — shifts right on hover */}
+            {/* Row content */}
             <motion.div
-                animate={{ x: hovered ? 8 : 0 }}
-                transition={{ duration: 0.38, ease: EXPO_OUT }}
-                style={{ position: 'relative', zIndex: 2, padding: '0 clamp(4px, 1vw, 16px)' }}
+                animate={{ x: isActive ? 6 : 0 }}
+                transition={{ duration: 0.36, ease: EXPO }}
+                style={{ position: 'relative', zIndex: 2, padding: '0 clamp(2px, 0.8vw, 12px)' }}
             >
-                <div
-                    className="cap-row-main"
-                    style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: 'clamp(16px, 3vw, 40px)',
-                        flexWrap: 'wrap',
-                    }}
-                >
+                <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 'clamp(12px, 2.4vw, 36px)',
+                    flexWrap: 'wrap',
+                }}>
+                    {/* Number */}
                     <motion.span
-                        animate={{ color: hovered ? 'var(--color-paper)' : 'var(--color-ink)' }}
-                        transition={{ duration: 0.18 }}
+                        animate={{ color: isActive ? 'var(--color-paper)' : 'var(--color-ink)' }}
+                        transition={{ duration: 0.16 }}
                         className="mono"
-                        style={{
-                            fontSize: 11,
-                            letterSpacing: '0.22em',
-                            opacity: hovered ? 0.5 : 0.4,
-                            flexShrink: 0,
-                        }}
+                        style={{ fontSize: 11, letterSpacing: '0.22em', opacity: 0.44, flexShrink: 0 }}
                     >
                         {service.id}
                     </motion.span>
 
+                    {/* Name — display + serif italic mix */}
                     <motion.h3
-                        animate={{ color: hovered ? 'var(--color-paper)' : 'var(--color-ink)' }}
-                        transition={{ duration: 0.18 }}
+                        animate={{ color: isActive ? 'var(--color-paper)' : 'var(--color-ink)' }}
+                        transition={{ duration: 0.16 }}
                         className="display"
                         style={{
-                            fontSize: 'clamp(28px, 4vw, 56px)',
+                            fontSize: 'clamp(24px, 3.6vw, 52px)',
                             lineHeight: 0.9,
                             letterSpacing: '-0.04em',
                             margin: 0,
                             flex: 1,
-                            minWidth: 200,
+                            minWidth: 160,
                         }}
                     >
                         {service.name}
+                        {service.nameItalic && (
+                            <span
+                                className="serif-italic"
+                                style={{
+                                    letterSpacing: '-0.015em',
+                                    marginLeft: '0.2em',
+                                    fontSize: '0.88em',
+                                }}
+                            >
+                                {service.nameItalic}
+                            </span>
+                        )}
                     </motion.h3>
 
-                    <motion.span
-                        animate={{ color: hovered ? 'var(--color-paper)' : 'var(--color-ink)' }}
-                        transition={{ duration: 0.18 }}
-                        className="mono"
-                        style={{
-                            fontSize: 10,
-                            letterSpacing: '0.14em',
-                            opacity: hovered ? 0.55 : 0.45,
-                            flexShrink: 0,
-                        }}
-                    >
-                        {service.stack.join(' · ')}
-                    </motion.span>
-
+                    {/* Arrow */}
                     <motion.span
                         animate={{
-                            color: hovered ? 'var(--color-paper)' : 'var(--color-ink)',
-                            x: hovered ? 4 : 0,
-                            opacity: hovered ? 0.9 : 0.5,
+                            color: isActive ? 'var(--color-paper)' : 'var(--color-ink)',
+                            x: isActive ? 4 : 0,
+                            opacity: isActive ? 0.9 : 0.4,
                         }}
-                        transition={{ duration: 0.22, ease: EXPO_OUT }}
-                        style={{ fontSize: 18, flexShrink: 0 }}
+                        transition={{ duration: 0.20, ease: EXPO }}
+                        style={{ fontSize: 20, flexShrink: 0 }}
                     >
                         →
                     </motion.span>
                 </div>
 
-                {/* Brief — in-row expand for mobile / fallback */}
+                {/* Brief — expands on mobile (no floating card) */}
                 <AnimatePresence>
-                    {hovered && (
+                    {isActive && (
                         <motion.p
                             key="brief"
-                            initial={{ opacity: 0, y: 12, height: 0 }}
-                            animate={{ opacity: 1, y: 0, height: 'auto' }}
-                            exit={{ opacity: 0, y: 6, height: 0 }}
-                            transition={{ duration: 0.35, ease: EXPO_OUT, delay: 0.06 }}
+                            initial={{ opacity: 0, height: 0, y: 10 }}
+                            animate={{ opacity: 1, height: 'auto', y: 0 }}
+                            exit={{ opacity: 0, height: 0, y: 6 }}
+                            transition={{ duration: 0.32, ease: EXPO, delay: 0.05 }}
                             className="serif cap-brief brief-mobile-only"
                             style={{
-                                fontSize: 'clamp(14px, 1.2vw, 17px)',
-                                lineHeight: 1.5,
+                                fontSize: 'clamp(13px, 1.1vw, 16px)',
+                                lineHeight: 1.55,
                                 color: 'var(--color-paper)',
                                 margin: 0,
-                                marginTop: 'clamp(12px, 1.5vw, 20px)',
-                                paddingLeft: 'clamp(40px, 5vw, 70px)',
-                                maxWidth: '48ch',
+                                marginTop: 'clamp(10px, 1.4vw, 18px)',
+                                paddingLeft: 'clamp(36px, 4.5vw, 64px)',
+                                maxWidth: '44ch',
                                 overflow: 'hidden',
                             }}
                         >

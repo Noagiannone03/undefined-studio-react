@@ -197,6 +197,11 @@ body {
   isolation: isolate;
 }
 
+/* Capabilities 2-col: brief only visible on mobile (card shows it on desktop) */
+@media (min-width: 641px) {
+  .brief-mobile-only { display: none !important; }
+}
+
 .brand-mark-stage {
   min-height: 100svh;
 }
@@ -530,6 +535,10 @@ body {
     margin-top: 14px !important;
     max-width: 100% !important;
   }
+
+  /* Hide sticky preview card on mobile — brief expands inline */
+  .cap-preview { display: none !important; }
+  .cap-inner { grid-template-columns: 1fr !important; }
 
   .footer-section {
     min-height: auto !important;
