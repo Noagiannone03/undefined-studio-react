@@ -1,162 +1,202 @@
-import { useRef } from 'react'
-import {
-    motion,
-    useScroll,
-    useTransform,
-    useMotionTemplate,
-    useSpring,
-} from 'motion/react'
+import { useEffect, useRef } from 'react'
+import gsap from 'gsap'
+import { ScrollTrigger } from 'gsap/ScrollTrigger'
 
-const SCROLL_VH = 260
+gsap.registerPlugin(ScrollTrigger)
+
+const WORDS_L1 = ['CE', "QU'ON"]
+const WORDS_L2 = ['a', 'fait.']
 
 export default function BrandMark() {
-    const wrapperRef = useRef<HTMLDivElement>(null)
+    const sectionRef = useRef<HTMLDivElement>(null)
 
-    const { scrollYProgress } = useScroll({
-        target: wrapperRef,
-        offset: ['start start', 'end end'],
-    })
+    useEffect(() => {
+        if (!sectionRef.current) return
 
-    const s = useSpring(scrollYProgress, { stiffness: 50, damping: 22, restDelta: 0.0001 })
+        const ctx = gsap.context(() => {
+            // ── SVG stroke draw ──────────────────────────────────────────
+            gsap.set('.bm-path', {
+                strokeDasharray: 54,
+                strokeDashoffset: 54,
+                opacity: 1,
+            })
 
-    // ── Chevrons ─────────────────────────────────────────────────────────
-    const chevLX  = useTransform(s, [0.02, 0.18], [-300, 0])
-    const chevLOp = useTransform(s, [0.02, 0.16], [0, 1])
-    const chevRX  = useTransform(s, [0.05, 0.22], [300, 0])
-    const chevROp = useTransform(s, [0.05, 0.20], [0, 1])
+            const tl = gsap.timeline({
+                scrollTrigger: {
+                    trigger: sectionRef.current,
+                    start: 'top 72%',
+                    toggleActions: 'play none none none',
+                },
+                defaults: { ease: 'expo.out' },
+            })
 
-    // glow intensity
-    const glowL = useTransform(s, [0.05, 0.30, 0.70], [0, 0.8, 0.5])
-    const glowR = useTransform(s, [0.08, 0.34, 0.70], [0, 0.8, 0.5])
-    const filterL = useMotionTemplate`drop-shadow(0 0 40px rgba(29,29,191,${glowL}))`
-    const filterR = useMotionTemplate`drop-shadow(0 0 40px rgba(232,74,42,${glowR}))`
+            // 1. Chevron gauche dessine (Klein)
+            tl.to('.bm-path-l', {
+                strokeDashoffset: 0,
+                duration: 0.9,
+            })
+            // 2. Chevron droit dessine (Tomato) — légèrement décalé
+            tl.to('.bm-path-r', {
+                strokeDashoffset: 0,
+                duration: 0.9,
+            }, '-=0.6')
 
-    // ── "CE QU'ON" — arrive de gauche, hors écran ─────────────────────────
-    const line1X  = useTransform(s, [0.20, 0.40], ['-110vw', '0vw'])
-    const line1Op = useTransform(s, [0.20, 0.36], [0, 1])
+            // 3. Ligne 1 — chaque mot sort de son masque, direction alternée
+            tl.from('.bm-w1', {
+                yPercent: 115,
+                duration: 1.05,
+                stagger: 0.07,
+            }, '-=0.45')
 
-    // ── "a fait." — arrive de droite ──────────────────────────────────────
-    const line2X  = useTransform(s, [0.28, 0.48], ['110vw', '0vw'])
-    const line2Op = useTransform(s, [0.28, 0.44], [0, 1])
+            // 4. Ligne 2 — arrive en sens inverse (yPercent: -115) + léger skew
+            tl.from('.bm-w2', {
+                yPercent: -115,
+                skewY: -4,
+                duration: 1.10,
+                stagger: 0.07,
+            }, '-=0.75')
 
-    // ── Label bas ─────────────────────────────────────────────────────────
-    const labelOp = useTransform(s, [0.42, 0.56], [0, 1])
-    const labelY  = useTransform(s, [0.42, 0.56], [14, 0])
+            // 5. Trait horizontal sweep
+            tl.fromTo('.bm-rule', {
+                scaleX: 0,
+                transformOrigin: 'left center',
+            }, {
+                scaleX: 1,
+                duration: 0.9,
+                ease: 'power4.out',
+            }, '-=0.5')
+
+            // 6. Label fade
+            tl.from('.bm-label', {
+                opacity: 0,
+                y: 10,
+                duration: 0.7,
+                ease: 'power3.out',
+            }, '-=0.5')
+
+        }, sectionRef)
+
+        return () => ctx.revert()
+    }, [])
 
     return (
         <section
-            ref={wrapperRef}
+            ref={sectionRef}
             id="brand-mark"
-            style={{ height: `${SCROLL_VH}vh`, position: 'relative' }}
+            style={{
+                background: 'var(--color-ink)',
+                padding: 'clamp(80px, 12vw, 160px) var(--side-spacing)',
+                overflow: 'hidden',
+            }}
         >
             <div style={{
-                position: 'sticky',
-                top: 0,
-                minHeight: '100vh',
-                overflow: 'hidden',
-                background: 'var(--color-ink)',
                 display: 'flex',
                 flexDirection: 'column',
-                alignItems: 'center',
-                justifyContent: 'center',
+                alignItems: 'flex-start',
+                gap: 'clamp(20px, 3.5vw, 56px)',
+                userSelect: 'none',
             }}>
-                {/* Grain */}
-                <div className="grain" style={{ opacity: 0.05, zIndex: 1, pointerEvents: 'none' }} />
 
-                <div style={{
-                    position: 'relative',
-                    zIndex: 5,
-                    width: '100%',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    alignItems: 'center',
-                    gap: 'clamp(12px, 2vw, 32px)',
-                    userSelect: 'none',
-                }}>
+                {/* ── >> Chevrons ── */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: 'clamp(4px, 0.8vw, 14px)' }}>
+                    <svg
+                        viewBox="0 0 28 40" fill="none" overflow="visible"
+                        style={{
+                            width: 'clamp(28px, 4.5vw, 68px)',
+                            display: 'block',
+                            filter: 'drop-shadow(0 0 28px rgba(29,29,191,0.7))',
+                        }}
+                    >
+                        <path className="bm-path bm-path-l"
+                            d="M4 4L22 20L4 36"
+                            stroke="#1D1DBF" strokeWidth="3.4"
+                            strokeLinecap="round" strokeLinejoin="round"
+                            fill="none"
+                        />
+                    </svg>
+                    <svg
+                        viewBox="0 0 28 40" fill="none" overflow="visible"
+                        style={{
+                            width: 'clamp(28px, 4.5vw, 68px)',
+                            display: 'block',
+                            filter: 'drop-shadow(0 0 28px rgba(232,74,42,0.7))',
+                        }}
+                    >
+                        <path className="bm-path bm-path-r"
+                            d="M4 4L22 20L4 36"
+                            stroke="#E84A2A" strokeWidth="3.4"
+                            strokeLinecap="round" strokeLinejoin="round"
+                            fill="none"
+                        />
+                    </svg>
+                </div>
 
-                    {/* ── >> Chevrons ── */}
-                    <div style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: 'clamp(4px, 1vw, 18px)',
-                    }}>
-                        <motion.svg
-                            viewBox="0 0 28 40" fill="none" overflow="visible"
-                            style={{
-                                width: 'clamp(36px, 6.5vw, 100px)',
-                                x: chevLX,
-                                opacity: chevLOp,
-                                filter: filterL,
-                            }}
-                        >
-                            <path d="M4 4L22 20L4 36" stroke="#1D1DBF" strokeWidth="3.4"
-                                strokeLinecap="round" strokeLinejoin="round" />
-                        </motion.svg>
+                {/* ── Texte principal ── */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
 
-                        <motion.svg
-                            viewBox="0 0 28 40" fill="none" overflow="visible"
-                            style={{
-                                width: 'clamp(36px, 6.5vw, 100px)',
-                                x: chevRX,
-                                opacity: chevROp,
-                                filter: filterR,
-                            }}
-                        >
-                            <path d="M4 4L22 20L4 36" stroke="#E84A2A" strokeWidth="3.4"
-                                strokeLinecap="round" strokeLinejoin="round" />
-                        </motion.svg>
+                    {/* Ligne 1 : CE QU'ON — slide depuis le bas */}
+                    <div style={{ display: 'flex', gap: 'clamp(16px, 2.6vw, 48px)', flexWrap: 'wrap' }}>
+                        {WORDS_L1.map((w) => (
+                            <div key={w} style={{ overflow: 'hidden', lineHeight: 0.86 }}>
+                                <span
+                                    className="display bm-w1"
+                                    style={{
+                                        display: 'block',
+                                        fontSize: 'clamp(72px, 17vw, 260px)',
+                                        color: 'var(--color-paper)',
+                                        letterSpacing: '-0.048em',
+                                        lineHeight: 0.86,
+                                    }}
+                                >
+                                    {w}
+                                </span>
+                            </div>
+                        ))}
                     </div>
 
-                    {/* ── Ligne 1 : CE QU'ON — déboule depuis la gauche ── */}
-                    <div style={{ overflow: 'hidden', width: '100%', textAlign: 'center' }}>
-                        <motion.span
-                            className="display"
-                            style={{
-                                display: 'block',
-                                fontSize: 'clamp(64px, 16vw, 240px)',
-                                color: 'var(--color-paper)',
-                                letterSpacing: '-0.048em',
-                                lineHeight: 0.88,
-                                x: line1X,
-                                opacity: line1Op,
-                            }}
-                        >
-                            CE QU'ON
-                        </motion.span>
+                    {/* Ligne 2 : a fait. — slide depuis le haut (direction opposée) */}
+                    <div style={{ display: 'flex', gap: 'clamp(12px, 2vw, 36px)', flexWrap: 'wrap' }}>
+                        {WORDS_L2.map((w) => (
+                            <div key={w} style={{ overflow: 'hidden', lineHeight: 0.92 }}>
+                                <span
+                                    className="serif-italic bm-w2"
+                                    style={{
+                                        display: 'block',
+                                        fontSize: 'clamp(66px, 15.5vw, 240px)',
+                                        color: 'var(--color-paper)',
+                                        letterSpacing: '-0.03em',
+                                        lineHeight: 0.92,
+                                    }}
+                                >
+                                    {w}
+                                </span>
+                            </div>
+                        ))}
                     </div>
+                </div>
 
-                    {/* ── Ligne 2 : a fait. — déboule depuis la droite ── */}
-                    <div style={{ overflow: 'hidden', width: '100%', textAlign: 'center' }}>
-                        <motion.span
-                            className="serif-italic"
-                            style={{
-                                display: 'block',
-                                fontSize: 'clamp(60px, 15vw, 220px)',
-                                color: 'var(--color-paper)',
-                                letterSpacing: '-0.03em',
-                                lineHeight: 0.90,
-                                x: line2X,
-                                opacity: line2Op,
-                            }}
-                        >
-                            a fait.
-                        </motion.span>
-                    </div>
-
-                    {/* ── Label de transition ── */}
-                    <motion.span
-                        className="mono label-soft"
+                {/* ── Trait + label ── */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: 'clamp(14px, 2vw, 28px)', width: '100%' }}>
+                    <div
+                        className="bm-rule"
+                        style={{
+                            flex: 1,
+                            height: 1,
+                            background: 'rgba(239,235,221,0.18)',
+                        }}
+                    />
+                    <span
+                        className="mono label-soft bm-label"
                         style={{
                             fontSize: 10,
-                            letterSpacing: '0.28em',
+                            letterSpacing: '0.26em',
                             color: 'var(--color-paper)',
-                            opacity: labelOp,
-                            y: labelY,
-                            marginTop: 'clamp(8px, 1.4vw, 20px)',
+                            whiteSpace: 'nowrap',
+                            flexShrink: 0,
                         }}
                     >
                         — Nos projets
-                    </motion.span>
+                    </span>
                 </div>
             </div>
         </section>
