@@ -3,7 +3,7 @@ import { useGSAP } from '@gsap/react'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 
-const VALUES = ['Opinions tranchées', 'Le code est un craft', 'Zéro sous-traitance', 'On signe ce qu\'on fait']
+const VALUES = ["L'impact d'abord", "L'utile rendu beau", 'Pas pour le portfolio', 'On y croit vraiment']
 
 export default function About() {
     const sectionRef = useRef<HTMLElement>(null)
@@ -94,10 +94,10 @@ export default function About() {
                     >
                         {(
                             [
-                                { text: 'ON REFUSE', style: 'display', fontSize: 'clamp(44px, 6.2vw, 96px)' },
-                                { text: 'le design', style: 'serif-italic', fontSize: 'clamp(42px, 6vw, 92px)' },
-                                { text: 'PRÊT-À-', style: 'display', fontSize: 'clamp(44px, 6.2vw, 96px)' },
-                                { text: 'PORTER.', style: 'display', fontSize: 'clamp(44px, 6.2vw, 96px)' },
+                                { text: "L'UTILE", style: 'display', fontSize: 'clamp(44px, 6.2vw, 96px)' },
+                                { text: 'et le beau', style: 'serif-italic', fontSize: 'clamp(42px, 6vw, 92px)' },
+                                { text: "C'EST PAS", style: 'display', fontSize: 'clamp(44px, 6.2vw, 96px)' },
+                                { text: 'UN CHOIX.', style: 'display', fontSize: 'clamp(44px, 6.2vw, 96px)' },
                             ] as const
                         ).map((line, i) => (
                             <span
@@ -152,7 +152,7 @@ export default function About() {
                                 maxWidth: 440,
                             }}
                         >
-                            Deux personnes à Paris. On fait des applications iOS, des sites animés et des identités qu'on reconnaît au premier coup d'œil. On refuse beaucoup de projets pour bien faire ceux qu'on accepte.
+                            On est à Marseille. On fait des applications et des outils numériques qui ont une vraie vocation — mêler l'utile à l'agréable. On croit que la tech peut faire bouger les choses autant au plan social que n'importe où ailleurs. Alors on s'y tient.
                         </p>
                     </div>
 

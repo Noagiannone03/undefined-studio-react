@@ -18,7 +18,7 @@ const SERVICES: Service[] = [
         nameItalic: '',
         stack: ['Stratégie', 'Architecture', 'UX Design'],
         accent: 'var(--color-klein)',
-        brief: "La plupart des projets ratent avant même d'avoir commencé — mauvais périmètre, mauvaises questions, mauvaise direction. On démêle ça en premier.",
+        brief: "Avant de dessiner quoi que ce soit, on comprend pourquoi ça doit exister. Quel problème ça résout, pour qui, et si ça en vaut vraiment la peine.",
         gradient: 'linear-gradient(135deg, #1D1DBF 0%, #0E0E0C 100%)',
     },
     {
@@ -27,7 +27,7 @@ const SERVICES: Service[] = [
         nameItalic: 'artistique.',
         stack: ['UI Design', 'Identité Visuelle', 'Systèmes'],
         accent: 'var(--color-ink)',
-        brief: "Votre produit devrait être reconnaissable à dix mètres, sans le logo. On construit des systèmes visuels avec un point de vue — pas des interfaces qui ressemblent à tout le monde.",
+        brief: "Un outil beau est un outil qu'on utilise. L'esthétique n'est pas un luxe — c'est ce qui donne envie de revenir. On fait des interfaces qui rendent l'utile désirable.",
         gradient: 'linear-gradient(135deg, #0E0E0C 0%, #2d2d28 100%)',
     },
     {
@@ -36,7 +36,7 @@ const SERVICES: Service[] = [
         nameItalic: 'front.',
         stack: ['React', 'TypeScript', 'WebGL'],
         accent: 'var(--color-tomato)',
-        brief: "Un design qui rame reste un mauvais produit. On code avec la même obsession qu'on design — structure propre, animations à 60fps, zéro compromis sur ce qui se voit.",
+        brief: "Un produit qui rame, c'est un produit qu'on abandonne. On code avec la même exigence qu'on design — propre, rapide, fluide sur tous les appareils.",
         gradient: 'linear-gradient(135deg, #E84A2A 0%, #8B2A16 100%)',
     },
     {
@@ -45,7 +45,7 @@ const SERVICES: Service[] = [
         nameItalic: 'motion.',
         stack: ['GSAP', 'Animations', 'Micro-interactions'],
         accent: 'var(--color-klein)',
-        brief: "Les interfaces statiques sont honnêtes — elles sont plates. On travaille le timing, le poids, la physique pour que chaque interaction se sente juste. Ni trop, ni trop peu.",
+        brief: "Le mouvement n'est pas de la décoration. C'est ce qui indique, rassure, donne de l'âme. On l'utilise quand il sert. Jamais juste pour briller.",
         gradient: 'linear-gradient(135deg, #1D1DBF 0%, #E84A2A 100%)',
     },
 ]

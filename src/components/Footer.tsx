@@ -102,12 +102,12 @@ export default function Footer() {
                 >
                     <span className="reveal-mask" style={{ display: 'block' }}>
                         <span className="reveal-line footer-line" style={{ display: 'block' }}>
-                            UN PROJET
+                            ON FAIT
                         </span>
                     </span>
                     <span className="reveal-mask" style={{ display: 'block' }}>
                         <span className="reveal-line footer-line serif-italic" style={{ display: 'block' }}>
-                            qui mérite
+                            quelque chose
                         </span>
                     </span>
                     <span className="reveal-mask" style={{ display: 'block' }}>
@@ -115,7 +115,7 @@ export default function Footer() {
                             className="reveal-line footer-line"
                             style={{ display: 'block', color: 'var(--color-klein)' }}
                         >
-                            MIEUX ?
+                            ENSEMBLE ?
                         </span>
                     </span>
                 </h2>
@@ -132,7 +132,7 @@ export default function Footer() {
                             letterSpacing: '0.2em',
                         }}
                     >
-                        PARLER, C'EST GRATUIT
+                        PARLONS DE VOTRE PROJET
                     </span>
                     <a
                         ref={emailRef}
@@ -193,7 +193,7 @@ export default function Footer() {
                     © 2026 UNDEFINED STUDIO
                 </span>
                 <span className="mono" style={{ color: 'rgba(239,235,221,0.4)' }}>
-                    PARIS, FRANCE
+                    MARSEILLE, FRANCE
                 </span>
                 <span className="mono" style={{ color: 'rgba(239,235,221,0.4)' }}>
                     <a
