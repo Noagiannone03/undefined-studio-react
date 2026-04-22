@@ -42,21 +42,23 @@ export default function Manifesto() {
             if (!stickyEl || !words || words.length === 0) return
             const isMobile = window.matchMedia('(max-width: 767px)').matches
 
-            // Set initial state on all words
-            gsap.set(words, {
-                opacity: 0.08,
-                scale: 0.88,
-                filter: 'blur(8px)',
+            // Mobile: drop blur — it's the single most expensive scrub operation
+            // on mobile GPU. The opacity + scale + y shift carries the effect alone.
+            const initial: gsap.TweenVars = {
+                opacity: 0.1,
+                scale: 0.9,
                 y: 10,
                 transformOrigin: 'center center',
-            })
+            }
+            if (!isMobile) initial.filter = 'blur(8px)'
+            gsap.set(words, initial)
 
             const tl = gsap.timeline({
                 scrollTrigger: {
                     trigger: stickyEl,
                     start: 'top top',
-                    end: `+=${window.innerHeight * (isMobile ? 1.55 : 2.5)}`,
-                    scrub: isMobile ? 0.8 : 1.2,
+                    end: `+=${window.innerHeight * (isMobile ? 1.4 : 2.5)}`,
+                    scrub: isMobile ? 0.6 : 1.2,
                     pin: true,
                     anticipatePin: 1,
                 },
@@ -68,19 +70,16 @@ export default function Manifesto() {
                 if (accent === 'tomato') targetColor = '#E84A2A'
                 else if (accent === 'klein') targetColor = '#1D1DBF'
 
-                tl.to(
-                    word,
-                    {
-                        opacity: 1,
-                        scale: 1,
-                        filter: 'blur(0px)',
-                        y: 0,
-                        color: targetColor,
-                        duration: 1,
-                        ease: 'power2.out',
-                    },
-                    i * 0.5
-                )
+                const step: gsap.TweenVars = {
+                    opacity: 1,
+                    scale: 1,
+                    y: 0,
+                    color: targetColor,
+                    duration: 1,
+                    ease: 'power2.out',
+                }
+                if (!isMobile) step.filter = 'blur(0px)'
+                tl.to(word, step, i * 0.5)
             })
         }, ref)
 
