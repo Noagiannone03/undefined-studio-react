@@ -1,66 +1,68 @@
-import { useLayoutEffect, useRef } from 'react'
+import { useRef } from 'react'
+import { useGSAP } from '@gsap/react'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 
 type Word = { text: string; accent?: 'tomato' | 'klein' | 'italic' }
 
 const WORDS: Word[] = [
-    { text: 'On' },
-    { text: 'ne' },
-    { text: 'crée', accent: 'italic' },
-    { text: 'pas' },
-    { text: 'pour' },
-    { text: 'créer.' },
-    { text: 'On' },
-    { text: 'fait' },
-    { text: 'des', accent: 'italic' },
-    { text: 'outils', accent: 'tomato' },
-    { text: 'qui' },
-    { text: 'servent.' },
     { text: 'Du' },
     { text: 'numérique' },
     { text: 'qui', accent: 'italic' },
-    { text: 'a' },
-    { text: 'une' },
-    { text: 'raison', accent: 'klein' },
-    { text: "d'être." },
+    { text: 'aide,', accent: 'tomato' },
+    { text: 'pas' },
+    { text: 'du' },
+    { text: 'numérique' },
+    { text: 'qui', accent: 'italic' },
+    { text: 'brille.' },
+    { text: 'La' },
+    { text: 'différence,' },
+    { text: 'on' },
+    { text: 'la' },
+    { text: 'travaille', accent: 'klein' },
+    { text: '.' },
 ]
 
 /**
- * Manifesto — the dark pinned scrub section.
- * Sits between About and Work, breaks the rhythm with a high-contrast
- * ink background and paper text that reveals word-by-word on scrub.
+ * Manifesto — dark pinned scrub section between About and Work.
+ *
+ * Uses explicit gsap.set() + tl.to() (not .from()) for deterministic initial
+ * state — avoids the "content stays hidden" failure mode when ScrollTrigger
+ * fires before the pinSpacer is laid out. `invalidateOnRefresh` + `pinType:
+ * 'transform'` keep the pin stable under Lenis + direction reversal.
  */
 export default function Manifesto() {
     const ref = useRef<HTMLElement>(null)
     const stickyRef = useRef<HTMLDivElement>(null)
 
-    useLayoutEffect(() => {
-        const ctx = gsap.context(() => {
+    useGSAP(
+        () => {
             const stickyEl = stickyRef.current
             const words = ref.current?.querySelectorAll<HTMLSpanElement>('[data-word]')
             if (!stickyEl || !words || words.length === 0) return
+
             const isMobile = window.matchMedia('(max-width: 767px)').matches
 
-            // Mobile: drop blur — it's the single most expensive scrub operation
-            // on mobile GPU. The opacity + scale + y shift carries the effect alone.
             const initial: gsap.TweenVars = {
-                opacity: 0.1,
-                scale: 0.9,
-                y: 10,
+                opacity: 0.12,
+                scale: 0.92,
+                y: 8,
                 transformOrigin: 'center center',
             }
-            if (!isMobile) initial.filter = 'blur(8px)'
+            // Filter blur is the single most expensive scrub op on mobile GPU.
+            if (!isMobile) initial.filter = 'blur(6px)'
             gsap.set(words, initial)
 
             const tl = gsap.timeline({
                 scrollTrigger: {
                     trigger: stickyEl,
                     start: 'top top',
-                    end: `+=${window.innerHeight * (isMobile ? 1.4 : 2.5)}`,
-                    scrub: isMobile ? 0.6 : 1.2,
+                    end: () => `+=${window.innerHeight * (isMobile ? 1.2 : 2.2)}`,
+                    scrub: isMobile ? 0.5 : 1,
                     pin: true,
+                    pinType: 'transform',
                     anticipatePin: 1,
+                    invalidateOnRefresh: true,
                 },
             })
 
@@ -81,13 +83,11 @@ export default function Manifesto() {
                 if (!isMobile) step.filter = 'blur(0px)'
                 tl.to(word, step, i * 0.5)
             })
-        }, ref)
 
-        return () => {
-            ctx.revert()
-            ScrollTrigger.refresh()
-        }
-    }, [])
+            void ScrollTrigger
+        },
+        { scope: ref }
+    )
 
     return (
         <section
@@ -96,24 +96,18 @@ export default function Manifesto() {
             className="manifesto-section"
             style={{ background: 'var(--color-ink)', color: 'var(--color-paper)' }}
         >
-            {/* Pinned sticky phrase */}
             <div
                 ref={stickyRef}
-                style={{
-                    position: 'relative',
-                    minHeight: '100svh',
-                    display: 'flex',
-                    alignItems: 'center',
-                }}
+                className="manifesto-sticky"
             >
                 <div className="container-x" style={{ width: '100%' }}>
                     <p
                         className="display manifesto-copy"
                         style={{
-                            fontSize: 'clamp(48px, 6.5vw, 104px)',
-                            lineHeight: 1.08,
+                            fontSize: 'clamp(44px, 6.2vw, 100px)',
+                            lineHeight: 1.06,
                             letterSpacing: '-0.04em',
-                            maxWidth: '18ch',
+                            maxWidth: '20ch',
                             margin: 0,
                         }}
                     >
@@ -134,8 +128,6 @@ export default function Manifesto() {
                     </p>
                 </div>
             </div>
-
-            <div style={{ height: 'clamp(24px, 4vw, 56px)' }} />
         </section>
     )
 }

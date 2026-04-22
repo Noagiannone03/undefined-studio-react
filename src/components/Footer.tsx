@@ -84,7 +84,7 @@ export default function Footer() {
                         color: 'rgba(239,235,221,0.4)',
                     }}
                 >
-                    ( 05 ) — Contact
+                    ( 05 ) — On écoute
                 </span>
 
                 {/* Headline — overflow géré par contain + taille réduite */}
@@ -102,12 +102,12 @@ export default function Footer() {
                 >
                     <span className="reveal-mask" style={{ display: 'block' }}>
                         <span className="reveal-line footer-line" style={{ display: 'block' }}>
-                            ON FAIT
+                            UN OUTIL
                         </span>
                     </span>
                     <span className="reveal-mask" style={{ display: 'block' }}>
                         <span className="reveal-line footer-line serif-italic" style={{ display: 'block' }}>
-                            quelque chose
+                            à construire ?
                         </span>
                     </span>
                     <span className="reveal-mask" style={{ display: 'block' }}>
@@ -115,7 +115,7 @@ export default function Footer() {
                             className="reveal-line footer-line"
                             style={{ display: 'block', color: 'var(--color-klein)' }}
                         >
-                            ENSEMBLE ?
+                            ON COMMENCE PAR ÉCOUTER.
                         </span>
                     </span>
                 </h2>
@@ -132,7 +132,7 @@ export default function Footer() {
                             letterSpacing: '0.2em',
                         }}
                     >
-                        PARLONS DE VOTRE PROJET
+                        DITES-NOUS CE QUE VOUS ESSAYEZ DE RÉSOUDRE
                     </span>
                     <a
                         ref={emailRef}

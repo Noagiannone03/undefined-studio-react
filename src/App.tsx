@@ -15,6 +15,11 @@ import Cursor from './components/Cursor'
 
 gsap.registerPlugin(ScrollTrigger)
 
+// Mobile URL bar show/hide triggers viewport resize → ScrollTrigger refresh →
+// pin jump when scrolling direction reverses. Ignoring mobile resize is the
+// fix most GSAP users land on. Safe because our layout uses 100svh, not 100vh.
+ScrollTrigger.config({ ignoreMobileResize: true })
+
 function App() {
     const lenisRef = useRef<Lenis | null>(null)
     const isLogoPage = typeof window !== 'undefined' && window.location.pathname === '/logo'

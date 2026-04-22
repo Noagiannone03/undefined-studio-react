@@ -3,91 +3,105 @@ import { useGSAP } from '@gsap/react'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 
-gsap.registerPlugin(ScrollTrigger, useGSAP)
-
 /**
  * BrandMark — chapter opener between Manifesto and Work.
  *
- * Intentionally distinct from Manifesto: paper-2 ground, no pin, no scrub,
+ * Deliberately distinct from Manifesto: paper-2 ground, no pin, no scrub,
  * single decisive entrance. Reads as an editorial page-turn, not another
  * typographic performance.
+ *
+ * Uses gsap.set() + tl.to() (not .from()) so the initial state is written
+ * synchronously; if the trigger never fires for any reason, the final state
+ * — the readable one — is what shows.
  */
 export default function BrandMark() {
     const ref = useRef<HTMLElement>(null)
 
     useGSAP(
         () => {
+            const root = ref.current
+            if (!root) return
+
+            const topItems = root.querySelectorAll<HTMLElement>('.bm-top > *')
+            const lines = root.querySelectorAll<HTMLElement>('.bm-line')
+            const arrow = root.querySelector<SVGElement>('.bm-arrow')
+            const rule = root.querySelector<HTMLElement>('.bm-rule')
+            const bottomItems = root.querySelectorAll<HTMLElement>('.bm-bottom > *')
+
+            gsap.set(topItems, { y: 12, opacity: 0 })
+            gsap.set(lines, { yPercent: 110 })
+            if (arrow) gsap.set(arrow, { clipPath: 'inset(0 100% 0 0)' })
+            if (rule) gsap.set(rule, { scaleX: 0, transformOrigin: 'left center' })
+            gsap.set(bottomItems, { y: 10, opacity: 0 })
+
             const tl = gsap.timeline({
                 scrollTrigger: {
-                    trigger: ref.current,
-                    start: 'top 70%',
-                    once: true,
+                    trigger: root,
+                    start: 'top 72%',
+                    toggleActions: 'play none none none',
+                    invalidateOnRefresh: true,
                 },
                 defaults: { ease: 'expo.out' },
             })
 
-            tl.from('.bm-top > *', {
-                y: 12,
-                opacity: 0,
-                duration: 0.6,
+            tl.to(topItems, {
+                y: 0,
+                opacity: 1,
+                duration: 0.55,
                 stagger: 0.08,
                 ease: 'power3.out',
             })
-                .from(
-                    '.bm-line',
-                    { yPercent: 110, duration: 1.1, stagger: 0.09 },
-                    '-=0.35'
+                .to(
+                    lines,
+                    { yPercent: 0, duration: 1.05, stagger: 0.09 },
+                    '-=0.3'
                 )
-                .fromTo(
-                    '.bm-arrow',
-                    { clipPath: 'inset(0 100% 0 0)' },
-                    { clipPath: 'inset(0 0% 0 0)', duration: 0.9, ease: 'power3.out' },
+                .to(
+                    arrow,
+                    { clipPath: 'inset(0 0% 0 0)', duration: 0.85, ease: 'power3.out' },
                     '-=0.7'
                 )
-                .fromTo(
-                    '.bm-rule',
-                    { scaleX: 0 },
-                    { scaleX: 1, duration: 0.9, ease: 'power3.out' },
+                .to(
+                    rule,
+                    { scaleX: 1, duration: 0.85, ease: 'power3.out' },
                     '-=0.55'
                 )
-                .from(
-                    '.bm-bottom > *',
+                .to(
+                    bottomItems,
                     {
-                        y: 10,
-                        opacity: 0,
+                        y: 0,
+                        opacity: 1,
                         duration: 0.55,
-                        stagger: 0.08,
+                        stagger: 0.07,
                         ease: 'power3.out',
                     },
                     '-=0.4'
                 )
+
+            void ScrollTrigger
         },
         { scope: ref }
     )
 
     return (
-        <section
-            ref={ref}
-            id="brand-mark"
-            className="brandmark-section"
-        >
+        <section ref={ref} id="brand-mark" className="brandmark-section">
             {/* Top meta row */}
             <div className="bm-top">
-                <span className="mono bm-top-left">( 03 ) &nbsp;— &nbsp;CHAPITRE</span>
+                <span className="mono bm-top-left">( 03 )&nbsp;&nbsp;—&nbsp;&nbsp;NOS OUTILS</span>
                 <span className="mono bm-top-right">MARSEILLE — 2024</span>
             </div>
 
-            {/* Headline — two-line editorial statement */}
+            {/* Headline — editorial chapter statement */}
             <h2 className="bm-headline">
-                <span className="reveal-mask">
-                    <span className="bm-line display bm-line-1">CE QU'ON</span>
+                <span className="bm-mask">
+                    <span className="bm-line display bm-line-1">DEUX APPS</span>
                 </span>
-                <span className="reveal-mask">
-                    <span className="bm-line serif-italic bm-line-2">a fait.</span>
+                <span className="bm-mask">
+                    <span className="bm-line serif-italic bm-line-2">qui tiennent.</span>
                 </span>
             </h2>
 
-            {/* Arrow — draws into view, points down at projects */}
+            {/* Decorative arrow — points down into the work below */}
             <svg
                 className="bm-arrow"
                 viewBox="0 0 80 80"
@@ -95,9 +109,9 @@ export default function BrandMark() {
                 aria-hidden
             >
                 <path
-                    d="M10 10 L70 70 M70 70 L70 40 M70 70 L40 70"
+                    d="M12 12 L68 68 M68 68 L68 36 M68 68 L36 68"
                     stroke="var(--color-klein)"
-                    strokeWidth="3"
+                    strokeWidth="2.6"
                     strokeLinecap="square"
                     strokeLinejoin="miter"
                 />
@@ -108,10 +122,11 @@ export default function BrandMark() {
 
             <div className="bm-bottom">
                 <span className="mono bm-bottom-left">
-                    <span style={{ color: 'var(--color-klein)' }}>↗</span>&nbsp;VAGO&nbsp;&nbsp;·&nbsp;&nbsp;
+                    <span style={{ color: 'var(--color-klein)' }}>↗</span>&nbsp;VAGO
+                    &nbsp;&nbsp;·&nbsp;&nbsp;
                     <span style={{ color: 'var(--color-tomato)' }}>↗</span>&nbsp;WHISP
                 </span>
-                <span className="mono bm-bottom-right">02 PROJETS</span>
+                <span className="mono bm-bottom-right">FAITS MAIN</span>
             </div>
         </section>
     )

@@ -3,7 +3,12 @@ import { useGSAP } from '@gsap/react'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 
-const VALUES = ["L'impact d'abord", "L'utile rendu beau", 'Pas pour le portfolio', 'On y croit vraiment']
+const VALUES = [
+    'Le besoin avant l’idée',
+    'Moins de features, plus d’intention',
+    'Un bon outil se fait oublier',
+    'Le temps long, pas le trend',
+]
 
 export default function About() {
     const sectionRef = useRef<HTMLElement>(null)
@@ -94,10 +99,10 @@ export default function About() {
                     >
                         {(
                             [
-                                { text: "L'UTILE", style: 'display', fontSize: 'clamp(44px, 6.2vw, 96px)' },
-                                { text: 'et le beau', style: 'serif-italic', fontSize: 'clamp(42px, 6vw, 92px)' },
-                                { text: "C'EST PAS", style: 'display', fontSize: 'clamp(44px, 6.2vw, 96px)' },
-                                { text: 'UN CHOIX.', style: 'display', fontSize: 'clamp(44px, 6.2vw, 96px)' },
+                                { text: 'AVANT', style: 'display', fontSize: 'clamp(44px, 6.2vw, 96px)' },
+                                { text: 'de dessiner,', style: 'serif-italic', fontSize: 'clamp(42px, 6vw, 92px)' },
+                                { text: 'ON PREND', style: 'display', fontSize: 'clamp(44px, 6.2vw, 96px)' },
+                                { text: 'LE TEMPS.', style: 'display', fontSize: 'clamp(44px, 6.2vw, 96px)' },
                             ] as const
                         ).map((line, i) => (
                             <span
@@ -152,13 +157,17 @@ export default function About() {
                                 maxWidth: 440,
                             }}
                         >
-                            On est à Marseille. On fait des applications et des outils numériques qui ont une vraie vocation — mêler l'utile à l'agréable. On croit que la tech peut faire bouger les choses autant au plan social que n'importe où ailleurs. Alors on s'y tient.
+                            On est basés à Marseille. On construit des applications et des outils numériques pour des gens qui ont un vrai problème à régler — pas une envie d'app.
+                            <br /><br />
+                            On commence toujours par là : quel besoin, pour qui, à quel moment. Le design arrive après. Parfois on se rend compte que la solution, c'est pas forcément une app. On le dit.
+                            <br /><br />
+                            La tech peut faire avancer des choses. Pas toutes. Mais quand elle est bien orientée — oui. Et ça vaut le coup de s'y appliquer.
                         </p>
                     </div>
 
                     <div>
                         <span className="mono label-soft" style={{ display: 'block', marginBottom: 18 }}>
-                            — Ce qui compte
+                            — Nos règles
                         </span>
                         <ul
                             className="about-values"

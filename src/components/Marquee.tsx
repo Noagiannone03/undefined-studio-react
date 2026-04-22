@@ -4,7 +4,7 @@
  */
 import Mark from './Mark'
 
-const ITEMS = ["L'UTILE ET LE BEAU", 'INGÉNIERIE FRONT', 'IMPACT RÉEL', 'CRAFT DIGITAL', 'SUR MESURE', 'PHYSIQUE INTERFACE', 'OUTILS QUI SERVENT', 'MARSEILLE']
+const ITEMS = ["UTILE D'ABORD", 'FAIT MAIN', 'APPS iOS · WEB', 'MARSEILLE', 'LA TECH AU SERVICE', 'DU CODE QUI DURE', 'SANS BULLSHIT', '2024 —']
 
 export default function Marquee() {
     return (
