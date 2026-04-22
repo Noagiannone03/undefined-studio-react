@@ -29,7 +29,7 @@ const PROJECTS: Project[] = [
         name: 'VAGO',
         category: 'Produit & Motion',
         year: '2024',
-        role: 'Design, branding, dev iOS',
+        role: 'Conception, identité, dev iOS',
         client: 'Indépendant',
         stack: ['SwiftUI', 'Figma', 'After Effects'],
         summary:
@@ -47,7 +47,7 @@ const PROJECTS: Project[] = [
         name: 'WHISP',
         category: 'Identité & UX',
         year: '2024',
-        role: 'Design produit complet',
+        role: 'Produit de bout en bout',
         client: 'Whisp Labs',
         stack: ['iOS', 'Figma', 'Principle'],
         summary:

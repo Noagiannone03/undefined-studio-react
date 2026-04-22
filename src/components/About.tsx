@@ -4,10 +4,10 @@ import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 
 const VALUES = [
-    'Le besoin avant l’idée',
-    'Moins de features, plus d’intention',
+    'Comprendre avant de construire',
+    'Moins, mais qui tient',
     'Un bon outil se fait oublier',
-    'Le temps long, pas le trend',
+    'Mesurer en usage, pas en vues',
 ]
 
 export default function About() {
@@ -99,10 +99,10 @@ export default function About() {
                     >
                         {(
                             [
-                                { text: 'AVANT', style: 'display', fontSize: 'clamp(44px, 6.2vw, 96px)' },
-                                { text: 'de dessiner,', style: 'serif-italic', fontSize: 'clamp(42px, 6vw, 92px)' },
-                                { text: 'ON PREND', style: 'display', fontSize: 'clamp(44px, 6.2vw, 96px)' },
-                                { text: 'LE TEMPS.', style: 'display', fontSize: 'clamp(44px, 6.2vw, 96px)' },
+                                { text: 'ON COMPREND', style: 'display', fontSize: 'clamp(44px, 6.2vw, 96px)' },
+                                { text: 'le besoin.', style: 'serif-italic', fontSize: 'clamp(42px, 6vw, 92px)' },
+                                { text: 'ON BÂTIT', style: 'display', fontSize: 'clamp(44px, 6.2vw, 96px)' },
+                                { text: "CE QU'IL FAUT.", style: 'display', fontSize: 'clamp(44px, 6.2vw, 96px)' },
                             ] as const
                         ).map((line, i) => (
                             <span
@@ -148,26 +148,32 @@ export default function About() {
                         <span className="mono label-soft" style={{ display: 'block', marginBottom: 18 }}>
                             — Le studio
                         </span>
-                        <p
+                        <div
                             className="serif about-bio"
                             style={{
                                 fontSize: 'clamp(18px, 1.6vw, 22px)',
-                                lineHeight: 1.45,
-                                margin: 0,
-                                maxWidth: 440,
+                                lineHeight: 1.5,
+                                maxWidth: 460,
                             }}
                         >
-                            On est basés à Marseille. On construit des applications et des outils numériques pour des gens qui ont un vrai problème à régler — pas une envie d'app.
-                            <br /><br />
-                            On commence toujours par là : quel besoin, pour qui, à quel moment. Le design arrive après. Parfois on se rend compte que la solution, c'est pas forcément une app. On le dit.
-                            <br /><br />
-                            La tech peut faire avancer des choses. Pas toutes. Mais quand elle est bien orientée — oui. Et ça vaut le coup de s'y appliquer.
-                        </p>
+                            <p style={{ margin: 0 }}>
+                                On est un petit studio à Marseille. On construit des applications mobiles et web.
+                            </p>
+                            <p style={{ margin: '1.1em 0 0' }}>
+                                Ça, c'est la version courte. La vraie, c'est qu'on essaie de faire des outils qui tiennent la route — et qui servent vraiment à quelqu'un. Parce qu'on en a vu passer, des apps qu'on ouvre une fois et qu'on désinstalle la semaine d'après. On n'a pas envie d'en faire une de plus.
+                            </p>
+                            <p style={{ margin: '1.1em 0 0' }}>
+                                Alors on commence toujours par les bonnes questions. À qui ça sert. Ce qui manque aujourd'hui. Ce qui se passe si ça n'existe pas. On préfère les poser maintenant plutôt que six mois plus tard, quand le produit est là et que personne ne s'en sert.
+                            </p>
+                            <p style={{ margin: '1.1em 0 0' }}>
+                                La tech peut aider. Vraiment. À condition qu'on la construise pour ça.
+                            </p>
+                        </div>
                     </div>
 
                     <div>
                         <span className="mono label-soft" style={{ display: 'block', marginBottom: 18 }}>
-                            — Nos règles
+                            — Notre méthode
                         </span>
                         <ul
                             className="about-values"

@@ -102,12 +102,12 @@ export default function Footer() {
                 >
                     <span className="reveal-mask" style={{ display: 'block' }}>
                         <span className="reveal-line footer-line" style={{ display: 'block' }}>
-                            UN OUTIL
+                            UN PROBLÈME
                         </span>
                     </span>
                     <span className="reveal-mask" style={{ display: 'block' }}>
                         <span className="reveal-line footer-line serif-italic" style={{ display: 'block' }}>
-                            à construire ?
+                            à régler ?
                         </span>
                     </span>
                     <span className="reveal-mask" style={{ display: 'block' }}>
@@ -115,7 +115,7 @@ export default function Footer() {
                             className="reveal-line footer-line"
                             style={{ display: 'block', color: 'var(--color-klein)' }}
                         >
-                            ON COMMENCE PAR ÉCOUTER.
+                            ON EN PARLE.
                         </span>
                     </span>
                 </h2>
@@ -132,7 +132,7 @@ export default function Footer() {
                             letterSpacing: '0.2em',
                         }}
                     >
-                        DITES-NOUS CE QUE VOUS ESSAYEZ DE RÉSOUDRE
+                        RACONTEZ-NOUS OÙ ÇA COINCE
                     </span>
                     <a
                         ref={emailRef}

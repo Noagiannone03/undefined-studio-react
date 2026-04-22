@@ -14,38 +14,38 @@ type Service = {
 const SERVICES: Service[] = [
     {
         id: '01',
-        name: 'FONDATIONS',
+        name: 'COMPRENDRE',
         nameItalic: '',
-        stack: ['Stratégie', 'Architecture', 'UX Design'],
+        stack: ['Cadrage', 'Architecture', 'Parcours'],
         accent: 'var(--color-klein)',
-        brief: "Avant de dessiner quoi que ce soit, on comprend pourquoi ça doit exister. Quel problème ça résout, pour qui, et si ça en vaut vraiment la peine.",
+        brief: "Avant d'écrire la moindre ligne, on pose les vraies questions. Quel problème on règle. Pour qui. Ce qui se passe si on ne le fait pas. Et, parfois, si une app est vraiment la bonne réponse.",
         gradient: 'linear-gradient(135deg, #1D1DBF 0%, #0E0E0C 100%)',
     },
     {
         id: '02',
-        name: 'DIRECTION',
-        nameItalic: 'artistique.',
-        stack: ['UI Design', 'Identité Visuelle', 'Systèmes'],
+        name: 'INTERFACE &',
+        nameItalic: 'identité.',
+        stack: ['UI', 'Système graphique', 'Typographie'],
         accent: 'var(--color-ink)',
-        brief: "Un outil beau est un outil qu'on utilise. L'esthétique n'est pas un luxe — c'est ce qui donne envie de revenir. On fait des interfaces qui rendent l'utile désirable.",
+        brief: "Un outil qu'on garde ouvert, c'est un outil bien bâti. On construit des interfaces qu'on utilise avec plaisir — pas qu'on subit. L'identité, c'est ce qui les rend reconnaissables au premier coup d'œil.",
         gradient: 'linear-gradient(135deg, #0E0E0C 0%, #2d2d28 100%)',
     },
     {
         id: '03',
         name: 'INGÉNIERIE',
         nameItalic: 'front.',
-        stack: ['React', 'TypeScript', 'WebGL'],
+        stack: ['React', 'TypeScript', 'SwiftUI'],
         accent: 'var(--color-tomato)',
-        brief: "Un produit qui rame, c'est un produit qu'on abandonne. On code avec la même exigence qu'on design — propre, rapide, fluide sur tous les appareils.",
+        brief: "Un produit qui rame, c'est un produit qu'on abandonne. On tient au code comme au reste — propre, rapide, solide sur les vieux téléphones comme sur les derniers.",
         gradient: 'linear-gradient(135deg, #E84A2A 0%, #8B2A16 100%)',
     },
     {
         id: '04',
-        name: 'PHYSIQUE &',
-        nameItalic: 'motion.',
-        stack: ['GSAP', 'Animations', 'Micro-interactions'],
+        name: 'MOUVEMENT &',
+        nameItalic: 'détails.',
+        stack: ['GSAP', 'Transitions', 'Micro-interactions'],
         accent: 'var(--color-klein)',
-        brief: "Le mouvement n'est pas de la décoration. C'est ce qui indique, rassure, donne de l'âme. On l'utilise quand il sert. Jamais juste pour briller.",
+        brief: "Le mouvement sert à quelque chose ou il ne sert à rien. Il doit indiquer, rassurer, donner un poids aux choses. On le met quand il aide. Pas pour faire joli.",
         gradient: 'linear-gradient(135deg, #1D1DBF 0%, #E84A2A 100%)',
     },
 ]
@@ -83,7 +83,7 @@ export default function Capabilities() {
                         style={{ marginBottom: 'clamp(40px, 5.5vw, 72px)' }}
                     >
                         <span className="mono label-soft" style={{ display: 'block', marginBottom: 14 }}>
-                            ( 04 ) — Ce qu'on fait
+                            ( 04 ) — Ce qu'on sait faire
                         </span>
                         <h2
                             className="display"
@@ -94,10 +94,11 @@ export default function Capabilities() {
                                 letterSpacing: '-0.048em',
                             }}
                         >
-                            NOS{' '}
+                            LES{' '}
                             <span className="serif-italic" style={{ letterSpacing: '-0.02em' }}>
-                                métiers.
-                            </span>
+                                quatre
+                            </span>{' '}
+                            ÉTAPES.
                         </h2>
                     </motion.div>
 

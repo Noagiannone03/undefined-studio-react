@@ -119,7 +119,7 @@ export default function Hero() {
                         className="display hero-line hero-line-1"
                         style={{ display: 'block', letterSpacing: '-0.045em' }}
                     >
-                        ON FAIT
+                        WE BUILD
                     </span>
                     {/* Line 2 */}
                     <span className="reveal-mask" style={{ display: 'block' }}>
@@ -127,7 +127,7 @@ export default function Hero() {
                             className="reveal-line hero-line-2 serif-italic hero-line"
                             style={{ display: 'block', letterSpacing: '-0.03em' }}
                         >
-                            des outils
+                            things
                         </span>
                     </span>
                     {/* Line 3 */}
@@ -136,7 +136,7 @@ export default function Hero() {
                         className="display hero-line hero-line-3"
                         style={{ display: 'block', letterSpacing: '-0.045em' }}
                     >
-                        QUI <span style={{ color: 'var(--color-tomato)' }}>AIDENT.</span>
+                        THAT <span style={{ color: 'var(--color-tomato)' }}>MOVE.</span>
                     </span>
                 </h1>
             </div>
