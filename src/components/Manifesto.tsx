@@ -29,8 +29,10 @@ const WORDS: Word[] = [
 
 /**
  * Manifesto — pinned word-by-word reveal.
- * No `filter: blur` on scrub (single biggest scroll-perf killer).
- * Pure transform + opacity → cheap GPU path.
+ *
+ * Desktop keeps the blur-to-focus scrub (it's the signature move of the
+ * section). Mobile uses a cheaper opacity+y tween because `filter: blur`
+ * on scrub is the #1 GPU killer on mobile.
  */
 export default function Manifesto() {
     const ref = useRef<HTMLElement>(null)
@@ -42,44 +44,84 @@ export default function Manifesto() {
             const words = ref.current?.querySelectorAll<HTMLSpanElement>('[data-word]')
             if (!stickyEl || !words || words.length === 0) return
 
-            const isMobile = window.matchMedia('(max-width: 767px)').matches
+            const mm = gsap.matchMedia()
 
-            gsap.set(words, {
-                opacity: 0.14,
-                y: 8,
-                force3D: true,
-            })
+            const wordColor = (accent: string | undefined) => {
+                if (accent === 'tomato') return '#E84A2A'
+                if (accent === 'klein') return '#1D1DBF'
+                return 'rgba(239, 235, 221, 1)'
+            }
 
-            const tl = gsap.timeline({
-                scrollTrigger: {
-                    trigger: stickyEl,
-                    start: 'top top',
-                    end: () => `+=${window.innerHeight * (isMobile ? 1.1 : 1.8)}`,
-                    scrub: 0.6,
-                    pin: true,
-                    pinType: 'transform',
-                    anticipatePin: 1,
-                    invalidateOnRefresh: true,
-                },
-            })
+            // Desktop: full effect — blur + scale + translate.
+            mm.add('(min-width: 900px)', () => {
+                gsap.set(words, {
+                    opacity: 0.12,
+                    scale: 0.92,
+                    y: 8,
+                    filter: 'blur(6px)',
+                    transformOrigin: 'center center',
+                })
 
-            words.forEach((word, i) => {
-                const accent = word.dataset.accent
-                let targetColor = 'rgba(239, 235, 221, 1)'
-                if (accent === 'tomato') targetColor = '#E84A2A'
-                else if (accent === 'klein') targetColor = '#1D1DBF'
-
-                tl.to(
-                    word,
-                    {
-                        opacity: 1,
-                        y: 0,
-                        color: targetColor,
-                        duration: 1,
-                        ease: 'none',
+                const tl = gsap.timeline({
+                    scrollTrigger: {
+                        trigger: stickyEl,
+                        start: 'top top',
+                        end: () => `+=${window.innerHeight * 2.2}`,
+                        scrub: 1,
+                        pin: true,
+                        pinType: 'transform',
+                        anticipatePin: 1,
+                        invalidateOnRefresh: true,
                     },
-                    i * 0.5
-                )
+                })
+
+                words.forEach((word, i) => {
+                    tl.to(
+                        word,
+                        {
+                            opacity: 1,
+                            scale: 1,
+                            y: 0,
+                            filter: 'blur(0px)',
+                            color: wordColor(word.dataset.accent),
+                            duration: 1,
+                            ease: 'power2.out',
+                        },
+                        i * 0.5
+                    )
+                })
+            })
+
+            // Mobile: stripped-down tween, no blur.
+            mm.add('(max-width: 899px)', () => {
+                gsap.set(words, { opacity: 0.14, y: 8, force3D: true })
+
+                const tl = gsap.timeline({
+                    scrollTrigger: {
+                        trigger: stickyEl,
+                        start: 'top top',
+                        end: () => `+=${window.innerHeight * 1.1}`,
+                        scrub: 0.6,
+                        pin: true,
+                        pinType: 'transform',
+                        anticipatePin: 1,
+                        invalidateOnRefresh: true,
+                    },
+                })
+
+                words.forEach((word, i) => {
+                    tl.to(
+                        word,
+                        {
+                            opacity: 1,
+                            y: 0,
+                            color: wordColor(word.dataset.accent),
+                            duration: 1,
+                            ease: 'none',
+                        },
+                        i * 0.5
+                    )
+                })
             })
 
             void ScrollTrigger

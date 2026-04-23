@@ -102,6 +102,68 @@ function ProjectEditorial({ project, index }: { project: Project; index: number 
                 stagger: 0.1,
                 scrollTrigger: { trigger: el, start: 'top 72%', once: true },
             })
+
+            // Desktop-only parallax — scrubs are expensive on mobile GPU.
+            const mm = gsap.matchMedia()
+            mm.add('(min-width: 900px) and (hover: hover)', () => {
+                const heroScreen = el.querySelector<HTMLElement>('.project-hero-screen')
+                const sideLeft = el.querySelector<HTMLElement>('.project-side-left .project-side-img')
+                const sideRight = el.querySelector<HTMLElement>('.project-side-right .project-side-img')
+                const outline = el.querySelector<HTMLElement>('.ed-outline')
+
+                if (heroScreen) {
+                    gsap.to(heroScreen, {
+                        yPercent: -6,
+                        ease: 'none',
+                        scrollTrigger: {
+                            trigger: el,
+                            start: 'top bottom',
+                            end: 'bottom top',
+                            scrub: 1.5,
+                        },
+                    })
+                }
+                if (sideLeft) {
+                    gsap.to(sideLeft, {
+                        yPercent: -10,
+                        ease: 'none',
+                        scrollTrigger: {
+                            trigger: el,
+                            start: 'top bottom',
+                            end: 'bottom top',
+                            scrub: 1.8,
+                        },
+                    })
+                }
+                if (sideRight) {
+                    gsap.to(sideRight, {
+                        yPercent: -3,
+                        ease: 'none',
+                        scrollTrigger: {
+                            trigger: el,
+                            start: 'top bottom',
+                            end: 'bottom top',
+                            scrub: 2,
+                        },
+                    })
+                }
+                if (outline) {
+                    gsap.fromTo(
+                        outline,
+                        { xPercent: -3 },
+                        {
+                            xPercent: 3,
+                            ease: 'none',
+                            scrollTrigger: {
+                                trigger: el,
+                                start: 'top bottom',
+                                end: 'bottom top',
+                                scrub: 1.5,
+                            },
+                        }
+                    )
+                }
+            })
         }, el)
 
         return () => ctx.revert()

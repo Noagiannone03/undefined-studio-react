@@ -1,6 +1,7 @@
 import { useRef } from 'react'
 import { useGSAP } from '@gsap/react'
 import gsap from 'gsap'
+import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import Mark from './Mark'
 import { useSplitChars } from '../hooks/useSplitChars'
 
@@ -56,6 +57,23 @@ export default function Hero() {
                 ease: 'expo.out',
                 delay: 0.15,
             })
+
+            // Desktop-only: scrubbed parallax on the headline.
+            const mm = gsap.matchMedia()
+            mm.add('(min-width: 900px) and (hover: hover)', () => {
+                gsap.to('.hero-headline', {
+                    yPercent: -15,
+                    ease: 'none',
+                    scrollTrigger: {
+                        trigger: containerRef.current,
+                        start: 'top top',
+                        end: 'bottom top',
+                        scrub: 1,
+                    },
+                })
+            })
+
+            void ScrollTrigger
         },
         { scope: containerRef }
     )
