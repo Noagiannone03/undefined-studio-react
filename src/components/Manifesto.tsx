@@ -28,12 +28,9 @@ const WORDS: Word[] = [
 ]
 
 /**
- * Manifesto — dark pinned scrub section between About and Work.
- *
- * Uses explicit gsap.set() + tl.to() (not .from()) for deterministic initial
- * state — avoids the "content stays hidden" failure mode when ScrollTrigger
- * fires before the pinSpacer is laid out. `invalidateOnRefresh` + `pinType:
- * 'transform'` keep the pin stable under Lenis + direction reversal.
+ * Manifesto — pinned word-by-word reveal.
+ * No `filter: blur` on scrub (single biggest scroll-perf killer).
+ * Pure transform + opacity → cheap GPU path.
  */
 export default function Manifesto() {
     const ref = useRef<HTMLElement>(null)
@@ -47,22 +44,18 @@ export default function Manifesto() {
 
             const isMobile = window.matchMedia('(max-width: 767px)').matches
 
-            const initial: gsap.TweenVars = {
-                opacity: 0.12,
-                scale: 0.92,
+            gsap.set(words, {
+                opacity: 0.14,
                 y: 8,
-                transformOrigin: 'center center',
-            }
-            // Filter blur is the single most expensive scrub op on mobile GPU.
-            if (!isMobile) initial.filter = 'blur(6px)'
-            gsap.set(words, initial)
+                force3D: true,
+            })
 
             const tl = gsap.timeline({
                 scrollTrigger: {
                     trigger: stickyEl,
                     start: 'top top',
-                    end: () => `+=${window.innerHeight * (isMobile ? 1.2 : 2.2)}`,
-                    scrub: isMobile ? 0.5 : 1,
+                    end: () => `+=${window.innerHeight * (isMobile ? 1.1 : 1.8)}`,
+                    scrub: 0.6,
                     pin: true,
                     pinType: 'transform',
                     anticipatePin: 1,
@@ -76,16 +69,17 @@ export default function Manifesto() {
                 if (accent === 'tomato') targetColor = '#E84A2A'
                 else if (accent === 'klein') targetColor = '#1D1DBF'
 
-                const step: gsap.TweenVars = {
-                    opacity: 1,
-                    scale: 1,
-                    y: 0,
-                    color: targetColor,
-                    duration: 1,
-                    ease: 'power2.out',
-                }
-                if (!isMobile) step.filter = 'blur(0px)'
-                tl.to(word, step, i * 0.5)
+                tl.to(
+                    word,
+                    {
+                        opacity: 1,
+                        y: 0,
+                        color: targetColor,
+                        duration: 1,
+                        ease: 'none',
+                    },
+                    i * 0.5
+                )
             })
 
             void ScrollTrigger
@@ -94,37 +88,17 @@ export default function Manifesto() {
     )
 
     return (
-        <section
-            ref={ref}
-            id="manifesto"
-            className="manifesto-section"
-            style={{ background: 'var(--color-ink)', color: 'var(--color-paper)' }}
-        >
-            <div
-                ref={stickyRef}
-                className="manifesto-sticky"
-            >
+        <section ref={ref} id="manifesto" className="manifesto-section">
+            <div ref={stickyRef} className="manifesto-sticky">
                 <div className="container-x" style={{ width: '100%' }}>
-                    <p
-                        className="display manifesto-copy"
-                        style={{
-                            fontSize: 'clamp(44px, 6.2vw, 100px)',
-                            lineHeight: 1.06,
-                            letterSpacing: '-0.04em',
-                            maxWidth: '20ch',
-                            margin: 0,
-                        }}
-                    >
+                    <p className="manifesto-copy">
                         {WORDS.map((w, i) => (
                             <span
                                 key={i}
                                 data-word
                                 data-accent={w.accent}
                                 className={`inline-block ${w.accent === 'italic' ? 'serif-italic' : ''}`}
-                                style={{
-                                    marginRight: '0.22em',
-                                    display: 'inline-block',
-                                }}
+                                style={{ marginRight: '0.22em' }}
                             >
                                 {w.text}
                             </span>

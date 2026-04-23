@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react'
+import { useEffect } from 'react'
 import Lenis from 'lenis'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
@@ -15,32 +15,42 @@ import Cursor from './components/Cursor'
 
 gsap.registerPlugin(ScrollTrigger)
 
-// Mobile URL bar show/hide triggers viewport resize → ScrollTrigger refresh →
-// pin jump when scrolling direction reverses. Ignoring mobile resize is the
-// fix most GSAP users land on. Safe because our layout uses 100svh, not 100vh.
+// Mobile URL bar show/hide resizes the viewport; ignoring it prevents pin jumps.
+// Safe because layout uses svh/dvh, not vh.
 ScrollTrigger.config({ ignoreMobileResize: true })
 
 function App() {
-    const lenisRef = useRef<Lenis | null>(null)
     const isLogoPage = typeof window !== 'undefined' && window.location.pathname === '/logo'
 
     useEffect(() => {
         if (isLogoPage) return
+
+        const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+        const isTouch = window.matchMedia('(hover: none), (pointer: coarse)').matches
+
+        // Touch devices get native scroll — Lenis on mobile often fights with
+        // the URL bar and momentum, adding lag rather than removing it.
+        if (prefersReduced || isTouch) {
+            ScrollTrigger.refresh()
+            return
+        }
+
         const lenis = new Lenis({
-            duration: 1.3,
+            duration: 1.1,
             easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
             orientation: 'vertical',
             smoothWheel: true,
         })
-        lenisRef.current = lenis
-        const onLenisTick = (time: number) => lenis.raf(time * 1000)
+
+        const raf = (time: number) => lenis.raf(time * 1000)
         lenis.on('scroll', ScrollTrigger.update)
-        gsap.ticker.add(onLenisTick)
+        gsap.ticker.add(raf)
         gsap.ticker.lagSmoothing(0)
         ScrollTrigger.refresh()
+
         return () => {
             lenis.off('scroll', ScrollTrigger.update)
-            gsap.ticker.remove(onLenisTick)
+            gsap.ticker.remove(raf)
             lenis.destroy()
         }
     }, [isLogoPage])

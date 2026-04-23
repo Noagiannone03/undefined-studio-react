@@ -376,7 +376,7 @@ function ServiceRow({
                             animate={{ opacity: 1, height: 'auto', y: 0 }}
                             exit={{ opacity: 0, height: 0, y: 6 }}
                             transition={{ duration: 0.32, ease: EXPO, delay: 0.05 }}
-                            className="serif cap-brief brief-mobile-only"
+                            className="serif cap-brief cap-brief-inline"
                             style={{
                                 fontSize: 'clamp(13px, 1.1vw, 16px)',
                                 lineHeight: 1.55,
