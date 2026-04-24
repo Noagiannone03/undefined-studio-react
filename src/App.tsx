@@ -1,75 +1,63 @@
-import { useEffect } from 'react'
-import Lenis from 'lenis'
-import gsap from 'gsap'
-import { ScrollTrigger } from 'gsap/ScrollTrigger'
-import Hero from './components/Hero'
-import Marquee from './components/Marquee'
-import Work from './components/Work'
-import About from './components/About'
-import BrandMark from './components/BrandMark'
-import Capabilities from './components/Capabilities'
-import Manifesto from './components/Manifesto'
-import Footer from './components/Footer'
-import LogoExport from './components/LogoExport'
-import Cursor from './components/Cursor'
+import { lazy, Suspense } from 'react'
+import LogoExport from './shared/LogoExport'
 
-gsap.registerPlugin(ScrollTrigger)
+const Site = lazy(() => import('./site/Site'))
+const Dashboard = lazy(() => import('./dashboard/Dashboard'))
 
-// Mobile URL bar show/hide resizes the viewport; ignoring it prevents pin jumps.
-// Safe because layout uses svh/dvh, not vh.
-ScrollTrigger.config({ ignoreMobileResize: true })
-
+/**
+ * Routes the request at the top level by hostname/path.
+ *
+ *   app.undefinedstudio.fr/*  →  Dashboard (basename "/")
+ *   undefinedstudio.fr/app/*  →  Dashboard (basename "/app")   (local dev too)
+ *   /logo                     →  LogoExport
+ *   /                         →  Site (marketing)
+ *
+ * Site and Dashboard are lazy-loaded → each gets its own chunk, the marketing
+ * bundle isn't weighed down by the dashboard and vice-versa.
+ */
 function App() {
-    const isLogoPage = typeof window !== 'undefined' && window.location.pathname === '/logo'
+    if (typeof window === 'undefined') return null
 
-    useEffect(() => {
-        if (isLogoPage) return
+    const pathname = window.location.pathname
+    const hostname = window.location.hostname
 
-        const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
-        const isTouch = window.matchMedia('(hover: none), (pointer: coarse)').matches
+    if (pathname === '/logo') return <LogoExport />
 
-        // Touch devices get native scroll — Lenis on mobile often fights with
-        // the URL bar and momentum, adding lag rather than removing it.
-        if (prefersReduced || isTouch) {
-            ScrollTrigger.refresh()
-            return
-        }
+    const isAppSubdomain = hostname.startsWith('app.')
+    const isAppPath = pathname === '/app' || pathname.startsWith('/app/')
 
-        const lenis = new Lenis({
-            duration: 1.3,
-            easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-            orientation: 'vertical',
-            smoothWheel: true,
-        })
-
-        const raf = (time: number) => lenis.raf(time * 1000)
-        lenis.on('scroll', ScrollTrigger.update)
-        gsap.ticker.add(raf)
-        gsap.ticker.lagSmoothing(0)
-        ScrollTrigger.refresh()
-
-        return () => {
-            lenis.off('scroll', ScrollTrigger.update)
-            gsap.ticker.remove(raf)
-            lenis.destroy()
-        }
-    }, [isLogoPage])
-
-    if (isLogoPage) return <LogoExport />
+    if (isAppSubdomain || isAppPath) {
+        return (
+            <Suspense fallback={<LoadingScreen />}>
+                <Dashboard basename={isAppSubdomain ? '/' : '/app'} />
+            </Suspense>
+        )
+    }
 
     return (
-        <div className="w-full min-h-screen bg-paper text-ink font-body relative">
-            <Cursor />
-            <main className="w-full relative z-10 flex flex-col">
-                <Hero />
-                <Marquee />
-                <About />
-                <Manifesto />
-                <BrandMark />
-                <Work />
-                <Capabilities />
-                <Footer />
-            </main>
+        <Suspense fallback={<LoadingScreen />}>
+            <Site />
+        </Suspense>
+    )
+}
+
+function LoadingScreen() {
+    return (
+        <div
+            style={{
+                minHeight: '100svh',
+                background: 'var(--color-paper)',
+                color: 'var(--color-ink)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontFamily: 'JetBrains Mono, monospace',
+                fontSize: 11,
+                letterSpacing: '0.22em',
+                textTransform: 'uppercase',
+            }}
+        >
+            Chargement…
         </div>
     )
 }

@@ -1,12 +1,12 @@
 import { useEffect, useRef } from 'react'
 import gsap from 'gsap'
 
-import vagoInterface from '../assets/images/vago-illustrations/interface-open.jpeg'
-import vagoNoTrip from '../assets/images/vago-illustrations/no-trip-interface.png'
-import vagoStreak from '../assets/images/vago-illustrations/streak.jpeg'
-import whispHome from '../assets/images/whisp/homescreen.png'
-import whispDiscussion from '../assets/images/whisp/discussion.png'
-import whispProfile from '../assets/images/whisp/detail-profile.png'
+import vagoInterface from '../../assets/images/vago-illustrations/interface-open.jpeg'
+import vagoNoTrip from '../../assets/images/vago-illustrations/no-trip-interface.png'
+import vagoStreak from '../../assets/images/vago-illustrations/streak.jpeg'
+import whispHome from '../../assets/images/whisp/homescreen.png'
+import whispDiscussion from '../../assets/images/whisp/discussion.png'
+import whispProfile from '../../assets/images/whisp/detail-profile.png'
 
 type Project = {
     id: string
