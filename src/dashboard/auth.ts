@@ -21,8 +21,12 @@ export function readUser(): User | null {
 }
 
 export function writeUser(u: User | null) {
-    if (u) localStorage.setItem(STORAGE_KEY, JSON.stringify(u))
-    else localStorage.removeItem(STORAGE_KEY)
+    try {
+        if (u) localStorage.setItem(STORAGE_KEY, JSON.stringify(u))
+        else localStorage.removeItem(STORAGE_KEY)
+    } catch {
+        // Private-mode browsers (iOS Safari) block localStorage; swallow.
+    }
 }
 
 export function derivedName(email: string) {
