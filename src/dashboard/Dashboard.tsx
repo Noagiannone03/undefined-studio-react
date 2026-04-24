@@ -29,12 +29,12 @@ export default function Dashboard({ basename = '/' }: { basename?: string }) {
                             </RequireAuth>
                         }
                     >
-                        <Route path="/" element={<Overview />} handle={{ title: 'Aperçu' }} />
-                        <Route path="/projects" element={<Projects />} handle={{ title: 'Projets' }} />
-                        <Route path="/projects/:id" element={<ProjectDetail />} handle={{ title: 'Projet' }} />
-                        <Route path="/tickets" element={<Tickets />} handle={{ title: 'Tickets' }} />
-                        <Route path="/tickets/new" element={<NewTicket />} handle={{ title: 'Nouveau ticket' }} />
-                        <Route path="/invoices" element={<Invoices />} handle={{ title: 'Factures' }} />
+                        <Route path="/" element={<Overview />} />
+                        <Route path="/projects" element={<Projects />} />
+                        <Route path="/projects/:id" element={<ProjectDetail />} />
+                        <Route path="/tickets" element={<Tickets />} />
+                        <Route path="/tickets/new" element={<NewTicket />} />
+                        <Route path="/invoices" element={<Invoices />} />
                     </Route>
                     <Route path="*" element={<Navigate to="/" replace />} />
                 </Routes>

@@ -1,14 +1,25 @@
-import { useMatches } from 'react-router-dom'
+import { useLocation } from 'react-router-dom'
 import { useAuth } from '../auth'
 
-type HandleWithTitle = { title?: string }
+const TITLES: Record<string, string> = {
+    '/': 'Aperçu',
+    '/projects': 'Projets',
+    '/tickets': 'Tickets',
+    '/tickets/new': 'Nouveau ticket',
+    '/invoices': 'Factures',
+    '/login': 'Connexion',
+}
+
+function titleFor(pathname: string): string {
+    if (TITLES[pathname]) return TITLES[pathname]
+    if (pathname.startsWith('/projects/')) return 'Projet'
+    return 'Espace client'
+}
 
 export function Topbar({ onMenu }: { onMenu: () => void }) {
-    const matches = useMatches()
+    const { pathname } = useLocation()
     const { user } = useAuth()
-    const last = matches[matches.length - 1]
-    const title =
-        (last?.handle as HandleWithTitle | undefined)?.title ?? 'Aperçu'
+    const title = titleFor(pathname)
 
     const initials = (user?.name ?? '?')
         .split(/\s+/)
