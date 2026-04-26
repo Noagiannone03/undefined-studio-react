@@ -158,11 +158,12 @@ export default function ProjectDetail() {
                     <EmptyState title="Aucune facture" body="Elles apparaîtront ici au fil du projet." />
                 ) : (
                     <div className="dash-card" style={{ padding: 0, overflow: 'hidden' }}>
+                        <div className="dash-table-wrap">
                         <table className="dash-table">
                             <thead>
                                 <tr>
-                                    <th>Numéro</th>
-                                    <th>Émise</th>
+                                    <th>Numero</th>
+                                    <th>Emise</th>
                                     <th>Montant</th>
                                     <th>Statut</th>
                                 </tr>
@@ -178,6 +179,7 @@ export default function ProjectDetail() {
                                 ))}
                             </tbody>
                         </table>
+                        </div>
                     </div>
                 )}
             </section>

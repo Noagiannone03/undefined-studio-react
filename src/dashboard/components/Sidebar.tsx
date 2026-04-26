@@ -1,4 +1,5 @@
 import { NavLink, Link } from 'react-router-dom'
+import Mark from '../../site/components/Mark'
 import type { ReactNode } from 'react'
 import { useAuth } from '../auth'
 import { TICKETS } from '../data'
@@ -55,7 +56,8 @@ export function SidebarBody({ onNavigate }: { onNavigate?: () => void }) {
     return (
         <>
             <Link to="/" className="dash-brand" onClick={onNavigate}>
-                undefined<span className="serif-italic">.</span>
+                <Mark size={22} color="var(--color-tomato)" color2="var(--color-klein)" />
+                <span>UNDEFINED</span>
             </Link>
 
             <ul className="dash-nav">

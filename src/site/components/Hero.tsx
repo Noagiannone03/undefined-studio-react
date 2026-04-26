@@ -51,7 +51,7 @@ export default function Hero() {
 
             gsap.from('.hero-chars .c', {
                 yPercent: 110,
-                rotation: 6,
+                rotation: 8,
                 duration: 1.0,
                 stagger: 0.025,
                 ease: 'expo.out',
@@ -82,28 +82,65 @@ export default function Hero() {
         <section ref={containerRef} id="hero" className="hero-section container-x">
             <div className="grain" />
 
+            {/* Topbar — logo + studio name + city */}
             <div className="hero-topbar">
-                <span className="hero-mark" style={{ display: 'inline-flex' }}>
-                    <Mark
-                        size={26}
-                        drawable
-                        color="var(--color-tomato)"
-                        color2="var(--color-klein)"
-                    />
-                </span>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                    <span className="hero-mark" style={{ display: 'inline-flex' }}>
+                        <Mark
+                            size={26}
+                            drawable
+                            color="var(--color-tomato)"
+                            color2="var(--color-klein)"
+                        />
+                    </span>
+                    <span
+                        className="display hero-topbar-name"
+                        style={{
+                            fontSize: 'clamp(13px, 1.3vw, 17px)',
+                            letterSpacing: '-0.02em',
+                            lineHeight: 1,
+                        }}
+                    >
+                        UNDEFINED STUDIO
+                    </span>
+                </div>
             </div>
 
+            {/* Headline — fills vertical center */}
             <div className="hero-body">
                 <h1 className="hero-headline hero-chars">
-                    <span data-split className="display hero-line hero-line-1">
+                    <span
+                        data-split
+                        className="display hero-line hero-line-1"
+                        style={{
+                            fontSize: 'clamp(56px, 17vw, 250px)',
+                            lineHeight: 0.88,
+                            letterSpacing: '-0.045em',
+                        }}
+                    >
                         WE BUILD
                     </span>
-                    <span className="reveal-mask">
-                        <span className="reveal-line hero-line-2 serif-italic hero-line">
+                    <span className="reveal-mask" style={{ display: 'block' }}>
+                        <span
+                            className="reveal-line hero-line-2 serif-italic hero-line"
+                            style={{
+                                fontSize: 'clamp(52px, 15.5vw, 230px)',
+                                lineHeight: 0.92,
+                                letterSpacing: '-0.03em',
+                            }}
+                        >
                             things
                         </span>
                     </span>
-                    <span data-split className="display hero-line hero-line-3">
+                    <span
+                        data-split
+                        className="display hero-line hero-line-3"
+                        style={{
+                            fontSize: 'clamp(44px, 13.5vw, 200px)',
+                            lineHeight: 0.88,
+                            letterSpacing: '-0.045em',
+                        }}
+                    >
                         THAT <span style={{ color: 'var(--color-tomato)' }}>MOVE.</span>
                     </span>
                 </h1>

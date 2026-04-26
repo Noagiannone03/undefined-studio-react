@@ -54,7 +54,8 @@ export default function Invoices() {
             {INVOICES.length === 0 ? (
                 <EmptyState title="Aucune facture" body="Elles apparaîtront ici au fil du projet." />
             ) : (
-                <section className="dash-card" style={{ padding: 0, overflow: 'auto' }}>
+                <section className="dash-card" style={{ padding: 0, overflow: 'hidden' }}>
+                <div className="dash-table-wrap">
                     <table className="dash-table">
                         <thead>
                             <tr>
@@ -93,6 +94,7 @@ export default function Invoices() {
                             })}
                         </tbody>
                     </table>
+                </div>
                 </section>
             )}
         </div>

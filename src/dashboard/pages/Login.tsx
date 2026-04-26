@@ -29,60 +29,54 @@ export default function Login() {
             await login(email)
             navigate(from, { replace: true })
         } catch {
-            setError('Connexion impossible. Réessaie.')
+            setError('Connexion impossible. Reessaie.')
         } finally {
             setLoading(false)
         }
     }
 
     return (
-        <div className="dash-login">
-            <section className="dash-login__left">
-                <motion.div
-                    initial={{ opacity: 0, y: 12 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.6, ease: EXPO }}
-                >
-                    <span className="dash-kicker">( 00 ) — Espace client</span>
-                </motion.div>
+        <div className="login">
+            {/* LEFT — Form (always visible) */}
+            <div className="login__form-side">
+                <span className="dash-kicker login__top-kicker">
+                    ( 00 ) — Espace client
+                </span>
 
-                <motion.div
-                    initial="hidden"
-                    animate="show"
-                    variants={{
-                        hidden: {},
-                        show: { transition: { staggerChildren: 0.08, delayChildren: 0.15 } },
-                    }}
-                    style={{ display: 'flex', flexDirection: 'column', gap: 24 }}
-                >
+                <div className="login__content">
                     <motion.h1
-                        className="dash-login__h1"
-                        variants={{ hidden: { opacity: 0, y: 20 }, show: { opacity: 1, y: 0 } }}
-                        transition={{ duration: 0.8, ease: EXPO }}
-                    >
-                        TON <span className="serif-italic" style={{ fontFamily: "'Instrument Serif', serif", fontStyle: 'italic', fontWeight: 400, letterSpacing: '-0.02em' }}>projet,</span>
-                        <br />
-                        AU <span style={{ color: 'var(--color-klein)' }}>CLAIR.</span>
-                    </motion.h1>
-                    <motion.p
-                        className="dash-login__sub"
-                        variants={{ hidden: { opacity: 0, y: 14 }, show: { opacity: 1, y: 0 } }}
+                        className="login__title"
+                        initial={{ opacity: 0, y: 16 }}
+                        animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.7, ease: EXPO }}
                     >
-                        Avancement, questions, factures. Tout au même endroit.
+                        TON{' '}
+                        <span className="serif-italic">projet,</span>
+                        <br />
+                        AU <span className="login__accent">CLAIR.</span>
+                    </motion.h1>
+
+                    <motion.p
+                        className="login__sub"
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.6, ease: EXPO, delay: 0.1 }}
+                    >
+                        Avancement, questions, factures.
+                        <br />
+                        Tout au meme endroit.
                     </motion.p>
 
                     <motion.form
                         onSubmit={onSubmit}
-                        className="dash-login__form"
-                        variants={{ hidden: { opacity: 0, y: 14 }, show: { opacity: 1, y: 0 } }}
-                        transition={{ duration: 0.7, ease: EXPO }}
+                        className="login__form"
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.6, ease: EXPO, delay: 0.2 }}
                         noValidate
                     >
                         <div>
-                            <label htmlFor="email" className="dash-label">
-                                Email
-                            </label>
+                            <label htmlFor="email" className="dash-label">Email</label>
                             <input
                                 id="email"
                                 type="email"
@@ -94,9 +88,7 @@ export default function Login() {
                             />
                         </div>
                         <div>
-                            <label htmlFor="password" className="dash-label">
-                                Mot de passe
-                            </label>
+                            <label htmlFor="password" className="dash-label">Mot de passe</label>
                             <input
                                 id="password"
                                 type="password"
@@ -109,55 +101,44 @@ export default function Login() {
                         </div>
 
                         {error && (
-                            <div
-                                role="alert"
-                                style={{
-                                    fontFamily: 'JetBrains Mono, monospace',
-                                    fontSize: 11,
-                                    letterSpacing: '0.15em',
-                                    color: 'var(--color-tomato)',
-                                    textTransform: 'uppercase',
-                                }}
-                            >
-                                {error}
-                            </div>
+                            <div role="alert" className="login__error">{error}</div>
                         )}
 
                         <button type="submit" className="dash-btn" disabled={loading}>
-                            {loading ? 'Connexion…' : 'Se connecter'}
+                            {loading ? 'Connexion...' : 'Se connecter'}
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="16" height="16" aria-hidden>
                                 <path d="M5 12h14M13 5l7 7-7 7" />
                             </svg>
                         </button>
 
-                        <p style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 11, letterSpacing: '0.15em', color: 'var(--color-ink-mute)', textTransform: 'uppercase', margin: '4px 0 0' }}>
-                            Démo — n'importe quel email + mot de passe fonctionne.
+                        <p className="login__demo-note">
+                            Demo — n'importe quel email + mot de passe fonctionne.
                         </p>
                     </motion.form>
-                </motion.div>
+                </div>
 
-                <span className="dash-kicker" style={{ opacity: 0.5 }}>
-                    Marseille — 2026
+                <span className="dash-kicker login__bot-kicker">
+                    UNDEFINED STUDIO — 2026
                 </span>
-            </section>
+            </div>
 
-            <aside className="dash-login__right" aria-hidden>
-                <span className="dash-kicker" style={{ color: 'rgba(239,235,221,0.6)' }}>
+            {/* RIGHT — Editorial (desktop only, hidden on mobile via CSS) */}
+            <div className="login__splash" aria-hidden>
+                <span className="dash-kicker login__splash-kicker">
                     ( APP ) — UNDEFINED STUDIO
                 </span>
-                <div style={{ marginTop: 'auto' }}>
-                    <p className="dash-login__big">
-                        ON BÂTIT,
-                        <br />
-                        <span className="dash-login__big-italic" style={{ color: 'var(--color-tomato)' }}>tu regardes</span>
-                        <br />
-                        EN DIRECT.
-                    </p>
-                </div>
-                <p className="dash-login__quote">
-                    — Cet espace te donne accès à l'avancement de ton projet, aux questions en cours et à tes factures. Si quelque chose manque, on ouvre un ticket.
+                <p className="login__splash-big">
+                    ON BATIT,
+                    <br />
+                    <span className="login__splash-italic">tu regardes</span>
+                    <br />
+                    EN DIRECT.
                 </p>
-            </aside>
+                <p className="login__splash-quote">
+                    Cet espace te donne acces a l'avancement de ton projet,
+                    aux questions en cours et a tes factures.
+                </p>
+            </div>
         </div>
     )
 }
