@@ -1,45 +1,15 @@
 import { createContext, useContext } from 'react'
-import type { User } from './types'
-
-const STORAGE_KEY = 'undefined-studio:user'
+import type { UserProfile } from './types'
 
 export type AuthContextValue = {
-    user: User | null
-    login: (email: string) => Promise<User>
-    logout: () => void
+    user: UserProfile | null
+    loading: boolean
+    login: (email: string, password: string) => Promise<void>
+    logout: () => Promise<void>
+    changePassword: (nextPassword: string) => Promise<void>
 }
 
 export const AuthContext = createContext<AuthContextValue | null>(null)
-
-export function readUser(): User | null {
-    try {
-        const raw = localStorage.getItem(STORAGE_KEY)
-        return raw ? (JSON.parse(raw) as User) : null
-    } catch {
-        return null
-    }
-}
-
-export function writeUser(u: User | null) {
-    try {
-        if (u) localStorage.setItem(STORAGE_KEY, JSON.stringify(u))
-        else localStorage.removeItem(STORAGE_KEY)
-    } catch {
-        // Private-mode browsers (iOS Safari) block localStorage; swallow.
-    }
-}
-
-export function derivedName(email: string) {
-    const local = email.split('@')[0] ?? email
-    // "noa.giannone" → "Noa Giannone"
-    return (
-        local
-            .split(/[._-]/)
-            .filter(Boolean)
-            .map((p) => p.charAt(0).toUpperCase() + p.slice(1))
-            .join(' ') || email
-    )
-}
 
 export function useAuth() {
     const ctx = useContext(AuthContext)

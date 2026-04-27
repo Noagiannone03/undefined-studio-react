@@ -1,19 +1,15 @@
-import { useState, useMemo } from 'react'
+import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { motion, AnimatePresence } from 'motion/react'
-import { TICKETS, findProject } from '../data'
-import { TicketStatusPill } from '../components/StatusPill'
+import { useAuth } from '../auth'
+import { useDashboardData } from '../useDashboardData'
 import { EmptyState } from '../components/EmptyState'
+import { TicketStatusPill } from '../components/StatusPill'
+import { formatDate, formatDateTime } from '../utils'
+import { replyToTicket, updateTicketStatus } from '../firestore'
 import type { TicketStatus } from '../types'
 
 const EXPO = [0.16, 1, 0.3, 1] as const
-
-function formatDate(iso: string) {
-    return new Intl.DateTimeFormat('fr-FR', { day: '2-digit', month: 'short', year: 'numeric' }).format(new Date(iso))
-}
-function formatDateTime(iso: string) {
-    return new Intl.DateTimeFormat('fr-FR', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' }).format(new Date(iso))
-}
 
 const FILTERS: { id: 'all' | TicketStatus; label: string }[] = [
     { id: 'all', label: 'Tous' },
@@ -23,81 +19,115 @@ const FILTERS: { id: 'all' | TicketStatus; label: string }[] = [
 ]
 
 export default function Tickets() {
+    const { user } = useAuth()
+    const { tickets, findClient, findProject } = useDashboardData()
     const [filter, setFilter] = useState<(typeof FILTERS)[number]['id']>('all')
     const [openId, setOpenId] = useState<string | null>(null)
+    const [replyBody, setReplyBody] = useState<Record<string, string>>({})
+    const [busyId, setBusyId] = useState<string | null>(null)
 
-    const filtered = useMemo(() => {
-        if (filter === 'all') return TICKETS
-        return TICKETS.filter((t) => t.status === filter)
-    }, [filter])
+    const filtered = filter === 'all' ? tickets : tickets.filter((ticket) => ticket.status === filter)
+
+    const onReply = async (ticketId: string) => {
+        const ticket = tickets.find((item) => item.id === ticketId)
+        const body = replyBody[ticketId]?.trim()
+        if (!ticket || !body) return
+
+        setBusyId(ticketId)
+        try {
+            await replyToTicket({
+                ticket,
+                body,
+                from: user?.role === 'admin' ? 'studio' : 'client',
+                authorName: user?.name ?? 'Undefined',
+            })
+            setReplyBody((current) => ({ ...current, [ticketId]: '' }))
+        } finally {
+            setBusyId(null)
+        }
+    }
+
+    const onStatusChange = async (ticketId: string, status: TicketStatus) => {
+        setBusyId(ticketId)
+        try {
+            await updateTicketStatus(ticketId, status)
+        } finally {
+            setBusyId(null)
+        }
+    }
 
     return (
         <div className="dash-stack-lg">
             <header className="dash-page-head">
-                <span className="dash-kicker">( 03 ) — Tickets</span>
+                <span className="dash-kicker">{user?.role === 'admin' ? '( ADMIN ) — Tickets' : '( 03 ) — Tickets'}</span>
                 <h1 className="dash-h1">
-                    Tes <span className="serif-italic">questions,</span> nos réponses.
+                    {user?.role === 'admin' ? (
+                        <>Le flux <span className="serif-italic">support.</span></>
+                    ) : (
+                        <>Tes <span className="serif-italic">questions,</span> nos réponses.</>
+                    )}
                 </h1>
                 <p className="dash-sub">
-                    Pose-nous ce que tu veux — un bug, une demande, une interrogation sur une facture. On répond sous 24h ouvrées.
+                    {user?.role === 'admin'
+                        ? 'Chaque ticket est relié à un client et éventuellement à un projet. Tu peux répondre et changer le statut directement ici.'
+                        : "Pose-nous ce que tu veux — un bug, une demande, une interrogation sur une facture. On répond sous 24h ouvrées."}
                 </p>
             </header>
 
             <div className="dash-row-between">
                 <div className="dash-row">
-                    {FILTERS.map((f) => (
+                    {FILTERS.map((item) => (
                         <button
-                            key={f.id}
+                            key={item.id}
                             type="button"
-                            onClick={() => setFilter(f.id)}
+                            onClick={() => setFilter(item.id)}
                             className="dash-btn dash-btn--ghost"
                             style={{
                                 height: 40,
                                 fontSize: 12,
                                 padding: '0 18px',
-                                boxShadow: filter === f.id ? '4px 4px 0 var(--color-klein)' : 'none',
-                                background: filter === f.id ? 'var(--color-paper-2)' : 'transparent',
+                                boxShadow: filter === item.id ? '4px 4px 0 var(--color-klein)' : 'none',
+                                background: filter === item.id ? 'var(--color-paper-2)' : 'transparent',
                             }}
                         >
-                            {f.label}
+                            {item.label}
                         </button>
                     ))}
                 </div>
-                <Link to="/tickets/new" className="dash-btn">
-                    Nouveau ticket
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="16" height="16" aria-hidden>
-                        <path d="M12 5v14M5 12h14" />
-                    </svg>
-                </Link>
+                {user?.role === 'client' && (
+                    <Link to="/tickets/new" className="dash-btn">
+                        Nouveau ticket
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="16" height="16" aria-hidden>
+                            <path d="M12 5v14M5 12h14" />
+                        </svg>
+                    </Link>
+                )}
             </div>
 
             {filtered.length === 0 ? (
                 <EmptyState
                     title="Aucun ticket dans cette vue"
-                    body="Change de filtre ou ouvres-en un nouveau."
+                    body={user?.role === 'admin' ? 'Aucun ticket ne correspond à ce filtre.' : 'Change de filtre ou ouvres-en un nouveau.'}
                     action={
-                        <Link to="/tickets/new" className="dash-btn" style={{ marginTop: 8 }}>
-                            Ouvrir un ticket
-                        </Link>
+                        user?.role === 'client' ? (
+                            <Link to="/tickets/new" className="dash-btn" style={{ marginTop: 8 }}>
+                                Ouvrir un ticket
+                            </Link>
+                        ) : undefined
                     }
                 />
             ) : (
                 <div className="dash-stack">
-                    {filtered.map((t, i) => {
-                        const proj = findProject(t.project)
-                        const isOpen = openId === t.id
+                    {filtered.map((ticket) => {
+                        const project = findProject(ticket.projectId)
+                        const client = findClient(ticket.clientId)
+                        const isOpen = openId === ticket.id
+
                         return (
-                            <motion.div
-                                key={t.id}
-                                id={t.id}
-                                className="dash-card"
-                                initial={{ opacity: 0, y: 12 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ duration: 0.4, ease: EXPO, delay: 0.03 + i * 0.04 }}
-                            >
+                            <div key={ticket.id} id={ticket.id} className="dash-card">
                                 <button
                                     type="button"
-                                    onClick={() => setOpenId(isOpen ? null : t.id)}
+                                    onClick={() => setOpenId(isOpen ? null : ticket.id)}
                                     aria-expanded={isOpen}
                                     style={{
                                         background: 'transparent',
@@ -115,13 +145,13 @@ export default function Tickets() {
                                 >
                                     <div className="dash-row-between">
                                         <span className="dash-kicker">
-                                            {t.id.toUpperCase()} {proj ? `· ${proj.name}` : ''} · {formatDate(t.createdAt)}
+                                            {user?.role === 'admin'
+                                                ? `${client?.name ?? 'Client'}${project ? ` · ${project.name}` : ''} · ${formatDate(ticket.createdAt)}`
+                                                : `${ticket.id.toUpperCase()}${project ? ` · ${project.name}` : ''} · ${formatDate(ticket.createdAt)}`}
                                         </span>
-                                        <TicketStatusPill status={t.status} />
+                                        <TicketStatusPill status={ticket.status} />
                                     </div>
-                                    <h3 className="dash-h2" style={{ fontSize: 'clamp(18px, 2vw, 22px)' }}>
-                                        {t.subject}
-                                    </h3>
+                                    <h3 className="dash-h2" style={{ fontSize: 'clamp(18px, 2vw, 22px)' }}>{ticket.subject}</h3>
                                 </button>
 
                                 <AnimatePresence initial={false}>
@@ -136,22 +166,61 @@ export default function Tickets() {
                                         >
                                             <hr className="dash-divider" style={{ margin: '16px 0' }} />
                                             <div className="dash-thread">
-                                                {t.messages.map((m) => (
-                                                    <div
-                                                        key={m.id}
-                                                        className={`dash-thread__msg dash-thread__msg--${m.from}`}
-                                                    >
+                                                {ticket.messages.map((message) => (
+                                                    <div key={message.id} className={`dash-thread__msg dash-thread__msg--${message.from}`}>
                                                         <span className="dash-thread__meta">
-                                                            {m.from === 'client' ? 'Toi' : 'Undefined'} · {formatDateTime(m.at)}
+                                                            {message.from === 'client' ? message.authorName || 'Client' : message.authorName || 'Undefined'} · {formatDateTime(message.at)}
                                                         </span>
-                                                        {m.body}
+                                                        {message.body}
                                                     </div>
                                                 ))}
+                                            </div>
+
+                                            {user?.role === 'admin' && (
+                                                <div className="dash-row" style={{ marginTop: 16 }}>
+                                                    {(['open', 'answered', 'resolved'] as TicketStatus[]).map((status) => (
+                                                        <button
+                                                            key={status}
+                                                            type="button"
+                                                            className="dash-btn dash-btn--ghost"
+                                                            style={{ height: 38, fontSize: 12, padding: '0 14px' }}
+                                                            disabled={busyId === ticket.id}
+                                                            onClick={() => onStatusChange(ticket.id, status)}
+                                                        >
+                                                            {status}
+                                                        </button>
+                                                    ))}
+                                                </div>
+                                            )}
+
+                                            <div className="dash-stack" style={{ marginTop: 16 }}>
+                                                <label htmlFor={`reply-${ticket.id}`} className="dash-label">
+                                                    {user?.role === 'admin' ? 'Réponse studio' : 'Ajouter un message'}
+                                                </label>
+                                                <textarea
+                                                    id={`reply-${ticket.id}`}
+                                                    className="dash-input dash-textarea"
+                                                    value={replyBody[ticket.id] ?? ''}
+                                                    onChange={(event) =>
+                                                        setReplyBody((current) => ({
+                                                            ...current,
+                                                            [ticket.id]: event.target.value,
+                                                        }))
+                                                    }
+                                                />
+                                                <button
+                                                    type="button"
+                                                    className="dash-btn"
+                                                    disabled={busyId === ticket.id || !(replyBody[ticket.id] ?? '').trim()}
+                                                    onClick={() => onReply(ticket.id)}
+                                                >
+                                                    {busyId === ticket.id ? 'Envoi...' : user?.role === 'admin' ? 'Répondre' : 'Envoyer'}
+                                                </button>
                                             </div>
                                         </motion.div>
                                     )}
                                 </AnimatePresence>
-                            </motion.div>
+                            </div>
                         )
                     })}
                 </div>

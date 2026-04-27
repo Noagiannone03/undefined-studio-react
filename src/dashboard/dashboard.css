@@ -184,6 +184,12 @@
     text-overflow: ellipsis;
     white-space: nowrap;
 }
+.dash-topbar__title-wrap {
+    position: relative;
+    min-width: 0;
+    overflow: hidden;
+    min-height: 1.35em;
+}
 .dash-topbar__user {
     display: inline-flex;
     align-items: center;
@@ -196,6 +202,7 @@
     max-width: 1400px;
     width: 100%;
     margin: 0 auto;
+    overflow-x: clip;
 }
 
 /* Avatar */
@@ -314,18 +321,32 @@
     text-decoration: none;
     transition: color 150ms ease, background 150ms ease;
     border-left: 3px solid transparent;
+    isolation: isolate;
+    overflow: hidden;
 }
 .dash-nav__item:hover { color: var(--color-ink); background: var(--color-paper-2); }
 .dash-nav__item.is-active {
     color: var(--color-ink);
-    background: var(--color-paper-2);
     border-left-color: var(--color-klein);
     font-weight: 600;
+}
+.dash-nav__active-bg {
+    position: absolute;
+    inset: 0;
+    background:
+        linear-gradient(90deg, rgba(29, 29, 191, 0.12), rgba(29, 29, 191, 0.04) 52%, rgba(239, 235, 221, 0.32));
+    z-index: -1;
 }
 .dash-nav__icon {
     width: 18px;
     height: 18px;
     flex-shrink: 0;
+}
+.dash-nav__label {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 .dash-nav__count {
     margin-left: auto;
@@ -890,6 +911,12 @@
 .dash-stack-lg { display: flex; flex-direction: column; gap: clamp(16px, 3vw, 36px); }
 .dash-row         { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
 .dash-row-between { display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
+.dash-note {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    line-height: 1.5;
+    color: var(--color-ink-mute);
+}
 
 @media (min-width: 900px) {
     .dash-stack-sm { gap: 8px; }

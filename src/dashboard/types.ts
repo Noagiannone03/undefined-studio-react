@@ -1,8 +1,31 @@
-export type User = {
+export type AppRole = 'admin' | 'client'
+export type ClientStatus = 'active' | 'lead' | 'archived'
+
+export type UserProfile = {
+    uid: string
     email: string
     name: string
-    clientId: string
-    company?: string
+    role: AppRole
+    // clientId is derived from clientIds[0] — never stored directly anymore
+    clientId: string | null
+    clientIds: string[]
+    mustChangePassword: boolean
+    isActive: boolean
+    createdAt?: string
+    updatedAt?: string
+}
+
+export type Client = {
+    id: string
+    slug: string
+    name: string
+    status: ClientStatus
+    contactName: string
+    contactEmail: string
+    billingEmail: string
+    notes?: string
+    createdAt?: string
+    updatedAt?: string
 }
 
 export type ProjectStatus = 'discovery' | 'design' | 'build' | 'review' | 'live' | 'paused'
@@ -17,6 +40,7 @@ export type Milestone = {
 
 export type Project = {
     id: string
+    clientId: string
     name: string
     tagline: string
     status: ProjectStatus
@@ -24,16 +48,20 @@ export type Project = {
     accent: string
     kickoff: string
     delivery: string
+    summary?: string
     milestones: Milestone[]
-    updates: ProjectUpdate[]
+    createdAt?: string
+    updatedAt?: string
 }
 
 export type ProjectUpdate = {
     id: string
+    projectId: string
+    clientId: string
     date: string
     title: string
     body: string
-    author: string
+    authorName: string
 }
 
 export type TicketStatus = 'open' | 'answered' | 'resolved'
@@ -41,30 +69,48 @@ export type TicketPriority = 'low' | 'normal' | 'high'
 
 export type Ticket = {
     id: string
+    clientId: string
     subject: string
     body: string
     status: TicketStatus
     priority: TicketPriority
     createdAt: string
-    project?: string // project id
+    updatedAt?: string
+    projectId?: string
+    createdByUid?: string
+    createdByName?: string
     messages: TicketMessage[]
 }
 
 export type TicketMessage = {
     id: string
     from: 'client' | 'studio'
+    authorName?: string
     body: string
     at: string
 }
 
 export type InvoiceStatus = 'paid' | 'due' | 'overdue' | 'draft'
 
+export type InvoiceItem = {
+    id: string
+    description: string
+    amount: number // HT in €
+}
+
 export type Invoice = {
     id: string
+    clientId: string
     number: string
-    project: string // project id
-    amount: number // in €
+    projectId: string
+    title: string
+    items: InvoiceItem[]
+    terms: string[]
+    amount: number // total TTC in € — source of truth, derived from items
     status: InvoiceStatus
     issued: string
     due: string
+    pdfUrl?: string // legacy: external PDF link, no longer written
+    createdAt?: string
+    updatedAt?: string
 }

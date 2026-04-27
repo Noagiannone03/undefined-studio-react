@@ -42,13 +42,6 @@ export default function Footer() {
             <div className="grain" />
 
             <div className="footer-head">
-                <span
-                    className="mono"
-                    style={{ display: 'block', marginBottom: 24, color: 'rgba(239,235,221,0.4)' }}
-                >
-                    ( 05 ) — On écoute
-                </span>
-
                 <h2 className="footer-h2">
                     <span className="reveal-mask">
                         <span className="reveal-line footer-line">UN PROBLÈME</span>
@@ -64,18 +57,6 @@ export default function Footer() {
                 </h2>
 
                 <div className="footer-email">
-                    <span
-                        className="mono"
-                        style={{
-                            display: 'block',
-                            marginBottom: 14,
-                            color: 'rgba(239,235,221,0.38)',
-                            fontSize: 11,
-                            letterSpacing: '0.2em',
-                        }}
-                    >
-                        RACONTEZ-NOUS OÙ ÇA COINCE
-                    </span>
                     <a
                         href="mailto:hello@undefined.co"
                         className="footer-email-link"

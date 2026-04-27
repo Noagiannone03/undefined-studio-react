@@ -1,42 +1,89 @@
 import { useEffect, useState } from 'react'
 import type { ReactNode } from 'react'
 import { Navigate, useLocation } from 'react-router-dom'
-import { AuthContext, derivedName, readUser, useAuth, writeUser } from './auth'
-import type { User } from './types'
+import { onAuthStateChanged, signInWithEmailAndPassword, signOut, updatePassword } from 'firebase/auth'
+import { auth as firebaseAuth } from './firebase'
+import { markPasswordChangeCompleted, ensureUserProfile, subscribeUserProfile } from './firestore'
+import { AuthContext, useAuth } from './auth'
+import type { UserProfile } from './types'
 
-/**
- * Placeholder auth. Any non-empty email + password authenticates and stores
- * a minimal user profile in localStorage. Swap login() / logout() with real
- * API calls when the backend is live.
- */
 export function AuthProvider({ children }: { children: ReactNode }) {
-    const [user, setUser] = useState<User | null>(() => readUser())
+    const [user, setUser] = useState<UserProfile | null>(null)
+    const [loading, setLoading] = useState(true)
 
     useEffect(() => {
-        writeUser(user)
-    }, [user])
+        let unsubProfile: (() => void) | null = null
 
-    const login = async (email: string): Promise<User> => {
-        // Simulated latency so the UX reads as a real network call.
-        await new Promise((r) => setTimeout(r, 450))
-        const next: User = {
-            email: email.trim(),
-            name: derivedName(email.trim()),
-            clientId: 'demo-01',
-            company: 'Client démo',
+        const unsubAuth = onAuthStateChanged(firebaseAuth, async (nextUser) => {
+            if (unsubProfile) {
+                unsubProfile()
+                unsubProfile = null
+            }
+
+            if (!nextUser) {
+                setUser(null)
+                setLoading(false)
+                return
+            }
+
+            setLoading(true)
+            await ensureUserProfile(nextUser)
+
+            unsubProfile = subscribeUserProfile(
+                nextUser.uid,
+                (profile) => {
+                    setUser(profile)
+                    setLoading(false)
+                },
+                () => {
+                    setUser(null)
+                    setLoading(false)
+                },
+            )
+        })
+
+        return () => {
+            unsubAuth()
+            unsubProfile?.()
         }
-        setUser(next)
-        return next
+    }, [])
+
+    const login = async (email: string, password: string) => {
+        await signInWithEmailAndPassword(firebaseAuth, email.trim(), password)
     }
 
-    const logout = () => setUser(null)
+    const logout = async () => {
+        await signOut(firebaseAuth)
+    }
 
-    return <AuthContext.Provider value={{ user, login, logout }}>{children}</AuthContext.Provider>
+    const changePassword = async (nextPassword: string) => {
+        if (!firebaseAuth.currentUser) throw new Error('No authenticated user.')
+        await updatePassword(firebaseAuth.currentUser, nextPassword)
+        await markPasswordChangeCompleted(firebaseAuth.currentUser.uid)
+    }
+
+    return <AuthContext.Provider value={{ user, loading, login, logout, changePassword }}>{children}</AuthContext.Provider>
 }
 
 export function RequireAuth({ children }: { children: ReactNode }) {
-    const { user } = useAuth()
+    const { user, loading } = useAuth()
     const location = useLocation()
+    if (loading) {
+        return (
+            <div className="dash-root" style={{ display: 'grid', placeItems: 'center', minHeight: '100svh' }}>
+                <div className="dash-card">
+                    <span className="dash-kicker">Connexion sécurisée</span>
+                    <h1 className="dash-h2">Chargement du compte…</h1>
+                </div>
+            </div>
+        )
+    }
     if (!user) return <Navigate to="/login" replace state={{ from: location.pathname }} />
+    if (user.mustChangePassword && location.pathname !== '/setup-password') {
+        return <Navigate to="/setup-password" replace />
+    }
+    if (!user.mustChangePassword && location.pathname === '/setup-password') {
+        return <Navigate to="/" replace />
+    }
     return <>{children}</>
 }

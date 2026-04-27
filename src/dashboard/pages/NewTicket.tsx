@@ -1,37 +1,54 @@
 import { useState } from 'react'
 import type { FormEvent } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
-import { motion } from 'motion/react'
-import { PROJECTS } from '../data'
-
-const EXPO = [0.16, 1, 0.3, 1] as const
-
-type Priority = 'low' | 'normal' | 'high'
+import { Link, Navigate, useNavigate } from 'react-router-dom'
+import { useAuth } from '../auth'
+import { useDashboardData } from '../useDashboardData'
+import { createTicket } from '../firestore'
+import type { TicketPriority } from '../types'
 
 export default function NewTicket() {
+    const { user } = useAuth()
+    const { projects } = useDashboardData()
     const navigate = useNavigate()
 
     const [subject, setSubject] = useState('')
     const [projectId, setProjectId] = useState<string>('')
-    const [priority, setPriority] = useState<Priority>('normal')
+    const [priority, setPriority] = useState<TicketPriority>('normal')
     const [body, setBody] = useState('')
     const [sending, setSending] = useState(false)
     const [sent, setSent] = useState(false)
     const [error, setError] = useState<string | null>(null)
 
-    const onSubmit = async (e: FormEvent) => {
-        e.preventDefault()
+    if (user?.role !== 'client') return <Navigate to="/tickets" replace />
+
+    const onSubmit = async (event: FormEvent) => {
+        event.preventDefault()
         setError(null)
-        if (subject.trim().length < 4 || body.trim().length < 10) {
+
+        const clientId = user.clientId ?? user.clientIds[0]
+        if (subject.trim().length < 4 || body.trim().length < 10 || !clientId) {
             setError("Le sujet et le message doivent être un peu plus complets.")
             return
         }
+
         setSending(true)
-        // Placeholder: would POST to /api/tickets
-        await new Promise((r) => setTimeout(r, 700))
-        setSending(false)
-        setSent(true)
-        setTimeout(() => navigate('/tickets'), 900)
+        try {
+            await createTicket({
+                clientId,
+                projectId: projectId || undefined,
+                subject,
+                body,
+                priority,
+                createdByUid: user.uid,
+                createdByName: user.name,
+            })
+            setSent(true)
+            setTimeout(() => navigate('/tickets'), 700)
+        } catch {
+            setError("Impossible d'envoyer le ticket.")
+        } finally {
+            setSending(false)
+        }
     }
 
     return (
@@ -46,14 +63,7 @@ export default function NewTicket() {
                 <p className="dash-sub">Dis-nous ce qui coince. On revient vite.</p>
             </header>
 
-            <motion.form
-                onSubmit={onSubmit}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, ease: EXPO }}
-                className="dash-stack"
-                noValidate
-            >
+            <form onSubmit={onSubmit} className="dash-stack" noValidate>
                 <div>
                     <label htmlFor="subject" className="dash-label">Sujet</label>
                     <input
@@ -62,7 +72,7 @@ export default function NewTicket() {
                         className="dash-input"
                         placeholder="Résume en une phrase."
                         value={subject}
-                        onChange={(e) => setSubject(e.target.value)}
+                        onChange={(event) => setSubject(event.target.value)}
                         disabled={sending || sent}
                     />
                 </div>
@@ -74,13 +84,13 @@ export default function NewTicket() {
                             id="project"
                             className="dash-input"
                             value={projectId}
-                            onChange={(e) => setProjectId(e.target.value)}
+                            onChange={(event) => setProjectId(event.target.value)}
                             disabled={sending || sent}
                         >
                             <option value="">Aucun / général</option>
-                            {PROJECTS.map((p) => (
-                                <option key={p.id} value={p.id}>
-                                    {p.name} — {p.tagline}
+                            {projects.map((project) => (
+                                <option key={project.id} value={project.id}>
+                                    {project.name} — {project.tagline}
                                 </option>
                             ))}
                         </select>
@@ -91,7 +101,7 @@ export default function NewTicket() {
                             id="priority"
                             className="dash-input"
                             value={priority}
-                            onChange={(e) => setPriority(e.target.value as Priority)}
+                            onChange={(event) => setPriority(event.target.value as TicketPriority)}
                             disabled={sending || sent}
                         >
                             <option value="low">Basse — pas urgent</option>
@@ -108,22 +118,12 @@ export default function NewTicket() {
                         className="dash-input dash-textarea"
                         placeholder="Le contexte, ce que tu attendais, ce qui s'est passé."
                         value={body}
-                        onChange={(e) => setBody(e.target.value)}
+                        onChange={(event) => setBody(event.target.value)}
                         disabled={sending || sent}
                     />
                 </div>
 
-                {error && (
-                    <div style={{
-                        fontFamily: 'JetBrains Mono, monospace',
-                        fontSize: 11,
-                        letterSpacing: '0.15em',
-                        color: 'var(--color-tomato)',
-                        textTransform: 'uppercase',
-                    }}>
-                        {error}
-                    </div>
-                )}
+                {error && <div className="login__error">{error}</div>}
 
                 <div className="dash-row" style={{ marginTop: 8 }}>
                     <button type="submit" className="dash-btn" disabled={sending || sent}>
@@ -134,17 +134,10 @@ export default function NewTicket() {
                     </Link>
                 </div>
 
-                <p style={{
-                    fontFamily: 'JetBrains Mono, monospace',
-                    fontSize: 10,
-                    letterSpacing: '0.22em',
-                    color: 'var(--color-ink-mute)',
-                    textTransform: 'uppercase',
-                    margin: 0,
-                }}>
-                    Démo — cette requête n'est pas encore envoyée au serveur.
+                <p className="dash-note" style={{ margin: 0 }}>
+                    Le ticket est créé dans Firestore et visible en temps réel côté admin.
                 </p>
-            </motion.form>
+            </form>
         </div>
     )
 }

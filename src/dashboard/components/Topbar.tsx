@@ -3,11 +3,14 @@ import { useAuth } from '../auth'
 
 const TITLES: Record<string, string> = {
     '/': 'Aperçu',
+    '/clients': 'Clients',
+    '/accounts': 'Comptes',
     '/projects': 'Projets',
     '/tickets': 'Tickets',
     '/tickets/new': 'Nouveau ticket',
     '/invoices': 'Factures',
     '/login': 'Connexion',
+    '/setup-password': 'Sécurisation',
 }
 
 function titleFor(pathname: string): string {
@@ -36,7 +39,9 @@ export function Topbar({ onMenu }: { onMenu: () => void }) {
                         <path d="M4 7h16M4 12h16M4 17h16" />
                     </svg>
                 </button>
-                <h1 className="dash-topbar__title">{title}</h1>
+                <div className="dash-topbar__title-wrap">
+                    <h1 className="dash-topbar__title">{title}</h1>
+                </div>
             </div>
 
             <div className="dash-topbar__user">

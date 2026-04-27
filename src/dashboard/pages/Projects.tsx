@@ -1,16 +1,65 @@
 import { Link } from 'react-router-dom'
-import { motion } from 'motion/react'
-import { PROJECTS } from '../data'
+import { useAuth } from '../auth'
+import { useDashboardData } from '../useDashboardData'
 import { ProjectStatusPill } from '../components/StatusPill'
 import { ProgressBar } from '../components/ProgressBar'
-
-const EXPO = [0.16, 1, 0.3, 1] as const
-
-function formatDate(iso: string) {
-    return new Intl.DateTimeFormat('fr-FR', { day: '2-digit', month: 'short', year: 'numeric' }).format(new Date(iso))
-}
+import { EmptyState } from '../components/EmptyState'
+import { formatDate } from '../utils'
 
 export default function Projects() {
+    const { user } = useAuth()
+    const { projects, findClient } = useDashboardData()
+
+    if (user?.role === 'admin') {
+        return (
+            <div className="dash-stack-lg">
+                <header className="dash-page-head">
+                    <span className="dash-kicker">( ADMIN ) — Projets</span>
+                    <h1 className="dash-h1">
+                        Tous les <span className="serif-italic">chantiers.</span>
+                    </h1>
+                    <p className="dash-sub">
+                        Vue globale de tous les projets. Pour créer un projet, ouvre la fiche du client concerné.
+                    </p>
+                </header>
+
+                {projects.length === 0 ? (
+                    <EmptyState
+                        title="Aucun projet"
+                        body="Va sur la fiche d'un client pour créer son premier projet."
+                        action={<Link to="/clients" className="dash-btn" style={{ marginTop: 8 }}>Voir les clients →</Link>}
+                    />
+                ) : (
+                    <section className="dash-grid dash-grid--2">
+                        {projects.map((project) => {
+                            const client = findClient(project.clientId)
+                            return (
+                                <div key={project.id}>
+                                    <Link to={`/projects/${project.id}`} className="dash-card dash-card--pop dash-card--link">
+                                        <span className="dash-card__accent" style={{ background: project.accent }} />
+                                        <div className="dash-row-between">
+                                            <ProjectStatusPill status={project.status} />
+                                            <span className="dash-kicker">{client?.name ?? 'Client'} · {formatDate(project.delivery)}</span>
+                                        </div>
+                                        <h2 className="dash-h2" style={{ marginTop: 6 }}>{project.name}</h2>
+                                        <p className="dash-sub" style={{ fontSize: 17 }}>{project.tagline}</p>
+                                        <div className="dash-stack-sm" style={{ marginTop: 8 }}>
+                                            <div className="dash-row-between">
+                                                <span className="dash-kicker">Avancement</span>
+                                                <span className="dash-progress__value">{project.progress}%</span>
+                                            </div>
+                                            <ProgressBar value={project.progress} color={project.accent} />
+                                        </div>
+                                    </Link>
+                                </div>
+                            )
+                        })}
+                    </section>
+                )}
+            </div>
+        )
+    }
+
     return (
         <div className="dash-stack-lg">
             <header className="dash-page-head">
@@ -23,42 +72,37 @@ export default function Projects() {
                 </p>
             </header>
 
-            <section className="dash-grid dash-grid--2">
-                {PROJECTS.map((p, i) => (
-                    <motion.div
-                        key={p.id}
-                        initial={{ opacity: 0, y: 16 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.5, ease: EXPO, delay: 0.05 + i * 0.08 }}
-                    >
-                        <Link to={`/projects/${p.id}`} className="dash-card dash-card--pop dash-card--link">
-                            <span className="dash-card__accent" style={{ background: p.accent }} />
-                            <div className="dash-row-between">
-                                <ProjectStatusPill status={p.status} />
-                                <span className="dash-kicker">Livraison · {formatDate(p.delivery)}</span>
-                            </div>
-                            <h2 className="dash-h2" style={{ marginTop: 6 }}>
-                                {p.name}
-                            </h2>
-                            <p className="dash-sub" style={{ fontSize: 17 }}>
-                                {p.tagline}
-                            </p>
-
-                            <div className="dash-stack-sm" style={{ marginTop: 8 }}>
+            {projects.length === 0 ? (
+                <EmptyState title="Aucun projet" body="Ton dashboard affichera ici les projets reliés à ton compte client." />
+            ) : (
+                <section className="dash-grid dash-grid--2">
+                    {projects.map((project) => (
+                        <div key={project.id}>
+                            <Link to={`/projects/${project.id}`} className="dash-card dash-card--pop dash-card--link">
+                                <span className="dash-card__accent" style={{ background: project.accent }} />
                                 <div className="dash-row-between">
-                                    <span className="dash-kicker">Avancement</span>
-                                    <span className="dash-progress__value">{p.progress}%</span>
+                                    <ProjectStatusPill status={project.status} />
+                                    <span className="dash-kicker">Livraison · {formatDate(project.delivery)}</span>
                                 </div>
-                                <ProgressBar value={p.progress} color={p.accent} />
-                            </div>
+                                <h2 className="dash-h2" style={{ marginTop: 6 }}>{project.name}</h2>
+                                <p className="dash-sub" style={{ fontSize: 17 }}>{project.tagline}</p>
 
-                            <div className="dash-row" style={{ marginTop: 8 }}>
-                                <span className="dash-kicker">Kickoff · {formatDate(p.kickoff)}</span>
-                            </div>
-                        </Link>
-                    </motion.div>
-                ))}
-            </section>
+                                <div className="dash-stack-sm" style={{ marginTop: 8 }}>
+                                    <div className="dash-row-between">
+                                        <span className="dash-kicker">Avancement</span>
+                                        <span className="dash-progress__value">{project.progress}%</span>
+                                    </div>
+                                    <ProgressBar value={project.progress} color={project.accent} />
+                                </div>
+
+                                <div className="dash-row" style={{ marginTop: 8 }}>
+                                    <span className="dash-kicker">Kickoff · {formatDate(project.kickoff)}</span>
+                                </div>
+                            </Link>
+                        </div>
+                    ))}
+                </section>
+            )}
         </div>
     )
 }

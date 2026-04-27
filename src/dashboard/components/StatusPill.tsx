@@ -1,4 +1,4 @@
-import type { InvoiceStatus, ProjectStatus, TicketStatus } from '../types'
+import type { AppRole, ClientStatus, InvoiceStatus, ProjectStatus, TicketStatus } from '../types'
 
 type Tone = 'ink' | 'klein' | 'tomato' | 'mute' | 'neutral'
 
@@ -24,6 +24,17 @@ const TICKET_TONES: Record<TicketStatus, { label: string; tone: Tone }> = {
     resolved: { label: 'Résolu', tone: 'ink' },
 }
 
+const CLIENT_TONES: Record<ClientStatus, { label: string; tone: Tone }> = {
+    active: { label: 'Actif', tone: 'ink' },
+    lead: { label: 'Lead', tone: 'klein' },
+    archived: { label: 'Archivé', tone: 'mute' },
+}
+
+const ROLE_TONES: Record<AppRole, { label: string; tone: Tone }> = {
+    admin: { label: 'Admin', tone: 'tomato' },
+    client: { label: 'Client', tone: 'klein' },
+}
+
 function toneClass(tone: Tone) {
     if (tone === 'klein') return 'dash-pill dash-pill--klein'
     if (tone === 'tomato') return 'dash-pill dash-pill--tomato'
@@ -44,5 +55,15 @@ export function InvoiceStatusPill({ status }: { status: InvoiceStatus }) {
 
 export function TicketStatusPill({ status }: { status: TicketStatus }) {
     const { label, tone } = TICKET_TONES[status]
+    return <span className={toneClass(tone)}>{label}</span>
+}
+
+export function ClientStatusPill({ status }: { status: ClientStatus }) {
+    const { label, tone } = CLIENT_TONES[status]
+    return <span className={toneClass(tone)}>{label}</span>
+}
+
+export function RolePill({ role }: { role: AppRole }) {
+    const { label, tone } = ROLE_TONES[role]
     return <span className={toneClass(tone)}>{label}</span>
 }

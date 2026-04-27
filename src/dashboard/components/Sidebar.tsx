@@ -1,8 +1,15 @@
 import { NavLink, Link } from 'react-router-dom'
+import { motion } from 'motion/react'
 import Mark from '../../site/components/Mark'
 import type { ReactNode } from 'react'
 import { useAuth } from '../auth'
-import { TICKETS } from '../data'
+import { useDashboardData } from '../useDashboardData'
+const NAV_SPRING = {
+    type: 'spring',
+    stiffness: 520,
+    damping: 38,
+    mass: 0.55,
+} as const
 
 /**
  * Left-rail navigation for desktop, also rendered inside the mobile sheet.
@@ -32,11 +39,41 @@ function Item({
                 onClick={onClick}
                 className={({ isActive }) => `dash-nav__item${isActive ? ' is-active' : ''}`}
             >
-                <span className="dash-nav__icon" aria-hidden>
-                    {icon}
-                </span>
-                <span>{label}</span>
-                {typeof count === 'number' && count > 0 && <span className="dash-nav__count">{count}</span>}
+                {({ isActive }) => (
+                    <>
+                        {isActive && (
+                            <motion.span
+                                layoutId="dash-nav-active"
+                                className="dash-nav__active-bg"
+                                transition={NAV_SPRING}
+                            />
+                        )}
+                        <motion.span
+                            className="dash-nav__icon"
+                            aria-hidden
+                            animate={{ x: isActive ? 2 : 0, scale: isActive ? 1.04 : 1 }}
+                            transition={NAV_SPRING}
+                        >
+                            {icon}
+                        </motion.span>
+                        <motion.span
+                            className="dash-nav__label"
+                            animate={{ x: isActive ? 2 : 0 }}
+                            transition={NAV_SPRING}
+                        >
+                            {label}
+                        </motion.span>
+                        {typeof count === 'number' && count > 0 && (
+                            <motion.span
+                                className="dash-nav__count"
+                                animate={{ scale: isActive ? 1.04 : 1 }}
+                                transition={NAV_SPRING}
+                            >
+                                {count}
+                            </motion.span>
+                        )}
+                    </>
+                )}
             </NavLink>
         </li>
     )
@@ -51,7 +88,10 @@ function Initials({ name }: { name: string }) {
 
 export function SidebarBody({ onNavigate }: { onNavigate?: () => void }) {
     const { user, logout } = useAuth()
-    const openTickets = TICKETS.filter((t) => t.status !== 'resolved').length
+    const { tickets, users } = useDashboardData()
+    const openTickets = tickets.filter((ticket) => ticket.status !== 'resolved').length
+    const pendingSetup = users.filter((account) => account.mustChangePassword).length
+    const clientMode = user?.role === 'client'
 
     return (
         <>
@@ -72,6 +112,21 @@ export function SidebarBody({ onNavigate }: { onNavigate?: () => void }) {
                         </svg>
                     }
                 />
+                {!clientMode && (
+                    <Item
+                        to="/clients"
+                        onClick={onNavigate}
+                        label="Clients"
+                        count={pendingSetup > 0 ? pendingSetup : undefined}
+                        icon={
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="20" height="20">
+                                <path d="M16 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" />
+                                <circle cx="8.5" cy="7" r="4" />
+                                <path d="M20 8v6M17 11h6" />
+                            </svg>
+                        }
+                    />
+                )}
                 <Item
                     to="/projects"
                     onClick={onNavigate}
@@ -94,17 +149,19 @@ export function SidebarBody({ onNavigate }: { onNavigate?: () => void }) {
                         </svg>
                     }
                 />
-                <Item
-                    to="/invoices"
-                    onClick={onNavigate}
-                    label="Factures"
-                    icon={
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="20" height="20">
-                            <path d="M6 2h12v20l-3-2-3 2-3-2-3 2V2z" />
-                            <path d="M9 8h6M9 12h6M9 16h4" />
-                        </svg>
-                    }
-                />
+                {clientMode && (
+                    <Item
+                        to="/invoices"
+                        onClick={onNavigate}
+                        label="Factures"
+                        icon={
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="20" height="20">
+                                <path d="M6 2h12v20l-3-2-3 2-3-2-3 2V2z" />
+                                <path d="M9 8h6M9 12h6M9 16h4" />
+                            </svg>
+                        }
+                    />
+                )}
             </ul>
 
             <div className="dash-sidebar__foot">
@@ -117,8 +174,8 @@ export function SidebarBody({ onNavigate }: { onNavigate?: () => void }) {
                 </div>
                 <button
                     type="button"
-                    onClick={() => {
-                        logout()
+                    onClick={async () => {
+                        await logout()
                         onNavigate?.()
                     }}
                     className="dash-btn dash-btn--ghost"

@@ -1,398 +1,474 @@
-import { useRef, useState } from 'react'
-import { motion, useInView, AnimatePresence } from 'motion/react'
+import { useRef } from 'react'
+import { useGSAP } from '@gsap/react'
+import gsap from 'gsap'
+import { ScrollTrigger } from 'gsap/ScrollTrigger'
 
-type Service = {
-    id: string
-    name: string
-    nameItalic: string
-    stack: string[]
-    accent: string
-    brief: string
-    gradient: string
-}
+/* ═══════════════════════════════════════════════════════
+   Capabilities — immersive horizontal scroll.
+   Each panel = unique visual world.
+   A living thread weaves through all 4 panels.
+   ═══════════════════════════════════════════════════════ */
 
-const SERVICES: Service[] = [
-    {
-        id: '01',
-        name: 'COMPRENDRE',
-        nameItalic: '',
-        stack: ['Cadrage', 'Architecture', 'Parcours'],
-        accent: 'var(--color-klein)',
-        brief: "Avant d'écrire la moindre ligne, on pose les vraies questions. Quel problème on règle. Pour qui. Ce qui se passe si on ne le fait pas. Et, parfois, si une app est vraiment la bonne réponse.",
-        gradient: 'linear-gradient(135deg, #1D1DBF 0%, #0E0E0C 100%)',
-    },
-    {
-        id: '02',
-        name: 'INTERFACE &',
-        nameItalic: 'identité.',
-        stack: ['UI', 'Système graphique', 'Typographie'],
-        accent: 'var(--color-ink)',
-        brief: "Un outil qu'on garde ouvert, c'est un outil bien bâti. On construit des interfaces qu'on utilise avec plaisir — pas qu'on subit. L'identité, c'est ce qui les rend reconnaissables au premier coup d'œil.",
-        gradient: 'linear-gradient(135deg, #0E0E0C 0%, #2d2d28 100%)',
-    },
-    {
-        id: '03',
-        name: 'INGÉNIERIE',
-        nameItalic: 'front.',
-        stack: ['React', 'TypeScript', 'SwiftUI'],
-        accent: 'var(--color-tomato)',
-        brief: "Un produit qui rame, c'est un produit qu'on abandonne. On tient au code comme au reste — propre, rapide, solide sur les vieux téléphones comme sur les derniers.",
-        gradient: 'linear-gradient(135deg, #E84A2A 0%, #8B2A16 100%)',
-    },
-    {
-        id: '04',
-        name: 'MOUVEMENT &',
-        nameItalic: 'détails.',
-        stack: ['GSAP', 'Transitions', 'Micro-interactions'],
-        accent: 'var(--color-klein)',
-        brief: "Le mouvement sert à quelque chose ou il ne sert à rien. Il doit indiquer, rassurer, donner un poids aux choses. On le met quand il aide. Pas pour faire joli.",
-        gradient: 'linear-gradient(135deg, #1D1DBF 0%, #E84A2A 100%)',
-    },
-]
+/* The thread path — one continuous SVG line through all panels.
+   Coordinates in a 4000×1000 viewBox (1000 per panel).
+   It swoops, loops, zigzags, waves — alive. */
+const THREAD_PATH = [
+    // Panel 1: gentle entry, sweeps around the outlined text
+    'M -20,520',
+    'C 80,520 180,380 280,340',
+    'C 420,280 520,180 620,240',
+    'C 720,300 780,520 840,480',
+    'C 900,440 960,380 1000,400',
 
-const EXPO = [0.16, 1, 0.3, 1] as const
+    // Panel 2: weaves between the UI blocks, makes a loop
+    'C 1060,430 1120,280 1200,220',
+    'C 1300,150 1350,320 1400,380',
+    'C 1440,420 1460,340 1480,280',
+    // small loop
+    'C 1520,200 1580,180 1600,240',
+    'C 1620,300 1580,360 1540,340',
+    'C 1500,320 1520,260 1560,260',
+    // continue
+    'C 1620,260 1720,480 1820,520',
+    'C 1900,550 1960,460 2000,440',
+
+    // Panel 3: geometric, through the brackets
+    'C 2060,410 2120,320 2200,280',
+    'L 2340,280',
+    'C 2400,280 2440,360 2500,440',
+    'L 2640,440',
+    'C 2720,440 2800,560 2880,520',
+    'C 2940,490 2980,440 3000,460',
+
+    // Panel 4: wave pattern, playful ending
+    'C 3060,500 3100,300 3160,380',
+    'C 3220,460 3260,240 3320,340',
+    'C 3380,440 3420,220 3480,320',
+    'C 3540,420 3600,280 3660,360',
+    'C 3720,440 3800,500 3880,460',
+    'C 3940,430 3980,480 4020,480',
+].join(' ')
 
 export default function Capabilities() {
-    const sectionRef = useRef<HTMLElement>(null)
-    const isInView = useInView(sectionRef, { once: true, margin: '-12%' })
-    const [activeId, setActiveId] = useState<string>('01')
+    const wrapperRef = useRef<HTMLDivElement>(null)
+    const pinRef = useRef<HTMLDivElement>(null)
+    const trackRef = useRef<HTMLDivElement>(null)
+    const progressRef = useRef<HTMLDivElement>(null)
+    const counterRef = useRef<HTMLSpanElement>(null)
+    const threadRef = useRef<SVGPathElement>(null)
 
-    const activeService = SERVICES.find((s) => s.id === activeId) ?? SERVICES[0]
+    useGSAP(
+        () => {
+            const track = trackRef.current
+            const pin = pinRef.current
+            const thread = threadRef.current
+            if (!track || !pin) return
+
+            const mm = gsap.matchMedia()
+
+            /* ════ DESKTOP ════ */
+            mm.add('(min-width: 900px)', () => {
+                const panels = track.querySelectorAll<HTMLDivElement>('[data-panel]')
+                if (!panels.length) return
+                const scrollDist = () => track.scrollWidth - window.innerWidth
+
+                // Measure thread path length
+                let threadLen = 0
+                if (thread) {
+                    threadLen = thread.getTotalLength()
+                    gsap.set(thread, { strokeDasharray: threadLen, strokeDashoffset: threadLen })
+                }
+
+                const scrollTween = gsap.to(track, {
+                    x: () => -scrollDist(),
+                    ease: 'none',
+                    scrollTrigger: {
+                        trigger: pin,
+                        start: 'top top',
+                        end: () => `+=${scrollDist()}`,
+                        scrub: 1,
+                        pin: true,
+                        pinType: 'transform',
+                        anticipatePin: 1,
+                        invalidateOnRefresh: true,
+                        onUpdate: (self) => {
+                            // Progress bar
+                            if (progressRef.current) gsap.set(progressRef.current, { scaleX: self.progress })
+                            // Counter
+                            if (counterRef.current) {
+                                const s = Math.min(4, Math.floor(self.progress * 4) + 1)
+                                counterRef.current.textContent = `0${s}\u2009/\u200904`
+                            }
+                            // Thread draw
+                            if (thread && threadLen) {
+                                gsap.set(thread, { strokeDashoffset: threadLen * (1 - self.progress) })
+                            }
+                        },
+                    },
+                })
+
+                /* ── Panel 01: COMPRENDRE — outlined text fill ── */
+                const p1 = panels[0]
+                if (p1) {
+                    const outlineText = p1.querySelector('[data-outline]')
+                    const fillLayer = p1.querySelector<HTMLElement>('[data-fill]')
+                    const brief = p1.querySelector('[data-brief]')
+                    const tags = p1.querySelectorAll('[data-tag]')
+
+                    if (outlineText) {
+                        gsap.fromTo(outlineText,
+                            { opacity: 0, y: 50, scale: 0.96 },
+                            { opacity: 1, y: 0, scale: 1, duration: 1, ease: 'power3.out',
+                                scrollTrigger: { trigger: pin, start: 'top 80%', end: 'top 15%', scrub: 0.6 } })
+                    }
+                    if (fillLayer) {
+                        gsap.fromTo(fillLayer,
+                            { clipPath: 'inset(0 100% 0 0)' },
+                            { clipPath: 'inset(0 0% 0 0)', ease: 'none',
+                                scrollTrigger: { trigger: pin, start: 'top 35%', end: 'top -40%', scrub: 1 } })
+                    }
+                    if (brief) {
+                        gsap.fromTo(brief, { opacity: 0, y: 24 },
+                            { opacity: 1, y: 0, scrollTrigger: { trigger: pin, start: 'top 25%', end: 'top -5%', scrub: 0.5 } })
+                    }
+                    if (tags.length) {
+                        gsap.set(tags, { opacity: 0, y: 14 })
+                        gsap.to(tags, { opacity: 1, y: 0, stagger: 0.06,
+                            scrollTrigger: { trigger: pin, start: 'top 15%', end: 'top -15%', scrub: 0.5 } })
+                    }
+                }
+
+                /* ── Panel 02: INTERFACE — floating UI blocks ── */
+                const p2 = panels[1]
+                if (p2) {
+                    const blocks = p2.querySelectorAll('[data-block]')
+                    const title = p2.querySelector('[data-title]')
+                    const brief = p2.querySelector('[data-brief]')
+                    const tags = p2.querySelectorAll('[data-tag]')
+
+                    if (blocks.length) {
+                        blocks.forEach((block, i) => {
+                            const xOff = (i % 2 === 0 ? -1 : 1) * (50 + i * 25)
+                            const yOff = 70 + i * 35
+                            gsap.fromTo(block,
+                                { opacity: 0, x: xOff, y: yOff, rotation: -10 + i * 7, scale: 0.5 },
+                                { opacity: 1, x: 0, y: 0, rotation: 0, scale: 1, duration: 1.5, ease: 'expo.out',
+                                    scrollTrigger: { trigger: p2, start: 'left 82%', end: 'left 18%', scrub: 0.5,
+                                        containerAnimation: scrollTween } })
+                        })
+                    }
+                    if (title) {
+                        gsap.fromTo(title, { opacity: 0, x: -50 },
+                            { opacity: 1, x: 0, scrollTrigger: { trigger: p2, start: 'left 65%', end: 'left 22%', scrub: 0.4,
+                                containerAnimation: scrollTween } })
+                    }
+                    if (brief) {
+                        gsap.fromTo(brief, { opacity: 0, y: 24 },
+                            { opacity: 1, y: 0, scrollTrigger: { trigger: p2, start: 'left 52%', end: 'left 12%', scrub: 0.4,
+                                containerAnimation: scrollTween } })
+                    }
+                    if (tags.length) {
+                        gsap.set(tags, { opacity: 0, y: 14 })
+                        gsap.to(tags, { opacity: 1, y: 0, stagger: 0.06,
+                            scrollTrigger: { trigger: p2, start: 'left 42%', end: 'left 8%', scrub: 0.4,
+                                containerAnimation: scrollTween } })
+                    }
+                }
+
+                /* ── Panel 03: INGÉNIERIE — code brackets ── */
+                const p3 = panels[2]
+                if (p3) {
+                    const bracketL = p3.querySelector('[data-bracket-l]')
+                    const bracketR = p3.querySelector('[data-bracket-r]')
+                    const title = p3.querySelector('[data-title]')
+                    const brief = p3.querySelector('[data-brief]')
+                    const tags = p3.querySelectorAll('[data-tag]')
+                    const cursor = p3.querySelector('[data-cursor]')
+
+                    if (bracketL) {
+                        gsap.fromTo(bracketL, { x: -160, opacity: 0 },
+                            { x: 0, opacity: 0.12, scrollTrigger: { trigger: p3, start: 'left 82%', end: 'left 22%', scrub: 0.5,
+                                containerAnimation: scrollTween } })
+                    }
+                    if (bracketR) {
+                        gsap.fromTo(bracketR, { x: 160, opacity: 0 },
+                            { x: 0, opacity: 0.12, scrollTrigger: { trigger: p3, start: 'left 82%', end: 'left 22%', scrub: 0.5,
+                                containerAnimation: scrollTween } })
+                    }
+                    if (title) {
+                        gsap.fromTo(title, { opacity: 0, y: 40, scale: 0.94 },
+                            { opacity: 1, y: 0, scale: 1, scrollTrigger: { trigger: p3, start: 'left 62%', end: 'left 18%', scrub: 0.4,
+                                containerAnimation: scrollTween } })
+                    }
+                    if (cursor) {
+                        gsap.fromTo(cursor, { opacity: 0 }, { opacity: 1, duration: 0.3,
+                            scrollTrigger: { trigger: p3, start: 'left 35%', toggleActions: 'play none none none',
+                                containerAnimation: scrollTween } })
+                    }
+                    if (brief) {
+                        gsap.fromTo(brief, { opacity: 0, y: 20 },
+                            { opacity: 1, y: 0, scrollTrigger: { trigger: p3, start: 'left 48%', end: 'left 10%', scrub: 0.4,
+                                containerAnimation: scrollTween } })
+                    }
+                    if (tags.length) {
+                        gsap.set(tags, { opacity: 0, y: 14 })
+                        gsap.to(tags, { opacity: 1, y: 0, stagger: 0.06,
+                            scrollTrigger: { trigger: p3, start: 'left 38%', end: 'left 5%', scrub: 0.4,
+                                containerAnimation: scrollTween } })
+                    }
+                }
+
+                /* ── Panel 04: MOUVEMENT — wave letters ── */
+                const p4 = panels[3]
+                if (p4) {
+                    const letters = p4.querySelectorAll('[data-letter]')
+                    const subtitle = p4.querySelector('[data-subtitle]')
+                    const brief = p4.querySelector('[data-brief]')
+                    const tags = p4.querySelectorAll('[data-tag]')
+
+                    if (letters.length) {
+                        letters.forEach((letter, i) => {
+                            const waveY = Math.sin(i * 0.8) * 100 - 140
+                            const waveRot = Math.sin(i * 1.1) * 20
+                            gsap.fromTo(letter,
+                                { y: waveY, rotation: waveRot, opacity: 0, scale: 0.4 },
+                                { y: 0, rotation: 0, opacity: 1, scale: 1, duration: 1.8,
+                                    ease: 'elastic.out(1, 0.45)',
+                                    scrollTrigger: { trigger: p4, start: `left ${88 - i * 5}%`, end: `left ${42 - i * 3}%`,
+                                        scrub: 0.25, containerAnimation: scrollTween } })
+                        })
+                    }
+                    if (subtitle) {
+                        gsap.fromTo(subtitle, { opacity: 0, x: -30 },
+                            { opacity: 0.7, x: 0, scrollTrigger: { trigger: p4, start: 'left 50%', end: 'left 15%', scrub: 0.4,
+                                containerAnimation: scrollTween } })
+                    }
+                    if (brief) {
+                        gsap.fromTo(brief, { opacity: 0, y: 20 },
+                            { opacity: 1, y: 0, scrollTrigger: { trigger: p4, start: 'left 42%', end: 'left 8%', scrub: 0.4,
+                                containerAnimation: scrollTween } })
+                    }
+                    if (tags.length) {
+                        gsap.set(tags, { opacity: 0, y: 14 })
+                        gsap.to(tags, { opacity: 1, y: 0, stagger: 0.06,
+                            scrollTrigger: { trigger: p4, start: 'left 35%', end: 'left 5%', scrub: 0.4,
+                                containerAnimation: scrollTween } })
+                    }
+                }
+            })
+
+            /* ════ MOBILE ════ */
+            mm.add('(max-width: 899px)', () => {
+                const cards = track.querySelectorAll<HTMLDivElement>('[data-panel]')
+                cards.forEach((card) => {
+                    const els = card.querySelectorAll('[data-brief], [data-title], [data-outline], [data-subtitle]')
+                    const fill = card.querySelector<HTMLElement>('[data-fill]')
+                    const tags = card.querySelectorAll('[data-tag]')
+                    const blocks = card.querySelectorAll('[data-block]')
+                    const letters = card.querySelectorAll('[data-letter]')
+                    const bracketL = card.querySelector('[data-bracket-l]')
+                    const bracketR = card.querySelector('[data-bracket-r]')
+
+                    gsap.fromTo(els, { opacity: 0, y: 28 },
+                        { opacity: 1, y: 0, stagger: 0.08, duration: 0.8, ease: 'power3.out',
+                            scrollTrigger: { trigger: card, start: 'top 82%', toggleActions: 'play none none none' } })
+
+                    if (fill) {
+                        gsap.fromTo(fill, { clipPath: 'inset(0 100% 0 0)' },
+                            { clipPath: 'inset(0 0% 0 0)', duration: 1.2, ease: 'power2.out',
+                                scrollTrigger: { trigger: card, start: 'top 70%', toggleActions: 'play none none none' } })
+                    }
+                    if (tags.length) {
+                        gsap.fromTo(tags, { opacity: 0, y: 12 },
+                            { opacity: 1, y: 0, stagger: 0.04, duration: 0.6,
+                                scrollTrigger: { trigger: card, start: 'top 68%', toggleActions: 'play none none none' } })
+                    }
+                    if (blocks.length) {
+                        gsap.fromTo(blocks, { opacity: 0, scale: 0.6, y: 24 },
+                            { opacity: 1, scale: 1, y: 0, stagger: 0.05, duration: 0.8, ease: 'expo.out',
+                                scrollTrigger: { trigger: card, start: 'top 78%', toggleActions: 'play none none none' } })
+                    }
+                    if (letters.length) {
+                        letters.forEach((l, i) => {
+                            gsap.fromTo(l, { opacity: 0, y: -30 - Math.sin(i) * 20, rotation: Math.sin(i) * 10 },
+                                { opacity: 1, y: 0, rotation: 0, duration: 0.9, ease: 'elastic.out(1, 0.6)', delay: i * 0.04,
+                                    scrollTrigger: { trigger: card, start: 'top 78%', toggleActions: 'play none none none' } })
+                        })
+                    }
+                    if (bracketL) {
+                        gsap.fromTo(bracketL, { x: -60, opacity: 0 }, { x: 0, opacity: 0.1, duration: 1, ease: 'expo.out',
+                            scrollTrigger: { trigger: card, start: 'top 78%', toggleActions: 'play none none none' } })
+                    }
+                    if (bracketR) {
+                        gsap.fromTo(bracketR, { x: 60, opacity: 0 }, { x: 0, opacity: 0.1, duration: 1, ease: 'expo.out',
+                            scrollTrigger: { trigger: card, start: 'top 78%', toggleActions: 'play none none none' } })
+                    }
+                })
+            })
+
+            requestAnimationFrame(() => ScrollTrigger.refresh())
+
+            return () => {
+                mm.revert()
+            }
+        },
+        { scope: wrapperRef, dependencies: [] }
+    )
 
     return (
-        <section
-            ref={sectionRef}
-            id="services"
-            className="capabilities-section container-x section-y"
-            style={{ background: 'var(--color-paper)', position: 'relative' }}
-        >
-            {/* ── Desktop layout: 2 columns ── */}
-            <div className="cap-inner" style={{
-                display: 'grid',
-                gap: 'clamp(40px, 6vw, 96px)',
-                alignItems: 'start',
-            }}>
+        <div ref={wrapperRef} id="services">
+            {/* Header */}
+            <section
+                className="container-x section-y"
+                style={{ background: 'var(--color-paper)', paddingBottom: 'clamp(48px, 6vw, 80px)' }}
+            >
+                <h2 className="display" style={{ fontSize: 'clamp(48px, 7.5vw, 112px)', lineHeight: 0.88, margin: 0, letterSpacing: '-0.048em' }}>
+                    LES{' '}
+                    <span className="serif-italic" style={{ letterSpacing: '-0.02em' }}>quatre</span>{' '}
+                    ÉTAPES.
+                </h2>
+            </section>
 
-                {/* LEFT: header + list */}
-                <div>
-                    {/* Header */}
-                    <motion.div
-                        initial={{ opacity: 0, y: 28 }}
-                        animate={isInView ? { opacity: 1, y: 0 } : {}}
-                        transition={{ duration: 0.8, ease: EXPO }}
-                        style={{ marginBottom: 'clamp(40px, 5.5vw, 72px)' }}
-                    >
-                        <span className="mono label-soft" style={{ display: 'block', marginBottom: 14 }}>
-                            ( 04 ) — Ce qu'on sait faire
-                        </span>
-                        <h2
-                            className="display"
-                            style={{
-                                fontSize: 'clamp(48px, 7.5vw, 112px)',
-                                lineHeight: 0.88,
-                                margin: 0,
-                                letterSpacing: '-0.048em',
-                            }}
-                        >
-                            LES{' '}
-                            <span className="serif-italic" style={{ letterSpacing: '-0.02em' }}>
-                                quatre
-                            </span>{' '}
-                            ÉTAPES.
-                        </h2>
-                    </motion.div>
-
-                    {/* Service rows */}
-                    <div style={{ borderTop: '1px solid var(--color-hair)' }}>
-                        {SERVICES.map((service, i) => (
-                            <motion.div
-                                key={service.id}
-                                initial={{ opacity: 0, clipPath: 'inset(0 0 100% 0)' }}
-                                animate={isInView ? { opacity: 1, clipPath: 'inset(0 0 0% 0)' } : {}}
-                                transition={{ duration: 0.65, ease: EXPO, delay: 0.08 + i * 0.10 }}
-                            >
-                                <ServiceRow
-                                    service={service}
-                                    isActive={activeId === service.id}
-                                    onEnter={() => setActiveId(service.id)}
-                                />
-                            </motion.div>
-                        ))}
-                    </div>
+            {/* Pinned area */}
+            <div ref={pinRef} className="cap-pin">
+                <div className="cap-progress-track">
+                    <div ref={progressRef} className="cap-progress-fill" />
                 </div>
+                <span ref={counterRef} className="mono cap-counter">01{'\u2009'}/{'\u2009'}04</span>
 
-                {/* RIGHT: sticky preview card */}
-                <motion.div
-                    initial={{ opacity: 0, y: 32 }}
-                    animate={isInView ? { opacity: 1, y: 0 } : {}}
-                    transition={{ duration: 0.9, ease: EXPO, delay: 0.22 }}
-                    style={{
-                        position: 'sticky',
-                        top: 'clamp(80px, 10vh, 120px)',
-                    }}
-                    className="cap-preview"
-                >
-                    <AnimatePresence mode="wait">
-                        <motion.div
-                            key={activeService.id}
-                            initial={{ opacity: 0, y: 16, filter: 'blur(6px)' }}
-                            animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
-                            exit={{ opacity: 0, y: -10, filter: 'blur(4px)' }}
-                            transition={{ duration: 0.28, ease: EXPO }}
-                            style={{
-                                border: '2px solid var(--color-ink)',
-                                boxShadow: `8px 8px 0 ${activeService.accent}`,
-                                background: 'var(--color-paper)',
-                                overflow: 'hidden',
-                            }}
-                        >
-                            {/* Visual header */}
-                            <div style={{
-                                height: 'clamp(100px, 14vw, 160px)',
-                                background: activeService.gradient,
-                                position: 'relative',
-                                overflow: 'hidden',
-                            }}>
-                                <div className="grain" style={{ opacity: 0.09 }} />
+                <div ref={trackRef} className="cap-track">
+                    {/* ── Living thread SVG ── */}
+                    <svg className="cap-thread-svg" viewBox="0 0 4000 1000" preserveAspectRatio="none" aria-hidden>
+                        <defs>
+                            <linearGradient id="threadGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                                <stop offset="0%" stopColor="#1D1DBF" />
+                                <stop offset="25%" stopColor="#1D1DBF" />
+                                <stop offset="26%" stopColor="#EFEBDD" />
+                                <stop offset="50%" stopColor="#EFEBDD" />
+                                <stop offset="51%" stopColor="#0E0E0C" />
+                                <stop offset="75%" stopColor="#0E0E0C" />
+                                <stop offset="76%" stopColor="#EFEBDD" />
+                                <stop offset="100%" stopColor="#EFEBDD" />
+                            </linearGradient>
+                        </defs>
+                        <path
+                            ref={threadRef}
+                            d={THREAD_PATH}
+                            fill="none"
+                            stroke="url(#threadGrad)"
+                            strokeWidth="2.5"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                        />
+                    </svg>
 
-                                {/* Accent bar top */}
-                                <div style={{
-                                    position: 'absolute', top: 0, left: 0, right: 0,
-                                    height: 3, background: 'rgba(255,255,255,0.20)',
-                                }} />
-
-                                {/* Giant number watermark */}
-                                <span
-                                    className="display"
-                                    style={{
-                                        position: 'absolute',
-                                        bottom: -16,
-                                        right: 12,
-                                        fontSize: 'clamp(80px, 12vw, 130px)',
-                                        color: 'rgba(255,255,255,0.10)',
-                                        lineHeight: 1,
-                                        letterSpacing: '-0.06em',
-                                        userSelect: 'none',
-                                    }}
-                                >
-                                    {activeService.id}
-                                </span>
-
-                                {/* Service name overlay */}
-                                <div style={{ position: 'absolute', bottom: 16, left: 20 }}>
-                                    <span className="display" style={{
-                                        fontSize: 'clamp(11px, 1.4vw, 16px)',
-                                        color: 'rgba(255,255,255,0.88)',
-                                        letterSpacing: '0.22em',
-                                        display: 'block',
-                                    }}>
-                                        {activeService.name}
-                                        {activeService.nameItalic && (
-                                            <span className="serif-italic" style={{ letterSpacing: '0.1em', marginLeft: '0.3em' }}>
-                                                {activeService.nameItalic}
-                                            </span>
-                                        )}
-                                    </span>
-                                </div>
+                    {/* ═══ PANEL 01 — COMPRENDRE ═══ */}
+                    <div data-panel className="cap-panel" style={{ background: 'var(--color-paper)', color: 'var(--color-ink)' }}>
+                        <div className="cap-p1-layout">
+                            <div className="cap-p1-hero">
+                                <span data-outline className="display cap-outline-text">COMPRENDRE</span>
+                                <span data-fill className="display cap-fill-text" aria-hidden>COMPRENDRE</span>
                             </div>
-
-                            {/* Content */}
-                            <div style={{ padding: 'clamp(16px, 2vw, 24px)' }}>
-                                {/* Stack pills */}
-                                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 14 }}>
-                                    {activeService.stack.map((tag) => (
-                                        <span
-                                            key={tag}
-                                            className="mono"
-                                            style={{
-                                                fontSize: 9,
-                                                letterSpacing: '0.18em',
-                                                color: 'var(--color-ink)',
-                                                border: '1px solid var(--color-hair)',
-                                                padding: '3px 8px',
-                                                display: 'inline-block',
-                                            }}
-                                        >
-                                            {tag}
-                                        </span>
+                            <div className="cap-p1-content">
+                                <span className="mono cap-step-label" style={{ color: 'var(--color-klein)' }}>01</span>
+                                <p data-brief className="cap-brief">
+                                    Avant d'écrire la moindre ligne, on pose les vraies questions.
+                                    Quel problème on règle. Pour qui. Ce qui se passe si on ne le fait pas.
+                                </p>
+                                <div className="cap-tags">
+                                    {['Cadrage', 'Architecture', 'Parcours'].map(t => (
+                                        <span key={t} data-tag className="mono cap-tag">{t}</span>
                                     ))}
                                 </div>
-
-                                {/* Brief */}
-                                <p style={{
-                                    margin: 0,
-                                    fontFamily: 'Satoshi, sans-serif',
-                                    fontSize: 'clamp(13px, 1.1vw, 15px)',
-                                    lineHeight: 1.58,
-                                    color: 'var(--color-ink)',
-                                    opacity: 0.82,
-                                }}>
-                                    {activeService.brief}
-                                </p>
                             </div>
-                        </motion.div>
-                    </AnimatePresence>
-                </motion.div>
-            </div>
-        </section>
-    )
-}
+                        </div>
+                    </div>
 
-function ServiceRow({
-    service,
-    isActive,
-    onEnter,
-}: {
-    service: Service
-    isActive: boolean
-    onEnter: () => void
-}) {
-    return (
-        <div
-            className="cap-row"
-            onMouseEnter={onEnter}
-            style={{
-                position: 'relative',
-                padding: 'clamp(22px, 2.8vw, 38px) 0',
-                borderBottom: '1px solid var(--color-hair)',
-                cursor: 'default',
-                overflow: 'hidden',
-            }}
-        >
-            {/* Fill slides from left on active */}
-            <motion.div
-                initial={false}
-                animate={{ scaleX: isActive ? 1 : 0 }}
-                transition={{ duration: 0.40, ease: EXPO }}
-                style={{
-                    position: 'absolute',
-                    inset: 0,
-                    background: service.accent,
-                    transformOrigin: 'left',
-                    zIndex: 0,
-                    pointerEvents: 'none',
-                }}
-            />
+                    {/* ═══ PANEL 02 — INTERFACE & identité ═══ */}
+                    <div data-panel className="cap-panel" style={{ background: 'var(--color-ink)', color: 'var(--color-paper)' }}>
+                        <div className="cap-p2-layout">
+                            <div className="cap-p2-blocks" aria-hidden>
+                                <div data-block className="cap-block cap-block--1" />
+                                <div data-block className="cap-block cap-block--2" />
+                                <div data-block className="cap-block cap-block--3" />
+                                <div data-block className="cap-block cap-block--4" />
+                                <div data-block className="cap-block cap-block--5" />
+                                <div data-block className="cap-block cap-block--6" />
+                                <div data-block className="cap-block cap-block--7" />
+                                <div data-block className="cap-block cap-block--8" />
+                            </div>
+                            <div className="cap-p2-content">
+                                <span className="mono cap-step-label" style={{ opacity: 0.4 }}>02</span>
+                                <h3 data-title className="display cap-p2-title">
+                                    INTERFACE<br />
+                                    <span className="serif-italic" style={{ fontSize: '0.68em', letterSpacing: '-0.01em' }}>
+                                        &amp; identité.
+                                    </span>
+                                </h3>
+                                <p data-brief className="cap-brief">
+                                    On construit des interfaces qu'on utilise avec plaisir — pas qu'on subit.
+                                    L'identité, c'est ce qui les rend reconnaissables.
+                                </p>
+                                <div className="cap-tags">
+                                    {['UI', 'Système graphique', 'Typographie'].map(t => (
+                                        <span key={t} data-tag className="mono cap-tag" style={{ borderColor: 'rgba(239,235,221,0.22)' }}>{t}</span>
+                                    ))}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
 
-            {/* Large ghost number */}
-            <AnimatePresence>
-                {isActive && (
-                    <motion.span
-                        key="num"
-                        initial={{ opacity: 0, x: 20 }}
-                        animate={{ opacity: 0.06, x: 0 }}
-                        exit={{ opacity: 0, x: 12 }}
-                        transition={{ duration: 0.32, ease: 'easeOut' }}
-                        className="display"
-                        style={{
-                            position: 'absolute',
-                            right: 'clamp(6px, 1.5vw, 20px)',
-                            top: '50%',
-                            transform: 'translateY(-50%)',
-                            fontSize: 'clamp(72px, 14vw, 180px)',
-                            lineHeight: 1,
-                            color: 'var(--color-paper)',
-                            pointerEvents: 'none',
-                            zIndex: 1,
-                            letterSpacing: '-0.05em',
-                        }}
-                    >
-                        {service.id}
-                    </motion.span>
-                )}
-            </AnimatePresence>
+                    {/* ═══ PANEL 03 — INGÉNIERIE front ═══ */}
+                    <div data-panel className="cap-panel" style={{ background: 'var(--color-tomato)', color: 'var(--color-paper)' }}>
+                        <span data-bracket-l className="display cap-bracket cap-bracket--l" aria-hidden>{'{'}</span>
+                        <span data-bracket-r className="display cap-bracket cap-bracket--r" aria-hidden>{'}'}</span>
+                        <div className="cap-p3-content">
+                            <span className="mono cap-step-label" style={{ color: 'var(--color-ink)' }}>03</span>
+                            <h3 data-title className="cap-p3-title">
+                                <span className="mono" style={{ fontSize: 'clamp(11px, 1.1vw, 15px)', opacity: 0.45, display: 'block', marginBottom: 10 }}>
+                                    {'// build'}
+                                </span>
+                                <span className="display">INGÉNIERIE</span><br />
+                                <span className="serif-italic" style={{ fontSize: '0.68em', letterSpacing: '-0.01em' }}>
+                                    front.
+                                </span>
+                                <span data-cursor className="cap-cursor">_</span>
+                            </h3>
+                            <p data-brief className="cap-brief">
+                                Un produit qui rame, c'est un produit qu'on abandonne.
+                                Code propre, rapide, solide — sur les vieux téléphones comme sur les derniers.
+                            </p>
+                            <div className="cap-tags">
+                                {['React', 'TypeScript', 'SwiftUI'].map(t => (
+                                    <span key={t} data-tag className="mono cap-tag" style={{ borderColor: 'rgba(14,14,12,0.25)' }}>{t}</span>
+                                ))}
+                            </div>
+                        </div>
+                    </div>
 
-            {/* Row content */}
-            <motion.div
-                animate={{ x: isActive ? 6 : 0 }}
-                transition={{ duration: 0.36, ease: EXPO }}
-                style={{ position: 'relative', zIndex: 2, padding: '0 clamp(2px, 0.8vw, 12px)' }}
-            >
-                <div className="cap-row-main" style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: 'clamp(12px, 2.4vw, 36px)',
-                    flexWrap: 'wrap',
-                }}>
-                    {/* Number */}
-                    <motion.span
-                        animate={{ color: isActive ? 'var(--color-paper)' : 'var(--color-ink)' }}
-                        transition={{ duration: 0.16 }}
-                        className="mono"
-                        style={{ fontSize: 11, letterSpacing: '0.22em', opacity: 0.44, flexShrink: 0 }}
-                    >
-                        {service.id}
-                    </motion.span>
-
-                    {/* Name — display + serif italic mix */}
-                    <motion.h3
-                        animate={{ color: isActive ? 'var(--color-paper)' : 'var(--color-ink)' }}
-                        transition={{ duration: 0.16 }}
-                        className="display cap-service-name"
-                        style={{
-                            fontSize: 'clamp(24px, 3.6vw, 52px)',
-                            lineHeight: 0.9,
-                            letterSpacing: '-0.04em',
-                            margin: 0,
-                            flex: 1,
-                            minWidth: 0,
-                        }}
-                    >
-                        {service.name}
-                        {service.nameItalic && (
-                            <span
-                                className="serif-italic"
-                                style={{
-                                    letterSpacing: '-0.015em',
-                                    marginLeft: '0.2em',
-                                    fontSize: '0.88em',
-                                }}
-                            >
-                                {service.nameItalic}
-                            </span>
-                        )}
-                    </motion.h3>
-
-                    {/* Arrow */}
-                    <motion.span
-                        animate={{
-                            color: isActive ? 'var(--color-paper)' : 'var(--color-ink)',
-                            x: isActive ? 4 : 0,
-                            opacity: isActive ? 0.9 : 0.4,
-                        }}
-                        transition={{ duration: 0.20, ease: EXPO }}
-                        style={{ fontSize: 20, flexShrink: 0 }}
-                    >
-                        →
-                    </motion.span>
+                    {/* ═══ PANEL 04 — MOUVEMENT & détails ═══ */}
+                    <div data-panel className="cap-panel" style={{ background: 'var(--color-klein)', color: 'var(--color-paper)' }}>
+                        <div className="cap-p4-layout">
+                            <span className="mono cap-step-label" style={{ opacity: 0.4 }}>04</span>
+                            <div className="cap-p4-letters" aria-label="MOUVEMENT">
+                                {'MOUVEMENT'.split('').map((ch, i) => (
+                                    <span key={i} data-letter className="display cap-wave-letter">{ch}</span>
+                                ))}
+                            </div>
+                            <h3 data-subtitle className="serif-italic cap-p4-subtitle">&amp; détails.</h3>
+                            <p data-brief className="cap-brief">
+                                Le mouvement sert à quelque chose ou il ne sert à rien.
+                                Il doit indiquer, rassurer, donner un poids aux choses.
+                            </p>
+                            <div className="cap-tags">
+                                {['GSAP', 'Transitions', 'Micro-interactions'].map(t => (
+                                    <span key={t} data-tag className="mono cap-tag" style={{ borderColor: 'rgba(239,235,221,0.22)' }}>{t}</span>
+                                ))}
+                            </div>
+                        </div>
+                    </div>
                 </div>
-
-                {/* Brief — expands on mobile (no floating card) */}
-                <AnimatePresence>
-                    {isActive && (
-                        <motion.p
-                            key="brief"
-                            initial={{ opacity: 0, height: 0, y: 10 }}
-                            animate={{ opacity: 1, height: 'auto', y: 0 }}
-                            exit={{ opacity: 0, height: 0, y: 6 }}
-                            transition={{ duration: 0.32, ease: EXPO, delay: 0.05 }}
-                            className="serif cap-brief cap-brief-inline"
-                            style={{
-                                fontSize: 'clamp(13px, 1.1vw, 16px)',
-                                lineHeight: 1.55,
-                                color: 'var(--color-paper)',
-                                margin: 0,
-                                marginTop: 'clamp(10px, 1.4vw, 18px)',
-                                paddingLeft: 'clamp(36px, 4.5vw, 64px)',
-                                maxWidth: '44ch',
-                                overflow: 'hidden',
-                            }}
-                        >
-                            {service.brief}
-                        </motion.p>
-                    )}
-                </AnimatePresence>
-            </motion.div>
+            </div>
         </div>
     )
 }

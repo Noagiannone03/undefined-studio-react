@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import type { FormEvent } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { motion } from 'motion/react'
@@ -7,7 +7,7 @@ import { useAuth } from '../auth'
 const EXPO = [0.16, 1, 0.3, 1] as const
 
 export default function Login() {
-    const { login } = useAuth()
+    const { user, loading: authLoading, login } = useAuth()
     const navigate = useNavigate()
     const location = useLocation()
     const from = (location.state as { from?: string } | null)?.from ?? '/'
@@ -16,6 +16,11 @@ export default function Login() {
     const [password, setPassword] = useState('')
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState<string | null>(null)
+
+    useEffect(() => {
+        if (authLoading) return
+        if (user) navigate(user.mustChangePassword ? '/setup-password' : from, { replace: true })
+    }, [authLoading, from, navigate, user])
 
     const onSubmit = async (e: FormEvent) => {
         e.preventDefault()
@@ -26,10 +31,9 @@ export default function Login() {
         }
         setLoading(true)
         try {
-            await login(email)
-            navigate(from, { replace: true })
-        } catch {
-            setError('Connexion impossible. Reessaie.')
+            await login(email, password)
+        } catch (err) {
+            setError(err instanceof Error ? 'Connexion impossible. Vérifie email et mot de passe.' : 'Connexion impossible. Réessaie.')
         } finally {
             setLoading(false)
         }
@@ -64,7 +68,7 @@ export default function Login() {
                     >
                         Avancement, questions, factures.
                         <br />
-                        Tout au meme endroit.
+                        Un seul accès, branché sur Firebase Auth.
                     </motion.p>
 
                     <motion.form
@@ -111,9 +115,7 @@ export default function Login() {
                             </svg>
                         </button>
 
-                        <p className="login__demo-note">
-                            Demo — n'importe quel email + mot de passe fonctionne.
-                        </p>
+                        <p className="login__demo-note">Compte client: email + mot de passe temporaire, puis changement obligatoire.</p>
                     </motion.form>
                 </div>
 
