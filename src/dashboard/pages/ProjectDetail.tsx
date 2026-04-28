@@ -7,6 +7,7 @@ import { EmptyState } from '../components/EmptyState'
 import { ProgressBar } from '../components/ProgressBar'
 import { InvoiceStatusPill, ProjectStatusPill, TicketStatusPill } from '../components/StatusPill'
 import { createProjectUpdate, updateProject } from '../firestore'
+import { mailApi } from '../api'
 import { formatDate, formatEur } from '../utils'
 import type { ProjectStatus } from '../types'
 
@@ -78,6 +79,20 @@ export default function ProjectDetail() {
                 delivery,
                 summary,
             })
+
+            const contactEmail = client?.contactEmail
+            if (contactEmail && (status !== project.status || Number(progress) !== project.progress)) {
+                mailApi.projectStatus({
+                    to: contactEmail,
+                    contactName: client?.contactName ?? '',
+                    clientName: client?.name ?? '',
+                    projectName: project.name,
+                    projectId: project.id,
+                    newStatus: status,
+                    progress: Number(progress) || 0,
+                    summary: summary || undefined,
+                })
+            }
         } catch {
             setError("Impossible d'enregistrer le projet.")
         } finally {
@@ -102,6 +117,23 @@ export default function ProjectDetail() {
                 body: updateBody,
                 authorName: user?.name ?? 'Undefined',
             })
+
+            const contactEmail = client?.contactEmail
+            if (contactEmail) {
+                mailApi.projectStatus({
+                    to: contactEmail,
+                    contactName: client?.contactName ?? '',
+                    clientName: client?.name ?? '',
+                    projectName: project.name,
+                    projectId: project.id,
+                    newStatus: status,
+                    progress: Number(progress) || 0,
+                    isUpdate: true,
+                    updateTitle,
+                    updateBody,
+                })
+            }
+
             setUpdateTitle('')
             setUpdateBody('')
         } catch {

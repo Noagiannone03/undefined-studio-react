@@ -4,11 +4,12 @@ import { Link, Navigate, useNavigate } from 'react-router-dom'
 import { useAuth } from '../auth'
 import { useDashboardData } from '../useDashboardData'
 import { createTicket } from '../firestore'
+import { mailApi } from '../api'
 import type { TicketPriority } from '../types'
 
 export default function NewTicket() {
     const { user } = useAuth()
-    const { projects } = useDashboardData()
+    const { projects, findClient } = useDashboardData()
     const navigate = useNavigate()
 
     const [subject, setSubject] = useState('')
@@ -42,6 +43,16 @@ export default function NewTicket() {
                 createdByUid: user.uid,
                 createdByName: user.name,
             })
+
+            const client = findClient(clientId)
+            mailApi.ticketCreated({
+                clientName: client?.name ?? user.name,
+                contactName: user.name,
+                ticketSubject: subject,
+                ticketBody: body,
+                priority,
+            })
+
             setSent(true)
             setTimeout(() => navigate('/tickets'), 700)
         } catch {

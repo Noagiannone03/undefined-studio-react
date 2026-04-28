@@ -175,45 +175,56 @@ export default function Capabilities() {
                     }
                 }
 
-                /* ── Panel 03: INGÉNIERIE — code brackets ── */
+                /* ── Panel 03: INGÉNIERIE — code brackets + typewriter ── */
                 const p3 = panels[2]
                 if (p3) {
                     const bracketL = p3.querySelector('[data-bracket-l]')
                     const bracketR = p3.querySelector('[data-bracket-r]')
-                    const title = p3.querySelector('[data-title]')
+                    const buildComment = p3.querySelector('[data-build]')
+                    const chars = p3.querySelectorAll('[data-char]')
                     const brief = p3.querySelector('[data-brief]')
                     const tags = p3.querySelectorAll('[data-tag]')
                     const cursor = p3.querySelector('[data-cursor]')
 
+                    // Brackets appear in center and spread outward
                     if (bracketL) {
-                        gsap.fromTo(bracketL, { x: -160, opacity: 0 },
-                            { x: 0, opacity: 0.12, scrollTrigger: { trigger: p3, start: 'left 82%', end: 'left 22%', scrub: 0.5,
+                        gsap.fromTo(bracketL, { x: 500, opacity: 0 },
+                            { x: 0, opacity: 0.12, scrollTrigger: { trigger: p3, start: 'left 95%', end: 'left 25%', scrub: 0.6,
                                 containerAnimation: scrollTween } })
                     }
                     if (bracketR) {
-                        gsap.fromTo(bracketR, { x: 160, opacity: 0 },
-                            { x: 0, opacity: 0.12, scrollTrigger: { trigger: p3, start: 'left 82%', end: 'left 22%', scrub: 0.5,
+                        gsap.fromTo(bracketR, { x: -500, opacity: 0 },
+                            { x: 0, opacity: 0.12, scrollTrigger: { trigger: p3, start: 'left 95%', end: 'left 25%', scrub: 0.6,
                                 containerAnimation: scrollTween } })
                     }
-                    if (title) {
-                        gsap.fromTo(title, { opacity: 0, y: 40, scale: 0.94 },
-                            { opacity: 1, y: 0, scale: 1, scrollTrigger: { trigger: p3, start: 'left 62%', end: 'left 18%', scrub: 0.4,
+                    // "// build" slides in first
+                    if (buildComment) {
+                        gsap.fromTo(buildComment, { opacity: 0, x: -24 },
+                            { opacity: 0.45, x: 0, scrollTrigger: { trigger: p3, start: 'left 72%', end: 'left 52%', scrub: 0.4,
                                 containerAnimation: scrollTween } })
                     }
+                    // Typewriter — chars appear one by one
+                    if (chars.length) {
+                        gsap.set(chars, { opacity: 0 })
+                        gsap.to(chars, { opacity: 1, stagger: { each: 0.05, from: 'start' },
+                            scrollTrigger: { trigger: p3, start: 'left 60%', end: 'left 8%', scrub: 0.3,
+                                containerAnimation: scrollTween } })
+                    }
+                    // Cursor appears and blinks at end
                     if (cursor) {
                         gsap.fromTo(cursor, { opacity: 0 }, { opacity: 1, duration: 0.3,
-                            scrollTrigger: { trigger: p3, start: 'left 35%', toggleActions: 'play none none none',
+                            scrollTrigger: { trigger: p3, start: 'left 18%', toggleActions: 'play none none none',
                                 containerAnimation: scrollTween } })
                     }
                     if (brief) {
                         gsap.fromTo(brief, { opacity: 0, y: 20 },
-                            { opacity: 1, y: 0, scrollTrigger: { trigger: p3, start: 'left 48%', end: 'left 10%', scrub: 0.4,
+                            { opacity: 1, y: 0, scrollTrigger: { trigger: p3, start: 'left 45%', end: 'left 10%', scrub: 0.4,
                                 containerAnimation: scrollTween } })
                     }
                     if (tags.length) {
                         gsap.set(tags, { opacity: 0, y: 14 })
                         gsap.to(tags, { opacity: 1, y: 0, stagger: 0.06,
-                            scrollTrigger: { trigger: p3, start: 'left 38%', end: 'left 5%', scrub: 0.4,
+                            scrollTrigger: { trigger: p3, start: 'left 35%', end: 'left 5%', scrub: 0.4,
                                 containerAnimation: scrollTween } })
                     }
                 }
@@ -425,12 +436,18 @@ export default function Capabilities() {
                         <div className="cap-p3-content">
                             <span className="mono cap-step-label" style={{ color: 'var(--color-ink)' }}>03</span>
                             <h3 data-title className="cap-p3-title">
-                                <span className="mono" style={{ fontSize: 'clamp(11px, 1.1vw, 15px)', opacity: 0.45, display: 'block', marginBottom: 10 }}>
+                                <span data-build className="mono" style={{ fontSize: 'clamp(11px, 1.1vw, 15px)', opacity: 0.45, display: 'block', marginBottom: 10 }}>
                                     {'// build'}
                                 </span>
-                                <span className="display">INGÉNIERIE</span><br />
+                                <span className="display">
+                                    {'INGÉNIERIE'.split('').map((ch, i) => (
+                                        <span key={i} data-char className="cap-typechar">{ch}</span>
+                                    ))}
+                                </span><br />
                                 <span className="serif-italic" style={{ fontSize: '0.68em', letterSpacing: '-0.01em' }}>
-                                    front.
+                                    {'front.'.split('').map((ch, i) => (
+                                        <span key={`f${i}`} data-char className="cap-typechar">{ch}</span>
+                                    ))}
                                 </span>
                                 <span data-cursor className="cap-cursor">_</span>
                             </h3>

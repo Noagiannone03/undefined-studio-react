@@ -6,6 +6,7 @@ import { RolePill } from '../components/StatusPill'
 import { useAuth } from '../auth'
 import { useDashboardData } from '../useDashboardData'
 import { createClientAccount } from '../firestore'
+import { mailApi } from '../api'
 
 function generateTemporaryPassword() {
     return `Temp-${Math.random().toString(36).slice(2, 7)}-${Math.random().toString(36).slice(2, 6)}`
@@ -43,6 +44,16 @@ export default function Accounts() {
                 email,
                 temporaryPassword,
             })
+
+            const selectedClient = clients.find((c) => c.id === clientId)
+            mailApi.welcome({
+                to: email.trim().toLowerCase(),
+                contactName: name.trim(),
+                clientName: selectedClient?.name ?? name.trim(),
+                email: email.trim().toLowerCase(),
+                temporaryPassword,
+            })
+
             setSuccess(`Compte créé pour ${email}. Mot de passe temporaire: ${temporaryPassword}`)
             setName('')
             setEmail('')

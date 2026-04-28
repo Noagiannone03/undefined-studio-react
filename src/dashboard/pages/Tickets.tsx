@@ -7,6 +7,7 @@ import { EmptyState } from '../components/EmptyState'
 import { TicketStatusPill } from '../components/StatusPill'
 import { formatDate, formatDateTime } from '../utils'
 import { replyToTicket, updateTicketStatus } from '../firestore'
+import { mailApi } from '../api'
 import type { TicketStatus } from '../types'
 
 const EXPO = [0.16, 1, 0.3, 1] as const
@@ -20,7 +21,7 @@ const FILTERS: { id: 'all' | TicketStatus; label: string }[] = [
 
 export default function Tickets() {
     const { user } = useAuth()
-    const { tickets, findClient, findProject } = useDashboardData()
+    const { tickets, findClient, findProject, users } = useDashboardData()
     const [filter, setFilter] = useState<(typeof FILTERS)[number]['id']>('all')
     const [openId, setOpenId] = useState<string | null>(null)
     const [replyBody, setReplyBody] = useState<Record<string, string>>({})
@@ -33,14 +34,45 @@ export default function Tickets() {
         const body = replyBody[ticketId]?.trim()
         if (!ticket || !body) return
 
+        const from = user?.role === 'admin' ? 'studio' : 'client'
         setBusyId(ticketId)
         try {
             await replyToTicket({
                 ticket,
                 body,
-                from: user?.role === 'admin' ? 'studio' : 'client',
+                from,
                 authorName: user?.name ?? 'Undefined',
             })
+
+            const client = findClient(ticket.clientId)
+            if (from === 'studio') {
+                // Notifier le client
+                const clientUser = users.find((u) => u.clientIds.includes(ticket.clientId) || u.clientId === ticket.clientId)
+                const to = clientUser?.email ?? client?.contactEmail
+                if (to) {
+                    mailApi.ticketReplied({
+                        to,
+                        from: 'studio',
+                        authorName: user?.name ?? 'Undefined',
+                        clientName: client?.name ?? '',
+                        ticketSubject: ticket.subject,
+                        replyBody: body,
+                        ticketId,
+                    })
+                }
+            } else {
+                // Notifier l'admin
+                mailApi.ticketReplied({
+                    to: '',
+                    from: 'client',
+                    authorName: user?.name ?? '',
+                    clientName: client?.name ?? '',
+                    ticketSubject: ticket.subject,
+                    replyBody: body,
+                    ticketId,
+                })
+            }
+
             setReplyBody((current) => ({ ...current, [ticketId]: '' }))
         } finally {
             setBusyId(null)

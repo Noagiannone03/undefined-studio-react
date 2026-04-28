@@ -593,8 +593,6 @@ export async function createClient(input: CreateClientInput) {
 
 export async function createClientAccount(input: CreateClientAccountInput) {
     const secondaryAuth = getSecondaryAdminAuth()
-    const clientSnapshot = await getDoc(doc(db, CLIENTS, input.clientId))
-    const client = clientSnapshot.exists() ? mapClient(clientSnapshot.id, clientSnapshot.data() as Record<string, unknown>) : null
     const created = await createUserWithEmailAndPassword(
         secondaryAuth,
         input.email.trim().toLowerCase(),
