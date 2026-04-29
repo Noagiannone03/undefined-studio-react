@@ -2,7 +2,7 @@ const API_KEY = (import.meta.env.VITE_MAIL_API_KEY as string | undefined) ?? ''
 
 async function post(path: string, body: unknown) {
   try {
-    await fetch(`/api/mail/${path}`, {
+    const res = await fetch(`/api/mail/${path}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -10,9 +10,14 @@ async function post(path: string, body: unknown) {
       },
       body: JSON.stringify(body),
     })
-  } catch {
-    // Mail failures are non-blocking — log only
-    console.warn(`[mail] ${path} failed`)
+    if (!res.ok) {
+      const text = await res.text().catch(() => '')
+      console.error(`[mail] ${path} failed: HTTP ${res.status}`, text)
+    } else {
+      console.info(`[mail] ${path} sent`)
+    }
+  } catch (err) {
+    console.error(`[mail] ${path} network error`, err)
   }
 }
 
