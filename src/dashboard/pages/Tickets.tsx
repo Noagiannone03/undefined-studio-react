@@ -96,13 +96,13 @@ export default function Tickets() {
                     {user?.role === 'admin' ? (
                         <>Le flux <span className="serif-italic">support.</span></>
                     ) : (
-                        <>Tes <span className="serif-italic">questions,</span> nos réponses.</>
+                        <>Tes <span className="serif-italic">demandes.</span></>
                     )}
                 </h1>
                 <p className="dash-sub">
                     {user?.role === 'admin'
-                        ? 'Chaque ticket est relié à un client et éventuellement à un projet. Tu peux répondre et changer le statut directement ici.'
-                        : "Pose-nous ce que tu veux — un bug, une demande, une interrogation sur une facture. On répond sous 24h ouvrées."}
+                        ? ''
+                        : 'Une question ? On revient vite.'}
                 </p>
             </header>
 
@@ -139,7 +139,7 @@ export default function Tickets() {
             {filtered.length === 0 ? (
                 <EmptyState
                     title="Aucun ticket dans cette vue"
-                    body={user?.role === 'admin' ? 'Aucun ticket ne correspond à ce filtre.' : 'Change de filtre ou ouvres-en un nouveau.'}
+                    body={user?.role === 'admin' ? 'Rien ici pour ce filtre.' : 'Rien ici pour ce filtre.'}
                     action={
                         user?.role === 'client' ? (
                             <Link to="/tickets/new" className="dash-btn" style={{ marginTop: 8 }}>

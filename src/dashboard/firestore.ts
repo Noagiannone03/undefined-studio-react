@@ -75,6 +75,7 @@ type UpdateProjectInput = {
     summary?: string
     kickoff: string
     delivery: string
+    milestones?: Milestone[]
 }
 
 type CreateProjectUpdateInput = {
@@ -648,14 +649,26 @@ export async function createProject(input: CreateProjectInput) {
 }
 
 export async function updateProject(projectId: string, input: UpdateProjectInput) {
-    await updateDoc(doc(db, PROJECTS, projectId), {
+    const patch: Record<string, unknown> = {
         status: input.status,
         progress: Math.max(0, Math.min(100, input.progress)),
         summary: input.summary?.trim() || '',
         kickoff: input.kickoff,
         delivery: input.delivery,
         updatedAt: isoNow(),
-    })
+    }
+
+    if (input.milestones) {
+        patch.milestones = input.milestones.map((m) => ({
+            id: m.id,
+            label: m.label.trim(),
+            status: m.status,
+            ...(m.date ? { date: m.date } : {}),
+            ...(m.note ? { note: m.note.trim() } : {}),
+        }))
+    }
+
+    await updateDoc(doc(db, PROJECTS, projectId), patch)
 }
 
 export async function createProjectUpdate(input: CreateProjectUpdateInput) {

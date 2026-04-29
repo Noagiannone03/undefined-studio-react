@@ -19,14 +19,14 @@ export default function Projects() {
                         Tous les <span className="serif-italic">chantiers.</span>
                     </h1>
                     <p className="dash-sub">
-                        Vue globale de tous les projets. Pour créer un projet, ouvre la fiche du client concerné.
+                        Crée un projet depuis la fiche client.
                     </p>
                 </header>
 
                 {projects.length === 0 ? (
                     <EmptyState
                         title="Aucun projet"
-                        body="Va sur la fiche d'un client pour créer son premier projet."
+                        body="Crée un projet depuis la fiche client."
                         action={<Link to="/clients" className="dash-btn" style={{ marginTop: 8 }}>Voir les clients →</Link>}
                     />
                 ) : (
@@ -65,15 +65,12 @@ export default function Projects() {
             <header className="dash-page-head">
                 <span className="dash-kicker">( 02 ) — Projets</span>
                 <h1 className="dash-h1">
-                    Tout ce qu'on <span className="serif-italic">construit</span> pour toi.
+                    Tes <span className="serif-italic">projets.</span>
                 </h1>
-                <p className="dash-sub">
-                    Un projet par carte. Clique pour voir le détail, les étapes et les dernières nouvelles.
-                </p>
             </header>
 
             {projects.length === 0 ? (
-                <EmptyState title="Aucun projet" body="Ton dashboard affichera ici les projets reliés à ton compte client." />
+                <EmptyState title="Aucun projet" body="On t'affichera tes projets ici." />
             ) : (
                 <section className="dash-grid dash-grid--2">
                     {projects.map((project) => (

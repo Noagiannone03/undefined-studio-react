@@ -28,7 +28,7 @@ export default function NewTicket() {
 
         const clientId = user.clientId ?? user.clientIds[0]
         if (subject.trim().length < 4 || body.trim().length < 10 || !clientId) {
-            setError("Le sujet et le message doivent être un peu plus complets.")
+            setError('Sujet et message trop courts.')
             return
         }
 
@@ -71,7 +71,7 @@ export default function NewTicket() {
                 <h1 className="dash-h1" style={{ marginTop: 8 }}>
                     Nouveau <span className="serif-italic">ticket.</span>
                 </h1>
-                <p className="dash-sub">Dis-nous ce qui coince. On revient vite.</p>
+                <p className="dash-sub">On s'en occupe.</p>
             </header>
 
             <form onSubmit={onSubmit} className="dash-stack" noValidate>
@@ -81,7 +81,7 @@ export default function NewTicket() {
                         id="subject"
                         type="text"
                         className="dash-input"
-                        placeholder="Résume en une phrase."
+                        placeholder="En une phrase."
                         value={subject}
                         onChange={(event) => setSubject(event.target.value)}
                         disabled={sending || sent}
@@ -127,7 +127,7 @@ export default function NewTicket() {
                     <textarea
                         id="body"
                         className="dash-input dash-textarea"
-                        placeholder="Le contexte, ce que tu attendais, ce qui s'est passé."
+                        placeholder="Décris-nous la situation."
                         value={body}
                         onChange={(event) => setBody(event.target.value)}
                         disabled={sending || sent}
@@ -145,9 +145,7 @@ export default function NewTicket() {
                     </Link>
                 </div>
 
-                <p className="dash-note" style={{ margin: 0 }}>
-                    Le ticket est créé dans Firestore et visible en temps réel côté admin.
-                </p>
+
             </form>
         </div>
     )

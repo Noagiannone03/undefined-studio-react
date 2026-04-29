@@ -11,7 +11,7 @@ export function EmptyState({
 }) {
     return (
         <div className="dash-empty">
-            <span className="dash-kicker">— Rien ici pour l'instant</span>
+            <span className="dash-kicker">— Rien ici</span>
             <h3 className="dash-h2">{title}</h3>
             {body && <p className="dash-sub">{body}</p>}
             {action}

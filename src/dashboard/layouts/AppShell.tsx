@@ -1,8 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Outlet } from 'react-router-dom'
 import { AnimatePresence, motion } from 'motion/react'
-import { useAuth } from '../auth'
-import { useDashboardData } from '../useDashboardData'
 import { Sidebar, SidebarBody } from '../components/Sidebar'
 import { Topbar } from '../components/Topbar'
 
@@ -10,8 +8,6 @@ const EXPO = [0.16, 1, 0.3, 1] as const
 
 export default function AppShell() {
     const [sheetOpen, setSheetOpen] = useState(false)
-    const { user } = useAuth()
-    const { loading } = useDashboardData()
 
     // While the sheet is open: subscribe to Escape + browser back/forward,
     // and lock page scroll so only the sheet can scroll.
@@ -36,10 +32,6 @@ export default function AppShell() {
 
     return (
         <div className="dash-root">
-            <div className="dash-demo">
-                {user?.role === 'admin' ? 'Mode admin' : 'Mode client'} —{' '}
-                <b>{loading ? 'synchronisation Firebase…' : 'données synchronisées en temps réel'}</b>
-            </div>
             <div className="dash-shell">
                 <Sidebar />
                 <div className="dash-main">

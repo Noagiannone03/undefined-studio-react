@@ -721,6 +721,84 @@
 
 
 /* ═══════════════════════════════════════════════
+   MILESTONE EDIT (admin inline)
+   ═══════════════════════════════════════════════ */
+
+.dash-milestone-edit {
+    border-bottom: 1px solid var(--color-hair);
+    padding: 8px 0;
+}
+.dash-milestone-edit:last-child { border-bottom: 0; }
+
+.dash-milestone-edit__row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.dash-milestone-edit__num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    color: var(--color-ink-mute);
+    flex-shrink: 0;
+    width: 22px;
+}
+
+.dash-milestone-edit__label {
+    flex: 1;
+    min-width: 100px;
+    height: 38px !important;
+    font-size: 13px !important;
+    padding: 0 10px !important;
+}
+
+.dash-milestone-edit__status {
+    width: 110px;
+    flex-shrink: 0;
+    height: 38px !important;
+    font-size: 12px !important;
+    padding: 0 8px !important;
+}
+
+.dash-milestone-edit__date {
+    width: 140px;
+    flex-shrink: 0;
+    height: 38px !important;
+    font-size: 12px !important;
+    padding: 0 8px !important;
+}
+
+.dash-milestone-edit__remove {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border: 1px solid var(--color-hair);
+    background: transparent;
+    color: var(--color-ink-mute);
+    font-size: 18px;
+    cursor: pointer;
+    flex-shrink: 0;
+    padding: 0;
+    transition: color 150ms ease, border-color 150ms ease;
+}
+.dash-milestone-edit__remove:hover {
+    color: var(--color-tomato);
+    border-color: var(--color-tomato);
+}
+
+@media (min-width: 900px) {
+    .dash-milestone-edit__label { font-size: 14px !important; height: 40px !important; }
+    .dash-milestone-edit__status { width: 120px; height: 40px !important; }
+    .dash-milestone-edit__date { width: 155px; height: 40px !important; }
+    .dash-milestone-edit__remove { width: 36px; height: 36px; }
+}
+
+
+/* ═══════════════════════════════════════════════
    UPDATE FEED
    ═══════════════════════════════════════════════ */
 
@@ -872,28 +950,6 @@
     .dash-thread__msg { max-width: 78%; padding: 14px 18px; font-size: 14px; }
 }
 
-
-/* ═══════════════════════════════════════════════
-   DEMO BANNER
-   ═══════════════════════════════════════════════ */
-
-.dash-demo {
-    background: var(--color-ink);
-    color: var(--color-paper);
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 9px;
-    letter-spacing: 0.16em;
-    text-transform: uppercase;
-    padding: 5px 16px;
-    text-align: center;
-    border-bottom: 1px solid rgba(14,14,12,0.15);
-    line-height: 1.4;
-}
-.dash-demo b { color: var(--color-tomato); font-weight: 700; }
-
-@media (min-width: 900px) {
-    .dash-demo { font-size: 10px; letter-spacing: 0.22em; padding: 6px clamp(20px, 3vw, 32px); }
-}
 
 
 /* ═══════════════════════════════════════════════

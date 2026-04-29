@@ -17,13 +17,9 @@ export default function Overview() {
         return (
             <div className="dash-stack-lg">
                 <header className="dash-page-head">
-                    <span className="dash-kicker">( ADMIN ) — Overview</span>
                     <h1 className="dash-h1">
                         Vue <span className="serif-italic">studio.</span>
                     </h1>
-                    <p className="dash-sub">
-                        Clients, projets, tickets et comptes en attente de setup. Tout est centralisé par client dans Firestore.
-                    </p>
                 </header>
 
                 <section className="dash-grid dash-grid--3">
@@ -53,7 +49,7 @@ export default function Overview() {
                             </Link>
                         </div>
                         {pendingAccounts.length === 0 ? (
-                            <p className="dash-sub" style={{ fontSize: 16 }}>Tous les comptes ont déjà défini leur mot de passe.</p>
+                            <p className="dash-sub" style={{ fontSize: 16 }}>Tous les comptes sont activés.</p>
                         ) : (
                             pendingAccounts.slice(0, 6).map((account) => (
                                 <div key={account.uid} className="dash-row-between dash-card" style={{ padding: 14 }}>
@@ -110,7 +106,7 @@ export default function Overview() {
                     Salut, <span className="serif-italic">{firstName}.</span>
                 </h1>
                 <p className="dash-sub">
-                    Voilà où en sont tes projets, ce qui attend une réponse et ce qui reste à régler.
+                    Point rapide sur tes projets.
                 </p>
             </header>
 
@@ -212,7 +208,7 @@ export default function Overview() {
                     {outstandingInvoices.length === 0 ? (
                         <div className="dash-card">
                             <span className="dash-kicker">Rien en attente</span>
-                            <p className="dash-sub" style={{ fontSize: 16 }}>Toutes tes factures sont à jour. Propre.</p>
+                            <p className="dash-sub" style={{ fontSize: 16 }}>Tout est à jour, nickel.</p>
                         </div>
                     ) : (
                         outstandingInvoices.map((invoice) => {

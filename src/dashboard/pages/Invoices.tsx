@@ -76,7 +76,7 @@ export default function Invoices() {
                     L'état des <span className="serif-italic">comptes.</span>
                 </h1>
                 <p className="dash-sub">
-                    Génère et envoie les factures directement depuis ce panneau. Le PDF est produit ici et joint automatiquement au mail.
+                    PDF généré ici, envoi par mail en un clic.
                 </p>
             </header>
 
