@@ -13,7 +13,6 @@ import NewTicket from './pages/NewTicket'
 import Invoices from './pages/Invoices'
 import Clients from './pages/Clients'
 import ClientDetail from './pages/ClientDetail'
-import Accounts from './pages/Accounts'
 import SetupPassword from './pages/SetupPassword'
 import './dashboard.css'
 
@@ -48,7 +47,6 @@ export default function Dashboard({ basename = '/' }: { basename?: string }) {
                             <Route path="/" element={<Overview />} />
                             <Route path="/clients" element={<AdminOnly><Clients /></AdminOnly>} />
                             <Route path="/clients/:id" element={<AdminOnly><ClientDetail /></AdminOnly>} />
-                            <Route path="/accounts" element={<AdminOnly><Accounts /></AdminOnly>} />
                             <Route path="/projects" element={<Projects />} />
                             <Route path="/projects/:id" element={<ProjectDetail />} />
                             <Route path="/tickets" element={<Tickets />} />
