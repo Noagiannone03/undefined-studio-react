@@ -31,7 +31,8 @@ export default function SetupPassword() {
         try {
             await changePassword(password)
             navigate('/', { replace: true })
-        } catch {
+        } catch (err) {
+            console.error('[setup-password] failed', err)
             setError('Impossible de mettre à jour le mot de passe. Reconnecte-toi si besoin.')
         } finally {
             setLoading(false)

@@ -41,13 +41,8 @@ service cloud.firestore {
       allow update: if isAdmin()
         || (
           isOwnUser(uid)
-          && request.resource.data.uid == resource.data.uid
-          && request.resource.data.role == resource.data.role
-          && request.resource.data.clientId == resource.data.clientId
-          && request.resource.data.clientIds == resource.data.clientIds
-          && request.resource.data.company == resource.data.company
-          && request.resource.data.isActive == resource.data.isActive
-          && request.resource.data.createdAt == resource.data.createdAt
+          && request.resource.data.diff(resource.data).affectedKeys()
+               .hasOnly(['name', 'email', 'mustChangePassword', 'updatedAt'])
         );
 
       allow delete: if false;

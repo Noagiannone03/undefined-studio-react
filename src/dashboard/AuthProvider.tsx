@@ -35,7 +35,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                     setUser(profile)
                     setLoading(false)
                 },
-                () => {
+                (err) => {
+                    console.error('[auth] user profile subscription failed', err)
                     setUser(null)
                     setLoading(false)
                 },
