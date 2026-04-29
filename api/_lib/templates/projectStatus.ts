@@ -1,4 +1,4 @@
-import { baseTemplate, pill, cta } from './base'
+import { baseTemplate, pill, cta } from './base.js'
 
 export type ProjectStatusData = {
   contactName: string

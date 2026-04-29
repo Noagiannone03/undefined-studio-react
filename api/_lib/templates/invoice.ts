@@ -1,4 +1,4 @@
-import { baseTemplate, cta } from './base'
+import { baseTemplate, cta } from './base.js'
 
 export type InvoiceEmailData = {
   contactName: string

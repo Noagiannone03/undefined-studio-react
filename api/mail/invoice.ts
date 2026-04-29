@@ -1,7 +1,7 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node'
-import { sendMail } from '../_lib/mailer'
-import { requireApiKey } from '../_lib/auth'
-import { invoiceTemplate } from '../_lib/templates/invoice'
+import { sendMail } from '../_lib/mailer.js'
+import { requireApiKey } from '../_lib/auth.js'
+import { invoiceTemplate } from '../_lib/templates/invoice.js'
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' })

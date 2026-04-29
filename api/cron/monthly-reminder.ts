@@ -1,6 +1,6 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node'
-import { sendMail } from '../_lib/mailer'
-import { baseTemplate, cta } from '../_lib/templates/base'
+import { sendMail } from '../_lib/mailer.js'
+import { baseTemplate, cta } from '../_lib/templates/base.js'
 
 function buildReminderHtml(month: string, year: string, dashboardUrl: string): string {
   const content = `
