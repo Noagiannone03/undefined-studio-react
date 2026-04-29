@@ -49,7 +49,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }, [])
 
     const login = async (email: string, password: string) => {
-        await signInWithEmailAndPassword(firebaseAuth, email.trim(), password)
+        await signInWithEmailAndPassword(firebaseAuth, email.trim().toLowerCase(), password)
     }
 
     const logout = async () => {

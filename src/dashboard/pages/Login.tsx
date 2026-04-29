@@ -33,7 +33,17 @@ export default function Login() {
         try {
             await login(email, password)
         } catch (err) {
-            setError(err instanceof Error ? 'Connexion impossible. Vérifie email et mot de passe.' : 'Connexion impossible. Réessaie.')
+            console.error('[login] failed', err)
+            const code = (err as { code?: string } | null)?.code
+            const userMessage =
+                code === 'auth/invalid-credential' || code === 'auth/wrong-password' || code === 'auth/user-not-found'
+                    ? 'Email ou mot de passe incorrect.'
+                    : code === 'auth/user-disabled'
+                    ? 'Ce compte est désactivé.'
+                    : code === 'auth/too-many-requests'
+                    ? 'Trop de tentatives. Réessaie dans quelques minutes.'
+                    : 'Connexion impossible. Réessaie.'
+            setError(userMessage)
         } finally {
             setLoading(false)
         }
