@@ -7,6 +7,7 @@ import { ClientStatusPill, ProjectStatusPill, RolePill } from '../components/Sta
 import { ProgressBar } from '../components/ProgressBar'
 import { EmptyState } from '../components/EmptyState'
 import { createClientAccount, createProject } from '../firestore'
+import { mailApi } from '../api'
 import { formatDate } from '../utils'
 import type { ProjectStatus } from '../types'
 
@@ -85,6 +86,13 @@ export default function ClientDetail() {
         setAccBusy(true)
         try {
             await createClientAccount({ clientId: client.id, name: accName, email: accEmail, temporaryPassword: accPass })
+            mailApi.welcome({
+                to: accEmail.trim().toLowerCase(),
+                contactName: accName.trim(),
+                clientName: client.name,
+                email: accEmail.trim().toLowerCase(),
+                temporaryPassword: accPass,
+            })
             setAccSuccess(`Compte créé — mot de passe temporaire : ${accPass}`)
             setAccName('')
             setAccEmail('')
