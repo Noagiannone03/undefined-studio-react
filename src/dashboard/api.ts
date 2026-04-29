@@ -1,9 +1,8 @@
-const API_URL = (import.meta.env.VITE_MAIL_API_URL as string | undefined) ?? 'http://37.59.98.16:3001'
 const API_KEY = (import.meta.env.VITE_MAIL_API_KEY as string | undefined) ?? ''
 
 async function post(path: string, body: unknown) {
   try {
-    await fetch(`${API_URL}/api/mail/${path}`, {
+    await fetch(`/api/mail/${path}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
