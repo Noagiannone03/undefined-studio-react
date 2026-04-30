@@ -454,81 +454,101 @@ export default function ProjectDetail() {
 
     // ─── CLIENT VIEW ──────────────────────────────────────────────────────────
     const openTickets = projectTickets.filter((t) => t.status !== 'resolved')
+    const nextStep = draft.milestones.find((m) => m.status === 'upcoming')
+    const doneCount = draft.milestones.filter((m) => m.status === 'done').length
 
     return (
         <div className="dash-stack-lg">
-            {/* Header */}
             <header className="dash-page-head">
                 <Link to="/projects" className="dash-kicker" style={{ textDecoration: 'none', alignSelf: 'flex-start' }}>
                     ← Projets
                 </Link>
-                <div className="dash-row" style={{ gap: 8, marginTop: 6, flexWrap: 'wrap' }}>
-                    <ProjectStatusPill status={project.status} />
-                    <span className="dash-kicker">Livraison · {formatDate(project.delivery)}</span>
-                </div>
-                <h1 className="dash-h1" style={{ marginTop: 4 }}>{project.name}</h1>
-                {project.tagline && <p className="dash-sub">{project.tagline}</p>}
             </header>
 
-            {/* Progression hero */}
-            <section className="dash-card dash-card--pop" style={{ position: 'relative' }}>
+            <section className="dash-project-hero">
                 <span className="dash-card__accent" style={{ background: project.accent }} />
-                <div className="dash-row-between" style={{ alignItems: 'flex-start', gap: 16 }}>
-                    <div className="dash-stack-sm" style={{ flex: 1 }}>
-                        <span className="dash-kicker">Phase actuelle</span>
-                        <h2 className="dash-h2">{currentPhase?.label ?? 'En cours'}</h2>
-                        <p className="dash-sub" style={{ fontSize: 15, margin: 0 }}>
-                            {currentStep?.label
-                                ? `En cours : ${currentStep.label}`
-                                : 'Le projet démarre — les étapes arrivent bientôt.'}
-                        </p>
+                <div className="dash-project-hero__main">
+                    <div className="dash-stack-sm">
+                        <div className="dash-row" style={{ gap: 8, flexWrap: 'wrap' }}>
+                            <ProjectStatusPill status={project.status} />
+                            <span className="dash-kicker">Livraison · {formatDate(project.delivery)}</span>
+                        </div>
+                        <h1 className="dash-h1 dash-project-hero__title">{project.name}</h1>
+                        {project.tagline && <p className="dash-sub dash-project-hero__sub">{project.tagline}</p>}
                     </div>
-                    <div style={{ textAlign: 'right', flexShrink: 0 }}>
-                        <span className="dash-kicker">Avancement</span>
-                        <div className="dash-h2" style={{ marginTop: 4, fontSize: 'clamp(24px, 4vw, 40px)' }}>{progress}%</div>
+                    <div className="dash-project-hero__progress">
+                        <span>{progress}%</span>
+                        <small>avancé</small>
                     </div>
                 </div>
-                <div style={{ marginTop: 14 }}>
-                    <ProgressBar value={progress} color={project.accent} />
+
+                <ProgressBar value={progress} color={project.accent} />
+
+                <div className="dash-project-hero__meta">
+                    <div>
+                        <span className="dash-kicker">Phase actuelle</span>
+                        <strong>{currentPhase?.label ?? 'En cours'}</strong>
+                    </div>
+                    <div>
+                        <span className="dash-kicker">En cours</span>
+                        <strong>{currentStep?.label ?? 'À définir'}</strong>
+                    </div>
+                    <div>
+                        <span className="dash-kicker">Prochaine étape</span>
+                        <strong>{nextStep?.label ?? '—'}</strong>
+                    </div>
+                    <div>
+                        <span className="dash-kicker">Étapes faites</span>
+                        <strong>{doneCount}/{draft.milestones.length || 0}</strong>
+                    </div>
                 </div>
             </section>
 
-            {/* Timeline étapes */}
-            {project.milestones.length > 0 && (
-                <section className="dash-card">
-                    <h2 className="dash-h2" style={{ marginBottom: 16 }}>Étapes du projet</h2>
-                    <ul className="dash-timeline">
-                        {project.milestones.map((milestone) => (
-                            <li key={milestone.id} className={`dash-milestone dash-milestone--${milestone.status}`}>
-                                <span className="dash-milestone__marker" />
-                                <span className="dash-milestone__line" />
-                                <p className="dash-milestone__title">{milestone.label}</p>
-                                {milestone.date && (
-                                    <p className="dash-milestone__date">{formatDate(milestone.date)}</p>
-                                )}
-                            </li>
-                        ))}
-                    </ul>
-                </section>
-            )}
+            <section className="dash-project-detail-grid">
+                <div className="dash-card dash-project-section">
+                    <div className="dash-row-between">
+                        <h2 className="dash-h2" style={{ fontSize: 'clamp(18px, 2vw, 24px)' }}>Étapes</h2>
+                        <span className="dash-kicker">{doneCount}/{draft.milestones.length || 0}</span>
+                    </div>
+                    {project.milestones.length === 0 ? (
+                        <p className="dash-note">Les étapes apparaîtront ici dès qu’elles sont planifiées.</p>
+                    ) : (
+                        <ul className="dash-timeline dash-timeline--compact">
+                            {project.milestones.map((milestone) => (
+                                <li key={milestone.id} className={`dash-milestone dash-milestone--${milestone.status}`}>
+                                    <span className="dash-milestone__marker" />
+                                    <span className="dash-milestone__line" />
+                                    <p className="dash-milestone__title">{milestone.label || 'Étape projet'}</p>
+                                    <p className="dash-milestone__date">
+                                        {milestone.date ? formatDate(milestone.date) : MILESTONE_LABEL[milestone.status]}
+                                    </p>
+                                </li>
+                            ))}
+                        </ul>
+                    )}
+                </div>
 
-            {/* Dernières updates */}
-            {projectUpdates.length > 0 && (
-                <section className="dash-card">
-                    <h2 className="dash-h2" style={{ marginBottom: 8 }}>Derniers points</h2>
-                    {projectUpdates.slice(0, 3).map((update) => (
-                        <article key={update.id} className="dash-update">
-                            <div className="dash-update__head">
-                                <h3 className="dash-update__title">{update.title}</h3>
-                                <span className="dash-update__meta">{formatDate(update.date)}</span>
-                            </div>
-                            <p className="dash-update__body">{update.body}</p>
-                        </article>
-                    ))}
-                </section>
-            )}
+                <div className="dash-card dash-project-section">
+                    <div className="dash-row-between">
+                        <h2 className="dash-h2" style={{ fontSize: 'clamp(18px, 2vw, 24px)' }}>Derniers points</h2>
+                        <span className="dash-kicker">{projectUpdates.length}</span>
+                    </div>
+                    {projectUpdates.length === 0 ? (
+                        <p className="dash-note">Aucun point partagé pour l’instant.</p>
+                    ) : (
+                        projectUpdates.slice(0, 4).map((update) => (
+                            <article key={update.id} className="dash-update dash-update--quiet">
+                                <div className="dash-update__head">
+                                    <h3 className="dash-update__title">{update.title}</h3>
+                                    <span className="dash-update__meta">{formatDate(update.date)}</span>
+                                </div>
+                                <p className="dash-update__body">{update.body}</p>
+                            </article>
+                        ))
+                    )}
+                </div>
+            </section>
 
-            {/* Support + factures */}
             <div className="dash-grid dash-grid--2" style={{ alignItems: 'start' }}>
                 <section className="dash-card">
                     <div className="dash-row-between">

@@ -758,6 +758,175 @@
     max-width: none;
 }
 
+.dash-client-projects,
+.dash-project-list {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 12px;
+}
+
+.dash-client-project,
+.dash-project-card {
+    gap: 16px;
+    padding-left: clamp(18px, 2vw, 30px);
+    transition: transform 180ms ease, border-color 180ms ease;
+}
+
+.dash-client-project:hover,
+.dash-project-card:hover {
+    transform: translateY(-2px);
+    border-color: var(--color-ink);
+}
+
+.dash-client-project__top,
+.dash-project-card__head,
+.dash-project-hero__main {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 18px;
+}
+
+.dash-client-project__title,
+.dash-project-card__title {
+    font-size: clamp(22px, 2.6vw, 34px);
+    line-height: 0.98;
+    max-width: 18ch;
+}
+
+.dash-client-project__sub,
+.dash-project-card__sub {
+    font-size: 15px;
+    line-height: 1.45;
+    max-width: 54ch;
+}
+
+.dash-client-project__progress,
+.dash-project-card__score,
+.dash-project-hero__progress {
+    flex: 0 0 auto;
+    min-width: 76px;
+    text-align: right;
+}
+
+.dash-client-project__progress span,
+.dash-project-card__score span,
+.dash-project-hero__progress span {
+    display: block;
+    font-family: 'Archivo Black', sans-serif;
+    font-size: clamp(26px, 4vw, 48px);
+    line-height: 0.9;
+    letter-spacing: -0.04em;
+    color: var(--color-ink);
+}
+
+.dash-client-project__progress small,
+.dash-project-card__score small,
+.dash-project-hero__progress small {
+    display: block;
+    margin-top: 5px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--color-ink-soft);
+}
+
+.dash-client-project__meta,
+.dash-project-card__grid,
+.dash-project-hero__meta {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 10px;
+}
+
+.dash-client-project__meta > div,
+.dash-project-card__grid > div,
+.dash-project-hero__meta > div {
+    min-width: 0;
+    border-top: 1px solid var(--color-hair);
+    padding-top: 10px;
+}
+
+.dash-client-project__meta strong,
+.dash-project-card__grid strong,
+.dash-project-hero__meta strong {
+    display: block;
+    margin-top: 4px;
+    font-size: 14px;
+    line-height: 1.35;
+    overflow-wrap: anywhere;
+}
+
+.dash-client-project__bottom {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 8px 14px;
+}
+
+.dash-client-project__update {
+    border-top: 1px solid var(--color-hair);
+    padding-top: 12px;
+}
+
+.dash-client-project__update p {
+    margin: 3px 0 0;
+    font-size: 14px;
+    font-weight: 700;
+    line-height: 1.35;
+}
+
+.dash-project-card {
+    min-height: 100%;
+}
+
+.dash-project-hero {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: clamp(16px, 2vw, 24px);
+    padding: clamp(18px, 3vw, 36px) clamp(18px, 3vw, 38px);
+    padding-left: clamp(22px, 3vw, 42px);
+    background: var(--color-paper);
+    border: 2px solid var(--color-ink);
+    box-shadow: 8px 8px 0 var(--color-ink);
+}
+
+.dash-project-hero__title {
+    max-width: 13ch;
+}
+
+.dash-project-hero__sub {
+    max-width: 64ch;
+    font-size: clamp(16px, 2vw, 19px);
+}
+
+.dash-project-detail-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 12px;
+    align-items: start;
+}
+
+.dash-project-section {
+    gap: 16px;
+}
+
+.dash-timeline--compact {
+    gap: 0;
+}
+
+.dash-update--quiet {
+    padding: 14px 0;
+    border-top: 1px solid var(--color-hair);
+}
+
+.dash-update--quiet:first-of-type {
+    border-top: 0;
+    padding-top: 0;
+}
+
 .dash-overview-action__totals {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -801,6 +970,12 @@
         grid-template-columns: 1fr 1fr;
     }
 
+    .dash-client-project__meta,
+    .dash-project-card__grid,
+    .dash-project-hero__meta {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
     .dash-overview-project__meta {
         grid-template-columns: repeat(3, minmax(0, 1fr));
         gap: 12px;
@@ -821,6 +996,21 @@
 
 @media (min-width: 1100px) {
     .dash-overview-metrics {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+
+    .dash-client-projects,
+    .dash-project-list {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 24px;
+    }
+
+    .dash-project-detail-grid {
+        grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
+        gap: 24px;
+    }
+
+    .dash-project-hero__meta {
         grid-template-columns: repeat(4, minmax(0, 1fr));
     }
 
