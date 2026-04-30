@@ -614,6 +614,229 @@
 
 
 /* ═══════════════════════════════════════════════
+   CLIENT OVERVIEW
+   ═══════════════════════════════════════════════ */
+
+.dash-overview-metrics {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 12px;
+}
+
+.dash-overview-layout {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 12px;
+    align-items: start;
+}
+
+.dash-overview-main,
+.dash-overview-side {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.dash-overview-panel {
+    min-height: 100%;
+}
+
+.dash-overview-panel--metric {
+    gap: 12px;
+}
+
+.dash-overview-panel__title {
+    font-size: clamp(18px, 2vw, 24px);
+}
+
+.dash-overview-metric__value {
+    font-family: 'Archivo Black', sans-serif;
+    font-size: clamp(26px, 4vw, 42px);
+    line-height: 0.95;
+    letter-spacing: -0.04em;
+}
+
+.dash-overview-metric__split {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--color-ink-soft);
+}
+
+.dash-overview-metric__split strong {
+    display: block;
+    font-family: 'Archivo Black', sans-serif;
+    font-size: 28px;
+    line-height: 1;
+    letter-spacing: -0.04em;
+    color: var(--color-ink);
+}
+
+.dash-overview-panel--project {
+    gap: 16px;
+    padding-left: clamp(18px, 2vw, 30px);
+}
+
+.dash-overview-project__title {
+    font-size: clamp(24px, 3vw, 34px);
+    max-width: 14ch;
+}
+
+.dash-overview-project__sub {
+    font-size: 16px;
+    max-width: 40ch;
+}
+
+.dash-overview-project__meta {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 10px;
+}
+
+.dash-overview-meta {
+    border-top: 1px solid var(--color-hair);
+    padding-top: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.dash-overview-meta strong {
+    font-size: 15px;
+    line-height: 1.35;
+}
+
+.dash-overview-steps {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.dash-overview-step {
+    display: grid;
+    grid-template-columns: 12px minmax(0, 1fr);
+    gap: 10px;
+    align-items: start;
+    padding: 10px 0;
+    border-top: 1px solid var(--color-hair);
+}
+
+.dash-overview-step:first-child {
+    padding-top: 0;
+    border-top: 0;
+}
+
+.dash-overview-step__dot {
+    width: 10px;
+    height: 10px;
+    margin-top: 4px;
+    border: 2px solid var(--color-ink);
+    background: var(--color-paper);
+}
+
+.dash-overview-step--current .dash-overview-step__dot {
+    background: var(--color-klein);
+    border-color: var(--color-klein);
+}
+
+.dash-overview-step--done .dash-overview-step__dot {
+    background: var(--color-ink);
+}
+
+.dash-overview-step__label {
+    margin: 0 0 2px;
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 1.35;
+}
+
+.dash-overview-update__body {
+    font-size: 15px;
+    line-height: 1.5;
+    max-width: none;
+}
+
+.dash-overview-action__totals {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    padding-bottom: 6px;
+}
+
+.dash-overview-action__value {
+    margin: 4px 0 0;
+    font-family: 'Archivo Black', sans-serif;
+    font-size: clamp(22px, 3vw, 30px);
+    line-height: 0.98;
+    letter-spacing: -0.03em;
+}
+
+.dash-overview-listing {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 10px 0;
+    border-top: 1px solid var(--color-hair);
+    text-decoration: none;
+    color: inherit;
+}
+
+.dash-overview-listing:first-child {
+    border-top: 0;
+    padding-top: 0;
+}
+
+.dash-overview-listing__title {
+    margin: 2px 0 0;
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 1.35;
+}
+
+@media (min-width: 640px) {
+    .dash-overview-metrics {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .dash-overview-project__meta {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 12px;
+    }
+
+    .dash-overview-meta {
+        padding-top: 0;
+        border-top: 0;
+        border-left: 1px solid var(--color-hair);
+        padding-left: 12px;
+    }
+
+    .dash-overview-meta:first-child {
+        border-left: 0;
+        padding-left: 0;
+    }
+}
+
+@media (min-width: 1100px) {
+    .dash-overview-metrics {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+
+    .dash-overview-layout {
+        grid-template-columns: minmax(0, 1.6fr) minmax(320px, 0.8fr);
+        gap: 24px;
+    }
+
+    .dash-overview-main,
+    .dash-overview-side {
+        gap: 24px;
+    }
+}
+
+
+/* ═══════════════════════════════════════════════
    STATUS PILLS
    ═══════════════════════════════════════════════ */
 
