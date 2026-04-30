@@ -23,6 +23,7 @@ export default function Invoices() {
 
     const [activeId, setActiveId] = useState<string | null>(null)
     const [previewId, setPreviewId] = useState<string | null>(null)
+    const [previewOpen, setPreviewOpen] = useState(false)
     const [previewUrl, setPreviewUrl] = useState<string | null>(null)
     const [previewError, setPreviewError] = useState<string | null>(null)
     const [successMessage, setSuccessMessage] = useState<string | null>(
@@ -42,12 +43,7 @@ export default function Invoices() {
     const previewInvoice = invoices.find((invoice) => invoice.id === previewId) ?? invoices[0]
 
     useEffect(() => {
-        if (isAdmin || previewId || invoices.length === 0) return
-        setPreviewId(invoices[0].id)
-    }, [invoices, isAdmin, previewId])
-
-    useEffect(() => {
-        if (!previewInvoice || isAdmin) return
+        if (!previewInvoice || isAdmin || !previewOpen) return
 
         let cancelled = false
         let objectUrl: string | null = null
@@ -83,7 +79,21 @@ export default function Invoices() {
             cancelled = true
             if (objectUrl) URL.revokeObjectURL(objectUrl)
         }
-    }, [findClient, isAdmin, previewInvoice])
+    }, [findClient, isAdmin, previewInvoice, previewOpen])
+
+    const openPreview = (invoice: Invoice) => {
+        setPreviewId(invoice.id)
+        setPreviewOpen(true)
+    }
+
+    const closePreview = () => {
+        setPreviewOpen(false)
+        setPreviewError(null)
+        setPreviewUrl((prev) => {
+            if (prev?.startsWith('blob:')) URL.revokeObjectURL(prev)
+            return null
+        })
+    }
 
     const onSendInvoice = async (invoice: Invoice) => {
         const client = findClient(invoice.clientId)
@@ -277,8 +287,8 @@ export default function Invoices() {
                                 <button
                                     key={invoice.id}
                                     type="button"
-                                    className={`dash-invoice-client__item${selected ? ' is-active' : ''}`}
-                                    onClick={() => setPreviewId(invoice.id)}
+                                    className={`dash-invoice-client__item${selected && previewOpen ? ' is-active' : ''}`}
+                                    onClick={() => openPreview(invoice)}
                                 >
                                     <span className="dash-invoice-client__item-accent" />
                                     <span className="dash-invoice-client__item-main">
@@ -295,22 +305,38 @@ export default function Invoices() {
                         })}
                     </div>
 
-                    <aside className="dash-invoice-client__preview">
-                        {previewInvoice ? (
-                            <>
+                    <aside className="dash-invoice-client__side">
+                        <span className="dash-kicker">Consultation</span>
+                        <p>Choisis une facture pour l'ouvrir en aperçu. Le téléchargement PDF reste disponible dans la fenêtre.</p>
+                    </aside>
+
+                    {previewOpen && previewInvoice && (
+                        <div className="dash-modal" role="dialog" aria-modal="true" aria-label={`Aperçu ${previewInvoice.number}`}>
+                            <div className="dash-modal__backdrop" onClick={closePreview} />
+                            <div className="dash-invoice-modal">
                                 <div className="dash-invoice-client__preview-head">
                                     <div>
                                         <span className="dash-kicker">Prévisualisation</span>
                                         <h2>{previewInvoice.number}</h2>
                                     </div>
-                                    <button
-                                        type="button"
-                                        className="dash-btn dash-btn--ghost"
-                                        style={{ height: 34, fontSize: 12, padding: '0 14px' }}
-                                        onClick={() => onDownloadPdf(previewInvoice)}
-                                    >
-                                        PDF
-                                    </button>
+                                    <div className="dash-row" style={{ gap: 8 }}>
+                                        <button
+                                            type="button"
+                                            className="dash-btn dash-btn--ghost"
+                                            style={{ height: 34, fontSize: 12, padding: '0 14px' }}
+                                            onClick={() => onDownloadPdf(previewInvoice)}
+                                        >
+                                            PDF
+                                        </button>
+                                        <button
+                                            type="button"
+                                            className="dash-btn"
+                                            style={{ height: 34, fontSize: 12, padding: '0 14px' }}
+                                            onClick={closePreview}
+                                        >
+                                            Fermer
+                                        </button>
+                                    </div>
                                 </div>
                                 <div className="dash-invoice-client__frame">
                                     {previewError ? (
@@ -321,11 +347,9 @@ export default function Invoices() {
                                         <div className="dash-invoice-client__empty">Chargement de l'aperçu...</div>
                                     )}
                                 </div>
-                            </>
-                        ) : (
-                            <div className="dash-invoice-client__empty">Sélectionne une facture.</div>
-                        )}
-                    </aside>
+                            </div>
+                        </div>
+                    )}
                 </section>
             ) : (
                 <section className="dash-card" style={{ padding: 0, overflow: 'hidden' }}>

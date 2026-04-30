@@ -916,7 +916,7 @@
     align-items: baseline;
     justify-content: space-between;
     gap: 14px;
-    padding: 12px 0;
+    padding: 16px 0;
     border-top: 1px solid var(--color-hair);
     color: inherit;
     text-decoration: none;
@@ -928,14 +928,14 @@
 
 .dash-overview-strip__item span {
     font-family: 'JetBrains Mono', monospace;
-    font-size: 10px;
+    font-size: 11px;
     letter-spacing: 0.14em;
     text-transform: uppercase;
     color: var(--color-ink-mute);
 }
 
 .dash-overview-strip__item strong {
-    font-size: 14px;
+    font-size: clamp(16px, 1.6vw, 20px);
     line-height: 1.2;
     text-align: right;
 }
@@ -1470,7 +1470,7 @@
 
     .dash-overview-strip__item {
         display: block;
-        padding: 14px 16px;
+        padding: 18px 18px;
         border-top: 0;
         border-left: 1px solid var(--color-hair);
     }
@@ -1482,7 +1482,7 @@
 
     .dash-overview-strip__item strong {
         display: block;
-        margin-top: 5px;
+        margin-top: 7px;
         text-align: left;
     }
 
@@ -2285,6 +2285,19 @@
     min-width: 0;
 }
 
+.dash-invoice-client__side {
+    border-top: 1px solid var(--color-hair);
+    padding-top: 14px;
+}
+
+.dash-invoice-client__side p {
+    margin: 4px 0 0;
+    max-width: 42ch;
+    font-size: 13px;
+    line-height: 1.45;
+    color: var(--color-ink-soft);
+}
+
 .dash-invoice-client__preview-head {
     display: flex;
     align-items: center;
@@ -2302,8 +2315,8 @@
 }
 
 .dash-invoice-client__frame {
-    height: min(72vh, 760px);
-    min-height: 460px;
+    height: min(78vh, 820px);
+    min-height: min(560px, 70vh);
     background: var(--color-paper-2);
 }
 
@@ -2338,14 +2351,40 @@
 
 @media (min-width: 1100px) {
     .dash-invoice-client {
-        grid-template-columns: minmax(320px, 0.7fr) minmax(0, 1.3fr);
+        grid-template-columns: minmax(0, 1fr) 260px;
         gap: 24px;
     }
 
-    .dash-invoice-client__preview {
+    .dash-invoice-client__side {
         position: sticky;
         top: 18px;
     }
+}
+
+.dash-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    display: grid;
+    place-items: center;
+    padding: clamp(12px, 3vw, 28px);
+}
+
+.dash-modal__backdrop {
+    position: absolute;
+    inset: 0;
+    background: color-mix(in srgb, var(--color-ink) 62%, transparent);
+}
+
+.dash-invoice-modal {
+    position: relative;
+    z-index: 1;
+    width: min(980px, 100%);
+    max-height: min(92vh, 920px);
+    border: 1px solid var(--color-ink);
+    background: var(--color-paper);
+    box-shadow: 10px 10px 0 var(--color-ink);
+    overflow: hidden;
 }
 
 .dash-invoice-row {
