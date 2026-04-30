@@ -71,7 +71,7 @@ export default function NewTicket() {
                 <h1 className="dash-h1" style={{ marginTop: 8 }}>
                     Nouveau <span className="serif-italic">ticket.</span>
                 </h1>
-                <p className="dash-sub">Dis-nous ce qu’il faut regarder, on reprend le fil ici.</p>
+                <p className="dash-sub">Détaille ta demande, notre équipe s'en occupe.</p>
             </header>
 
             <form onSubmit={onSubmit} className="dash-stack" noValidate>

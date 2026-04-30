@@ -49,10 +49,10 @@ export default function Clients() {
             <header className="dash-page-head">
                 <span className="dash-kicker">( ADMIN ) — Clients</span>
                 <h1 className="dash-h1">
-                    Les entreprises <span className="serif-italic">clientes.</span>
+                    Tous les <span className="serif-italic">clients.</span>
                 </h1>
                 <p className="dash-sub">
-                    Les bons contacts, les bons accès, les bons dossiers.
+                    La gestion centralisée de tes clients et de leurs accès.
                 </p>
             </header>
 

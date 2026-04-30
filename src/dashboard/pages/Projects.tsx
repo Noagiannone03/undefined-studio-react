@@ -21,38 +21,38 @@ function ProjectCard({ project, clientName, showClient }: { project: Project; cl
     const doneCount = project.milestones.filter((m) => m.status === 'done').length
 
     return (
-        <Link to={`/projects/${project.id}`} className="dash-card dash-card--link dash-project-card">
-            <span className="dash-card__accent" style={{ background: project.accent }} />
-            <div className="dash-project-card__head">
-                <div className="dash-stack-sm">
-                    <div className="dash-row" style={{ gap: 8, flexWrap: 'wrap' }}>
+        <Link to={`/projects/${project.id}`} style={{ display: 'flex', flexDirection: 'column', gap: 16, padding: '24px 0', borderBottom: '1px solid var(--color-ink)', textDecoration: 'none', color: 'inherit', transition: 'opacity 0.2s' }} onMouseEnter={(e) => e.currentTarget.style.opacity = '0.7'} onMouseLeave={(e) => e.currentTarget.style.opacity = '1'}>
+            
+            <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'flex-start', justifyContent: 'space-between', gap: 24 }}>
+                <div style={{ flex: '1 1 300px', display: 'flex', flexDirection: 'column', gap: 12 }}>
+                    <div className="dash-row" style={{ gap: 10 }}>
                         <ProjectStatusPill status={project.status} />
                         {showClient && <span className="dash-kicker">{clientName ?? 'Client'}</span>}
                     </div>
-                    <h2 className="dash-h2 dash-project-card__title">{project.name}</h2>
-                    {project.tagline && <p className="dash-note dash-project-card__sub">{project.tagline}</p>}
+                    <div>
+                        <h2 className="dash-h2" style={{ fontSize: 'clamp(20px, 2vw, 26px)', margin: 0, lineHeight: 1.1 }}>{project.name}</h2>
+                        {project.tagline && <p className="dash-note" style={{ marginTop: 6, fontSize: 13, maxWidth: '40ch' }}>{project.tagline}</p>}
+                    </div>
                 </div>
-                <div className="dash-project-card__score">
-                    <span>{project.progress}%</span>
+
+                <div style={{ flex: '1 1 300px', display: 'flex', gap: 24, paddingTop: 4 }}>
+                    <div style={{ flex: 1, minWidth: 0, borderLeft: '1px solid var(--color-hair)', paddingLeft: 20 }}>
+                        <span className="dash-kicker" style={{ color: 'var(--color-ink-soft)' }}>En cours</span>
+                        <strong style={{ display: 'block', marginTop: 4, fontSize: 15, fontWeight: 700 }}>{current?.label ?? 'À définir'}</strong>
+                    </div>
+                    <div style={{ flex: 1, minWidth: 0, borderLeft: '1px solid var(--color-hair)', paddingLeft: 20 }}>
+                        <span className="dash-kicker" style={{ color: 'var(--color-ink-soft)' }}>Livraison</span>
+                        <strong style={{ display: 'block', marginTop: 4, fontSize: 15, fontWeight: 700, fontFamily: 'JetBrains Mono, monospace' }}>{formatDate(project.delivery)}</strong>
+                    </div>
+                </div>
+
+                <div style={{ flex: '0 0 auto', textAlign: 'right' }}>
+                    <span style={{ display: 'block', fontFamily: 'Archivo Black, sans-serif', fontSize: '32px', lineHeight: 0.9 }}>{project.progress}%</span>
+                    <span className="dash-kicker" style={{ display: 'block', marginTop: 6, color: 'var(--color-ink-soft)' }}>{doneCount}/{project.milestones.length || 0} étapes</span>
                 </div>
             </div>
 
             <ProgressBar value={project.progress} color={project.accent} />
-
-            <div className="dash-project-card__grid">
-                <div>
-                    <span className="dash-kicker">En cours</span>
-                    <strong>{current?.label ?? 'À définir'}</strong>
-                </div>
-                <div>
-                    <span className="dash-kicker">Livraison</span>
-                    <strong>{formatDate(project.delivery)}</strong>
-                </div>
-                <div>
-                    <span className="dash-kicker">Étapes faites</span>
-                    <strong>{doneCount}/{project.milestones.length || 0}</strong>
-                </div>
-            </div>
         </Link>
     )
 }
@@ -72,10 +72,10 @@ export default function Projects() {
                 <header className="dash-page-head">
                     <span className="dash-kicker">( ADMIN ) — Projets</span>
                     <h1 className="dash-h1">
-                        Tous les <span className="serif-italic">chantiers.</span>
+                        Tous les <span className="serif-italic">projets.</span>
                     </h1>
                     <p className="dash-sub">
-                        Ce qui avance, ce qui bloque, ce qui part bientôt.
+                        Vision d'ensemble sur l'avancée et les prochaines étapes.
                     </p>
                 </header>
 
@@ -99,7 +99,7 @@ export default function Projects() {
                                 <div><span className="dash-kicker">Pause</span><strong>{pausedCount}</strong></div>
                             </div>
                         </section>
-                        <section className="dash-project-list">
+                        <section style={{ display: 'flex', flexDirection: 'column' }}>
                             {sortedProjects.map((project) => {
                                 const client = findClient(project.clientId)
                                 return <ProjectCard key={project.id} project={project} clientName={client?.name} showClient />
@@ -118,7 +118,7 @@ export default function Projects() {
                 <h1 className="dash-h1">
                     Tes <span className="serif-italic">projets.</span>
                 </h1>
-                <p className="dash-sub">Le point simple sur ce qui avance et ce qui arrive ensuite.</p>
+                <p className="dash-sub">Une vision claire sur l'avancée et les prochaines étapes.</p>
             </header>
 
             {error && <div className="login__error">{error}</div>}
@@ -144,7 +144,7 @@ export default function Projects() {
                             <div><span className="dash-kicker">Livrés</span><strong>{liveCount}</strong></div>
                         </div>
                     </section>
-                    <section className="dash-project-list">
+                    <section style={{ display: 'flex', flexDirection: 'column' }}>
                         {sortedProjects.map((project) => (
                             <ProjectCard key={project.id} project={project} />
                         ))}

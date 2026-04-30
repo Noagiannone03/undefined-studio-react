@@ -227,29 +227,31 @@ export default function Overview() {
                 <h1 className="dash-h1">
                     Bonjour, <span className="serif-italic">{displayFirstName}.</span>
                 </h1>
-                <p className="dash-sub">Tout ce qui compte aujourd’hui, sans fouiller partout.</p>
+                <p className="dash-sub">L'essentiel de tes projets, en un coup d'œil.</p>
             </header>
 
             {visibleProjects.length === 0 ? (
                 <EmptyState title="Aucun projet actif" body="Tes projets apparaîtront ici dès qu’ils sont lancés." />
             ) : (
                 <>
-                    <section className="dash-overview-strip" aria-label="Résumé dashboard">
-                        <Link to="/projects" className="dash-overview-strip__item">
-                            <span>Projets actifs</span>
-                            <strong>{activeProjects.length}</strong>
+                    <section className="dash-grid dash-grid--4" aria-label="Résumé dashboard" style={{ marginBottom: 32 }}>
+                        <Link to="/projects" className="dash-card dash-card--pop dash-card--link" style={{ padding: '24px 20px', gap: 12 }}>
+                            <span className="dash-kicker">Projets actifs</span>
+                            <span style={{ fontSize: '36px', fontFamily: 'Archivo Black', lineHeight: 0.9 }}>{activeProjects.length}</span>
                         </Link>
-                        <div className="dash-overview-strip__item">
-                            <span>Avancement moyen</span>
-                            <strong>{globalProgress}%</strong>
+                        <div className="dash-card" style={{ padding: '24px 20px', gap: 12, background: 'var(--color-paper-2)' }}>
+                            <span className="dash-kicker">Avancement</span>
+                            <span style={{ fontSize: '36px', fontFamily: 'Archivo Black', lineHeight: 0.9 }}>{globalProgress}%</span>
                         </div>
-                        <Link to={actionCount > 0 ? '/tickets' : '/projects'} className="dash-overview-strip__item">
-                            <span>À traiter</span>
-                            <strong>{actionCount}</strong>
+                        <Link to={actionCount > 0 ? '/tickets' : '/projects'} className="dash-card dash-card--pop dash-card--link" style={{ padding: '24px 20px', gap: 12 }}>
+                            <span className="dash-kicker">À traiter</span>
+                            <span style={{ fontSize: '36px', fontFamily: 'Archivo Black', lineHeight: 0.9 }}>{actionCount}</span>
                         </Link>
-                        <div className="dash-overview-strip__item dash-overview-strip__item--wide">
-                            <span>Prochaine livraison</span>
-                            <strong>{nextDelivery ? deliveryHint(nextDelivery.delivery) : 'Planning à venir'}</strong>
+                        <div className="dash-card" style={{ padding: '24px 20px', gap: 12, background: 'var(--color-ink)', color: 'var(--color-paper)' }}>
+                            <span className="dash-kicker" style={{ color: 'var(--color-paper-2)' }}>Prochaine livraison</span>
+                            <span style={{ fontSize: '22px', fontFamily: 'Archivo Black', lineHeight: 1.1, marginTop: 'auto' }}>
+                                {nextDelivery ? deliveryHint(nextDelivery.delivery) : 'À venir'}
+                            </span>
                         </div>
                     </section>
 

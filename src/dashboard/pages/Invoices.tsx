@@ -246,8 +246,8 @@ export default function Invoices() {
                 </div>
                 <p className="dash-sub">
                     {isAdmin
-                        ? 'On garde les factures propres, envoyées, retrouvables.'
-                        : 'Tes factures restent ici, prêtes à ouvrir quand tu en as besoin.'}
+                        ? 'Le suivi centralisé des factures et des paiements.'
+                        : 'Tes factures et paiements, accessibles à tout moment.'}
                 </p>
             </header>
 

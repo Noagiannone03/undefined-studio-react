@@ -510,7 +510,7 @@
 .dash-h1 {
     font-family: 'Archivo Black', sans-serif;
     font-weight: 900;
-    font-size: clamp(26px, 6vw, 72px);
+    font-size: clamp(26px, 5vw, 56px);
     line-height: 0.92;
     letter-spacing: -0.04em;
     margin: 0;
@@ -536,7 +536,7 @@
 
 @media (min-width: 900px) {
     .dash-kicker { font-size: 11px; letter-spacing: 0.22em; }
-    .dash-h1 { font-size: clamp(36px, 5vw, 80px); }
+    .dash-h1 { font-size: clamp(32px, 4.5vw, 64px); }
     .dash-sub { font-size: clamp(16px, 1.5vw, 21px); }
 }
 
@@ -585,15 +585,14 @@
     min-width: 0;
 }
 
-/* Neo-brutal interactive card (projects, clickable items) */
 .dash-card--pop {
     border: 2px solid var(--color-ink);
-    box-shadow: 5px 5px 0 var(--color-ink);
+    box-shadow: 4px 4px 0 var(--color-ink);
     transition: transform 180ms ease, box-shadow 180ms ease;
 }
 .dash-card--pop:hover {
-    transform: translate(5px, 5px);
-    box-shadow: 0 0 0 var(--color-ink);
+    transform: translate(3px, 3px);
+    box-shadow: 1px 1px 0 var(--color-ink);
 }
 .dash-card--link { cursor: pointer; text-decoration: none; color: inherit; }
 
@@ -607,8 +606,8 @@
 @media (min-width: 900px) {
     .dash-grid { gap: clamp(14px, 2vw, 24px); }
     .dash-card { padding: clamp(16px, 2vw, 28px); gap: 10px; }
-    .dash-card--pop { box-shadow: 8px 8px 0 var(--color-ink); }
-    .dash-card--pop:hover { transform: translate(8px, 8px); }
+    .dash-card--pop { box-shadow: 6px 6px 0 var(--color-ink); }
+    .dash-card--pop:hover { transform: translate(4px, 4px); box-shadow: 2px 2px 0 var(--color-ink); }
     .dash-card__accent { width: 6px; }
 }
 
@@ -1085,11 +1084,16 @@
     position: relative;
     display: grid;
     grid-template-columns: 1fr;
-    gap: 10px;
-    padding: 13px 0 13px 14px;
+    gap: 12px;
+    padding: 16px 12px 16px 18px;
     border-top: 1px solid var(--color-hair);
     color: inherit;
     text-decoration: none;
+    transition: background 150ms ease;
+}
+
+.dash-overview-project-row:hover {
+    background: var(--color-paper-2);
 }
 
 .dash-overview-project-row:first-child {
@@ -1245,24 +1249,26 @@
 .dash-client-project__meta,
 .dash-project-card__grid,
 .dash-project-hero__meta {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 10px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px 24px;
+    border-top: 1px solid var(--color-hair);
+    padding-top: 14px;
+    margin-top: 4px;
 }
 
 .dash-client-project__meta > div,
 .dash-project-card__grid > div,
 .dash-project-hero__meta > div {
     min-width: 0;
-    border-top: 1px solid var(--color-hair);
-    padding-top: 10px;
+    flex: 1 1 auto;
 }
 
 .dash-client-project__meta strong,
 .dash-project-card__grid strong,
 .dash-project-hero__meta strong {
     display: block;
-    margin-top: 4px;
+    margin-top: 2px;
     font-size: 14px;
     line-height: 1.35;
     overflow-wrap: anywhere;
@@ -1295,12 +1301,12 @@
     position: relative;
     display: flex;
     flex-direction: column;
-    gap: clamp(16px, 2vw, 24px);
-    padding: clamp(18px, 3vw, 36px) clamp(18px, 3vw, 38px);
-    padding-left: clamp(22px, 3vw, 42px);
+    gap: clamp(14px, 2vw, 20px);
+    padding: clamp(16px, 3vw, 28px) clamp(16px, 3vw, 32px);
+    padding-left: clamp(20px, 3vw, 36px);
     background: var(--color-paper);
-    border: 2px solid var(--color-ink);
-    box-shadow: 8px 8px 0 var(--color-ink);
+    border: 1px solid var(--color-hair);
+    box-shadow: 6px 6px 0 var(--color-ink);
 }
 
 .dash-project-hero__title {
@@ -1352,6 +1358,12 @@
     border: 1px solid var(--color-hair);
     color: inherit;
     text-decoration: none;
+    transition: background 150ms ease, border-color 150ms ease;
+}
+
+.dash-overview-action__summary:hover {
+    background: var(--color-paper-2);
+    border-color: var(--color-ink);
 }
 
 .dash-overview-action__summary strong {
@@ -1486,12 +1498,6 @@
         text-align: left;
     }
 
-    .dash-client-project__meta,
-    .dash-project-card__grid,
-    .dash-project-hero__meta {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-
     .dash-overview-project__meta {
         grid-template-columns: repeat(3, minmax(0, 1fr));
         gap: 12px;
@@ -1499,11 +1505,14 @@
 
     .dash-overview-focus__meta,
     .dash-overview-project-row__head {
-        grid-template-columns: repeat(3, minmax(0, 1fr));
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 20px;
     }
 
     .dash-overview-project-row__head > div {
-        grid-column: span 2;
+        flex: 1 1 auto;
     }
 
     .dash-overview-project-row {

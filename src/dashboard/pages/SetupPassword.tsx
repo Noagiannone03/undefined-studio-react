@@ -51,9 +51,8 @@ export default function SetupPassword() {
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.7, ease: EXPO }}
                     >
-                        DEFINIS TON
-                        <br />
-                        <span className="login__accent">MOT DE PASSE.</span>
+                        Sécurise ton{' '}
+                        <span className="serif-italic">accès.</span>
                     </motion.h1>
 
                     <motion.p
@@ -114,9 +113,11 @@ export default function SetupPassword() {
             <div className="login__splash" aria-hidden>
                 <span className="dash-kicker login__splash-kicker">( PREMIÈRE CONNEXION ) — UNDEFINED STUDIO</span>
                 <p className="login__splash-big">
-                    TON ACCÈS,
+                    Ton espace,
                     <br />
-                    <span className="login__splash-italic">sécurisé.</span>
+                    <span className="login__splash-italic">totalement</span>
+                    <br />
+                    privé.
                 </p>
                 <p className="login__splash-quote">
                     Choisis ton mot de passe — il remplace le temporaire qu'on t'a envoyé.
