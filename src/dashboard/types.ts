@@ -117,6 +117,7 @@ export type Invoice = {
     pdfUrl?: string
     storagePath?: string
     notes?: string
+    sentAt?: string
     createdAt?: string
     updatedAt?: string
 }

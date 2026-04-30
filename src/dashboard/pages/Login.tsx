@@ -78,7 +78,7 @@ export default function Login() {
                     >
                         Avancement, questions, factures.
                         <br />
-                        Un seul accès, branché sur Firebase Auth.
+                        Tout ce qui concerne ton projet, en un seul accès.
                     </motion.p>
 
                     <motion.form
@@ -125,7 +125,6 @@ export default function Login() {
                             </svg>
                         </button>
 
-                        <p className="login__demo-note">Compte client: email + mot de passe temporaire, puis changement obligatoire.</p>
                     </motion.form>
                 </div>
 
@@ -147,8 +146,8 @@ export default function Login() {
                     EN DIRECT.
                 </p>
                 <p className="login__splash-quote">
-                    Cet espace te donne acces a l'avancement de ton projet,
-                    aux questions en cours et a tes factures.
+                    Tes livrables, ton avancement, tes factures.
+                    On s'occupe de tout — toi tu pilotes.
                 </p>
             </div>
         </div>

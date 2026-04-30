@@ -18,6 +18,7 @@ import {
     attachInvoicePdf,
     createInvoice,
     deleteInvoice as deleteInvoiceDoc,
+    markInvoiceSent,
     sumInvoiceItems,
     updateInvoice,
 } from '../firestore'
@@ -409,12 +410,13 @@ export default function InvoiceDetail() {
                     items: finalInvoice.items,
                     pdfBase64,
                 })
+                await markInvoiceSent(invoiceId)
+                navigate('/invoices', { replace: true, state: { justSent: finalInvoice.number } })
             } else {
-                setActionError('Aucun email de facturation. PDF stocké, pas envoyé.')
+                setActionError('Aucun email de facturation configuré pour ce client. PDF stocké, non envoyé.')
+                patch({ status: 'due' })
+                if (mode === 'new') navigate(`/invoices/${invoiceId}`, { replace: true })
             }
-
-            patch({ status: 'due' })
-            if (mode === 'new') navigate(`/invoices/${invoiceId}`, { replace: true })
         } catch (err) {
             console.error('[invoice/validate-and-send]', err)
             setActionError(err instanceof Error ? err.message : 'Échec.')

@@ -112,13 +112,14 @@ export default function SetupPassword() {
             </div>
 
             <div className="login__splash" aria-hidden>
-                <span className="dash-kicker login__splash-kicker">( FIRST LOGIN ) — PASSWORD RESET</span>
+                <span className="dash-kicker login__splash-kicker">( PREMIÈRE CONNEXION ) — UNDEFINED STUDIO</span>
                 <p className="login__splash-big">
-                    PREMIERE
+                    TON ACCÈS,
                     <br />
-                    <span className="login__splash-italic">connexion,</span>
-                    <br />
-                    PREMIER SETUP.
+                    <span className="login__splash-italic">sécurisé.</span>
+                </p>
+                <p className="login__splash-quote">
+                    Choisis ton mot de passe — il remplace le temporaire qu'on t'a envoyé.
                 </p>
             </div>
         </div>

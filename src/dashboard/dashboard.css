@@ -553,9 +553,24 @@
 @media (min-width: 640px) {
     .dash-grid--2 { grid-template-columns: 1fr 1fr; }
     .dash-grid--3 { grid-template-columns: 1fr 1fr; }
+    .dash-grid--4 { grid-template-columns: 1fr 1fr; }
 }
 @media (min-width: 1100px) {
     .dash-grid--3 { grid-template-columns: repeat(3, 1fr); }
+    .dash-grid--4 { grid-template-columns: repeat(4, 1fr); }
+}
+
+/* Success / info banner */
+.dash-banner {
+    padding: 14px 18px;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 500;
+}
+.dash-banner--success {
+    background: color-mix(in srgb, var(--color-ink) 8%, transparent);
+    border: 1px solid color-mix(in srgb, var(--color-ink) 20%, transparent);
+    color: var(--color-ink);
 }
 
 /* Default card: subtle, hairline border */

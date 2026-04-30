@@ -1,5 +1,5 @@
-import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { useEffect, useState } from 'react'
+import { Link, useLocation } from 'react-router-dom'
 import { pdf } from '@react-pdf/renderer'
 import { EmptyState } from '../components/EmptyState'
 import { InvoiceStatusPill } from '../components/StatusPill'
@@ -11,7 +11,7 @@ import {
     blobToBase64,
     uploadInvoicePdf,
 } from '../invoice/storage'
-import { attachInvoicePdf, updateInvoice } from '../firestore'
+import { attachInvoicePdf, markInvoiceSent, updateInvoice } from '../firestore'
 import { formatDate, formatEur } from '../utils'
 import type { Invoice } from '../types'
 
@@ -19,8 +19,20 @@ export default function Invoices() {
     const { user } = useAuth()
     const { invoices, findProject, findClient, hasClientScope, error } = useDashboardData()
     const isAdmin = user?.role === 'admin'
+    const location = useLocation()
 
     const [activeId, setActiveId] = useState<string | null>(null)
+    const [successMessage, setSuccessMessage] = useState<string | null>(
+        (location.state as { justSent?: string } | null)?.justSent
+            ? `Facture ${(location.state as { justSent: string }).justSent} envoyée.`
+            : null
+    )
+
+    useEffect(() => {
+        if (!successMessage) return
+        const t = setTimeout(() => setSuccessMessage(null), 5000)
+        return () => clearTimeout(t)
+    }, [successMessage])
 
     const paid = invoices.filter((invoice) => invoice.status === 'paid').reduce((sum, invoice) => sum + invoice.amount, 0)
     const due = invoices.filter((invoice) => invoice.status !== 'paid').reduce((sum, invoice) => sum + invoice.amount, 0)
@@ -90,8 +102,12 @@ export default function Invoices() {
                     notes: invoice.notes,
                 })
             }
+
+            await markInvoiceSent(invoice.id)
+            setSuccessMessage(`Facture ${invoice.number} envoyée à ${to}.`)
         } catch (err) {
             console.error('[invoices/send]', err)
+            setSuccessMessage(null)
             alert(err instanceof Error ? err.message : 'Échec de l\'envoi.')
         } finally {
             setActiveId(null)
@@ -178,6 +194,9 @@ export default function Invoices() {
             </header>
 
             {error && <div className="login__error">{error}</div>}
+            {successMessage && (
+                <div className="dash-banner dash-banner--success">{successMessage}</div>
+            )}
 
             <section className="dash-grid dash-grid--2">
                 <div className="dash-card">
@@ -213,6 +232,7 @@ export default function Invoices() {
                                     <th>Échéance</th>
                                     <th>Montant</th>
                                     <th>Statut</th>
+                                    {isAdmin && <th>Envoyée</th>}
                                     <th style={{ textAlign: 'right' }}>Actions</th>
                                 </tr>
                             </thead>
@@ -241,6 +261,11 @@ export default function Invoices() {
                                             <td>{formatDate(invoice.due)}</td>
                                             <td className="dash-table__num">{formatEur(invoice.amount)}</td>
                                             <td><InvoiceStatusPill status={invoice.status} /></td>
+                                            {isAdmin && (
+                                                <td style={{ fontSize: 12, color: 'var(--color-ink-soft)' }}>
+                                                    {invoice.sentAt ? formatDate(invoice.sentAt) : '—'}
+                                                </td>
+                                            )}
                                             <td style={{ textAlign: 'right' }}>
                                                 <div className="dash-row" style={{ justifyContent: 'flex-end', gap: 8 }}>
                                                     <button
@@ -260,7 +285,7 @@ export default function Invoices() {
                                                                 disabled={isActive}
                                                                 onClick={() => onSendInvoice(invoice)}
                                                             >
-                                                                {isActive ? 'Envoi…' : 'Envoyer'}
+                                                                {isActive ? 'Envoi…' : invoice.sentAt ? 'Renvoyer' : 'Envoyer'}
                                                             </button>
                                                             {invoice.status !== 'paid' && (
                                                                 <button
@@ -270,7 +295,7 @@ export default function Invoices() {
                                                                     disabled={isActive}
                                                                     onClick={() => onMarkPaid(invoice)}
                                                                 >
-                                                                    {isActive ? 'MAJ…' : 'Payée'}
+                                                                    {isActive ? 'Mise à jour…' : 'Marquer payée'}
                                                                 </button>
                                                             )}
                                                         </>

@@ -396,6 +396,7 @@ function mapInvoice(id: string, data: Record<string, unknown>): Invoice {
         pdfUrl: typeof data.pdfUrl === 'string' ? data.pdfUrl : undefined,
         storagePath: typeof data.storagePath === 'string' ? data.storagePath : undefined,
         notes: typeof data.notes === 'string' ? data.notes : undefined,
+        sentAt: typeof data.sentAt === 'string' ? data.sentAt : undefined,
         createdAt: toIsoDate(data.createdAt),
         updatedAt: toIsoDate(data.updatedAt),
     }
@@ -819,6 +820,13 @@ export async function attachInvoicePdf(invoiceId: string, input: AttachInvoicePd
     }
     if (input.source) patch.source = input.source
     await updateDoc(doc(db, INVOICES, invoiceId), patch)
+}
+
+export async function markInvoiceSent(invoiceId: string) {
+    await updateDoc(doc(db, INVOICES, invoiceId), {
+        sentAt: isoNow(),
+        updatedAt: isoNow(),
+    })
 }
 
 export async function deleteInvoice(invoice: Pick<Invoice, 'id' | 'storagePath'>) {
