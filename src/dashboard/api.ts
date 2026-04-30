@@ -11,13 +11,24 @@ async function post(path: string, body: unknown) {
       body: JSON.stringify(body),
     })
     if (!res.ok) {
-      const text = await res.text().catch(() => '')
-      console.error(`[mail] ${path} failed: HTTP ${res.status}`, text)
+      let message = `HTTP ${res.status}`
+      try {
+        const payload = await res.json()
+        if (payload && typeof payload.error === 'string' && payload.error.trim()) {
+          message = payload.error
+        }
+      } catch {
+        const text = await res.text().catch(() => '')
+        if (text.trim()) message = text
+      }
+      console.error(`[mail] ${path} failed: HTTP ${res.status}`, message)
+      throw new Error(message)
     } else {
       console.info(`[mail] ${path} sent`)
     }
   } catch (err) {
     console.error(`[mail] ${path} network error`, err)
+    throw err instanceof Error ? err : new Error(`Mail ${path} failed`)
   }
 }
 
