@@ -76,9 +76,7 @@ export default function Login() {
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.6, ease: EXPO, delay: 0.1 }}
                     >
-                        Avancement, questions, factures.
-                        <br />
-                        Tout ce qui concerne ton projet, en un seul accès.
+                        Connecte-toi pour accéder à ton espace de suivi.
                     </motion.p>
 
                     <motion.form
@@ -146,8 +144,8 @@ export default function Login() {
                     EN DIRECT.
                 </p>
                 <p className="login__splash-quote">
-                    Tes livrables, ton avancement, tes factures.
-                    On s'occupe de tout — toi tu pilotes.
+                    Pas de flou. Pas de relances.
+                    On construit, tu suis. En temps réel.
                 </p>
             </div>
         </div>

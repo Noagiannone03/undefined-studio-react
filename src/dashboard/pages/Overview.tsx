@@ -144,150 +144,104 @@ export default function Overview() {
         )
     }
 
-    const activeProjects = projects.filter((project) => project.status !== 'live' && project.status !== 'paused')
+    const activeProjects = projects.filter((p) => p.status !== ‘live’ && p.status !== ‘paused’)
     const visibleProjects = activeProjects.length > 0 ? activeProjects : projects
-    const openTickets = tickets.filter((ticket) => ticket.status !== 'resolved')
-    const outstandingInvoices = invoices.filter((invoice) => invoice.status !== 'paid')
-    const dueTotal = outstandingInvoices.reduce((sum, invoice) => sum + invoice.amount, 0)
-    const firstName = user?.name?.split(' ')[0] ?? 'là'
+    const openTickets = tickets.filter((t) => t.status !== ‘resolved’)
+    const outstandingInvoices = invoices.filter((inv) => inv.status !== ‘paid’)
+    const firstName = user?.name?.split(‘ ‘)[0] ?? ‘là’
 
     return (
         <div className="dash-stack-lg">
+            {/* Greeting */}
             <header className="dash-page-head">
-                <span className="dash-kicker">( 01 ) — Aperçu</span>
                 <h1 className="dash-h1">
-                    Salut, <span className="serif-italic">{firstName}.</span>
+                    Bonjour, <span className="serif-italic">{firstName}.</span>
                 </h1>
-                <p className="dash-sub">
-                    Point rapide sur tes projets.
-                </p>
             </header>
 
-            <section className="dash-grid dash-grid--3">
-                {[
-                    {
-                        label: 'Projets actifs',
-                        value: activeProjects.length.toString().padStart(2, '0'),
-                        hint: 'en cours',
-                    },
-                    {
-                        label: 'Tickets ouverts',
-                        value: openTickets.length.toString().padStart(2, '0'),
-                        hint: 'en attente',
-                    },
-                    {
-                        label: 'Montant dû',
-                        value: formatEur(dueTotal),
-                        hint: `${outstandingInvoices.length} facture${outstandingInvoices.length > 1 ? 's' : ''}`,
-                    },
-                ].map((card) => (
-                    <div key={card.label} className="dash-card">
-                        <span className="dash-kicker">{card.label}</span>
-                        <div className="dash-row-between" style={{ alignItems: 'flex-end' }}>
-                            <span className="dash-h1" style={{ fontSize: 'clamp(34px, 6vw, 64px)' }}>{card.value}</span>
-                            <span className="dash-kicker">{card.hint}</span>
-                        </div>
-                    </div>
-                ))}
-            </section>
-
-            <section className="dash-stack">
-                <div className="dash-row-between">
-                    <h2 className="dash-h2">{activeProjects.length > 0 ? 'Projets en cours' : 'Tes projets'}</h2>
-                    <Link to="/projects" className="dash-kicker" style={{ textDecoration: 'none' }}>
-                        Tous les projets →
-                    </Link>
-                </div>
-                {visibleProjects.length === 0 ? (
-                    <EmptyState title="Aucun projet" body="Tes projets apparaîtront ici dès qu’ils seront activés." />
-                ) : (
-                    <div className="dash-grid dash-grid--2">
-                        {visibleProjects.map((project) => (
-                            <div key={project.id}>
-                                <Link to={`/projects/${project.id}`} className="dash-card dash-card--pop dash-card--link">
-                                    <span className="dash-card__accent" style={{ background: project.accent }} />
-                                    <div className="dash-row-between">
-                                        <ProjectStatusPill status={project.status} />
-                                        <span className="dash-kicker">Livraison · {formatDate(project.delivery)}</span>
-                                    </div>
-                                    <h3 className="dash-h2" style={{ marginTop: 8 }}>{project.name}</h3>
-                                    <p className="dash-sub" style={{ fontSize: 16 }}>{project.tagline}</p>
-                                    <div className="dash-stack-sm" style={{ marginTop: 14 }}>
-                                        <div className="dash-row-between">
-                                            <span className="dash-kicker">Avancement</span>
-                                            <span className="dash-progress__value">{project.progress}%</span>
-                                        </div>
-                                        <ProgressBar value={project.progress} color={project.accent} />
-                                    </div>
-                                </Link>
-                            </div>
-                        ))}
-                    </div>
-                )}
-            </section>
-
-            <section className="dash-stack">
-                <div className="dash-row-between">
-                    <h2 className="dash-h2">Derniers tickets</h2>
-                    <Link to="/tickets" className="dash-kicker" style={{ textDecoration: 'none' }}>
-                        Tous les tickets →
-                    </Link>
-                </div>
-                <div className="dash-stack">
-                    {tickets.slice(0, 3).map((ticket) => {
-                        const project = findProject(ticket.projectId)
+            {/* Projets — centre de l’écran */}
+            {visibleProjects.length === 0 ? (
+                <EmptyState title="Aucun projet actif" body="Tes projets apparaîtront ici dès qu’ils sont lancés." />
+            ) : (
+                <div className={visibleProjects.length === 1 ? ‘dash-stack’ : ‘dash-grid dash-grid--2’}>
+                    {visibleProjects.map((project) => {
+                        const activeStep = project.milestones.find((m) => m.status === ‘current’)
+                            ?? project.milestones.find((m) => m.status === ‘upcoming’)
                         return (
-                            <Link key={ticket.id} to="/tickets" className="dash-card dash-card--link" style={{ gap: 8 }}>
+                            <Link key={project.id} to={`/projects/${project.id}`} className="dash-card dash-card--pop dash-card--link">
+                                <span className="dash-card__accent" style={{ background: project.accent }} />
                                 <div className="dash-row-between">
-                                    <span className="dash-kicker">
-                                        {ticket.id.toUpperCase()} {project ? `· ${project.name}` : ''}
-                                    </span>
-                                    <TicketStatusPill status={ticket.status} />
+                                    <ProjectStatusPill status={project.status} />
+                                    <span className="dash-kicker">Livraison · {formatDate(project.delivery)}</span>
                                 </div>
-                                <h3 className="dash-h2" style={{ fontSize: 'clamp(18px, 2vw, 22px)' }}>{ticket.subject}</h3>
-                                <p style={{ margin: 0, color: 'var(--color-ink-soft)', fontSize: 14, lineHeight: 1.5 }}>
-                                    {ticket.body}
-                                </p>
+                                <h2 className="dash-h2" style={{ marginTop: 10 }}>{project.name}</h2>
+                                {project.tagline && (
+                                    <p className="dash-sub" style={{ fontSize: 15 }}>{project.tagline}</p>
+                                )}
+                                {activeStep && (
+                                    <p style={{ margin: ‘6px 0 0’, fontSize: 13, color: ‘var(--color-ink-soft)’, fontStyle: ‘italic’ }}>
+                                        En cours : {activeStep.label}
+                                    </p>
+                                )}
+                                <div className="dash-stack-sm" style={{ marginTop: 16 }}>
+                                    <div className="dash-row-between">
+                                        <span className="dash-kicker">Avancement</span>
+                                        <span className="dash-progress__value">{project.progress}%</span>
+                                    </div>
+                                    <ProgressBar value={project.progress} color={project.accent} />
+                                </div>
                             </Link>
                         )
                     })}
                 </div>
-            </section>
+            )}
 
-            <section className="dash-stack">
-                <div className="dash-row-between">
-                    <h2 className="dash-h2">À régler</h2>
-                    <Link to="/invoices" className="dash-kicker" style={{ textDecoration: 'none' }}>
-                        Toutes les factures →
-                    </Link>
-                </div>
-                <div className="dash-stack">
-                    {outstandingInvoices.length === 0 ? (
+            {/* Tickets + Factures — seulement si nécessaire */}
+            {(openTickets.length > 0 || outstandingInvoices.length > 0) && (
+                <div className="dash-grid dash-grid--2" style={{ alignItems: ‘start’ }}>
+                    {openTickets.length > 0 && (
                         <div className="dash-card">
-                            <span className="dash-kicker">Rien en attente</span>
-                            <p className="dash-sub" style={{ fontSize: 16 }}>Tout est à jour, nickel.</p>
+                            <div className="dash-row-between">
+                                <h2 className="dash-h2" style={{ fontSize: ‘clamp(16px, 2vw, 22px)’ }}>Questions ouvertes</h2>
+                                <Link to="/tickets" className="dash-kicker" style={{ textDecoration: ‘none’ }}>Voir tout →</Link>
+                            </div>
+                            {openTickets.slice(0, 3).map((ticket) => {
+                                const proj = findProject(ticket.projectId)
+                                return (
+                                    <Link key={ticket.id} to="/tickets" className="dash-card dash-card--link" style={{ padding: 12 }}>
+                                        <div className="dash-row-between">
+                                            <span className="dash-kicker">{proj?.name ?? ‘Sans projet’}</span>
+                                            <TicketStatusPill status={ticket.status} />
+                                        </div>
+                                        <p style={{ margin: ‘4px 0 0’, fontSize: 14, fontWeight: 600 }}>{ticket.subject}</p>
+                                    </Link>
+                                )
+                            })}
                         </div>
-                    ) : (
-                        outstandingInvoices.map((invoice) => {
-                            const project = findProject(invoice.projectId)
-                            return (
-                                <div key={invoice.id} className="dash-card">
-                                    <div className="dash-row-between">
-                                        <span className="dash-kicker">
-                                            {invoice.number} {project ? `· ${project.name}` : ''}
-                                        </span>
+                    )}
+
+                    {outstandingInvoices.length > 0 && (
+                        <div className="dash-card">
+                            <div className="dash-row-between">
+                                <h2 className="dash-h2" style={{ fontSize: ‘clamp(16px, 2vw, 22px)’ }}>À régler</h2>
+                                <Link to="/invoices" className="dash-kicker" style={{ textDecoration: ‘none’ }}>Voir tout →</Link>
+                            </div>
+                            {outstandingInvoices.map((invoice) => {
+                                const proj = findProject(invoice.projectId)
+                                return (
+                                    <div key={invoice.id} className="dash-row-between" style={{ padding: ‘10px 0’, borderBottom: ‘1px solid var(--color-hair)’ }}>
+                                        <div>
+                                            <span className="dash-kicker">{proj?.name ?? invoice.number}</span>
+                                            <p style={{ margin: ‘2px 0 0’, fontSize: 15, fontWeight: 700 }}>{formatEur(invoice.amount)}</p>
+                                        </div>
                                         <InvoiceStatusPill status={invoice.status} />
                                     </div>
-                                    <div className="dash-row-between" style={{ alignItems: 'flex-end' }}>
-                                        <span className="dash-h2" style={{ fontSize: 24 }}>{formatEur(invoice.amount)}</span>
-                                        <span className="dash-kicker">Échéance · {formatDate(invoice.due)}</span>
-                                    </div>
-                                </div>
-                            )
-                        })
+                                )
+                            })}
+                        </div>
                     )}
                 </div>
-            </section>
+            )}
         </div>
     )
 }
