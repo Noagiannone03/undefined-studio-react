@@ -64,10 +64,8 @@ export default function Login() {
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.7, ease: EXPO }}
                     >
-                        TON{' '}
-                        <span className="serif-italic">projet,</span>
-                        <br />
-                        AU <span className="login__accent">CLAIR.</span>
+                        Ton espace{' '}
+                        <span className="serif-italic">projet.</span>
                     </motion.h1>
 
                     <motion.p
@@ -76,7 +74,7 @@ export default function Login() {
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.6, ease: EXPO, delay: 0.1 }}
                     >
-                        Connecte-toi pour accéder à ton espace de suivi.
+                        Avancement, factures, échanges — au même endroit.
                     </motion.p>
 
                     <motion.form
@@ -137,15 +135,15 @@ export default function Login() {
                     ( APP ) — UNDEFINED STUDIO
                 </span>
                 <p className="login__splash-big">
-                    ON BATIT,
+                    On construit,
                     <br />
-                    <span className="login__splash-italic">tu regardes</span>
+                    <span className="login__splash-italic">tu suis</span>
                     <br />
-                    EN DIRECT.
+                    en clair.
                 </p>
                 <p className="login__splash-quote">
-                    Pas de flou. Pas de relances.
-                    On construit, tu suis. En temps réel.
+                    L’avancement, les factures, les échanges.
+                    À jour, à un seul endroit.
                 </p>
             </div>
         </div>
