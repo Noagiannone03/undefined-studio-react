@@ -215,26 +215,26 @@ export default function Overview() {
                 <EmptyState title="Aucun projet actif" body="Tes projets apparaîtront ici dès qu’ils sont lancés." />
             ) : (
                 <>
-                    <section className="dash-overview-brief">
+                    <section className="dash-overview-snapshot">
                         <Link
                             to={`/projects/${priorityProject.id}`}
-                            className="dash-overview-brief__project"
+                            className="dash-overview-snapshot__project"
                         >
-                            <span className="dash-overview-brief__accent" style={{ background: priorityProject.accent }} />
-                            <div className="dash-overview-brief__content">
-                                <div className="dash-overview-brief__head">
-                                    <span className="dash-kicker">À suivre maintenant</span>
-                                    <ProjectStatusPill status={priorityProject.status} />
-                                </div>
-                                <h2 className="dash-overview-brief__title">{priorityProject.name}</h2>
-                                <div className="dash-overview-brief__progress">
-                                    <ProgressBar value={priorityProject.progress} color={priorityProject.accent} />
-                                    <strong>{priorityProject.progress}%</strong>
-                                </div>
+                            <span className="dash-overview-snapshot__accent" style={{ background: priorityProject.accent }} />
+                            <div>
+                                <span className="dash-kicker">À suivre</span>
+                                <h2>{priorityProject.name}</h2>
                             </div>
+                            <ProjectStatusPill status={priorityProject.status} />
                         </Link>
 
-                        <div className="dash-overview-brief__facts">
+                        <div className="dash-overview-snapshot__progress">
+                            <span>Avancement</span>
+                            <ProgressBar value={priorityProject.progress} color={priorityProject.accent} />
+                            <strong>{priorityProject.progress}%</strong>
+                        </div>
+
+                        <div className="dash-overview-snapshot__facts">
                             <div>
                                 <span>Étape</span>
                                 <strong>{prioritySteps?.current?.label ?? 'À définir'}</strong>
@@ -249,7 +249,7 @@ export default function Overview() {
                             </div>
                         </div>
 
-                        <div className="dash-overview-brief__metrics">
+                        <div className="dash-overview-snapshot__metrics">
                             <Link to="/projects">
                                 <strong>{String(visibleProjects.length).padStart(2, '0')}</strong>
                                 <span>projets</span>
@@ -284,8 +284,8 @@ export default function Overview() {
                                         const isRecentUpdate = latestUpdate && (new Date().getTime() - new Date(latestUpdate.date).getTime() < 3 * 24 * 60 * 60 * 1000)
 
                                         return (
-                                            <Link key={project.id} to={`/projects/${project.id}`} className="dash-card dash-card--link dash-overview-project-row">
-                                                <span className="dash-card__accent" style={{ background: project.accent }} />
+                                            <Link key={project.id} to={`/projects/${project.id}`} className="dash-overview-project-row">
+                                                <span className="dash-overview-project-row__accent" style={{ background: project.accent }} />
                                                 <div className="dash-overview-project-row__head">
                                                     <div style={{ minWidth: 0 }}>
                                                         <div className="dash-row" style={{ gap: 8, marginBottom: 6 }}>

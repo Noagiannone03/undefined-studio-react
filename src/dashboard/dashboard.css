@@ -802,6 +802,108 @@
     letter-spacing: -0.02em;
 }
 
+.dash-overview-snapshot {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 14px;
+    padding: 18px 0;
+    border-top: 1px solid var(--color-ink);
+    border-bottom: 1px solid var(--color-hair);
+}
+
+.dash-overview-snapshot__project {
+    position: relative;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 14px;
+    min-width: 0;
+    padding-left: 14px;
+    color: inherit;
+    text-decoration: none;
+}
+
+.dash-overview-snapshot__accent {
+    position: absolute;
+    left: 0;
+    top: 2px;
+    bottom: 2px;
+    width: 4px;
+}
+
+.dash-overview-snapshot__project h2 {
+    margin: 3px 0 0;
+    font-size: clamp(20px, 2.4vw, 30px);
+    line-height: 1.05;
+    font-weight: 900;
+    max-width: 24ch;
+}
+
+.dash-overview-snapshot__progress {
+    display: grid;
+    grid-template-columns: auto minmax(90px, 1fr) auto;
+    gap: 10px;
+    align-items: center;
+}
+
+.dash-overview-snapshot__progress span,
+.dash-overview-snapshot__facts span,
+.dash-overview-snapshot__metrics span {
+    display: block;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--color-ink-mute);
+}
+
+.dash-overview-snapshot__progress strong {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 0.08em;
+}
+
+.dash-overview-snapshot__facts,
+.dash-overview-snapshot__metrics {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 10px;
+}
+
+.dash-overview-snapshot__facts {
+    padding-top: 2px;
+}
+
+.dash-overview-snapshot__facts strong {
+    display: block;
+    margin-top: 3px;
+    font-size: 13px;
+    line-height: 1.35;
+    font-weight: 650;
+}
+
+.dash-overview-snapshot__metrics {
+    padding-top: 12px;
+    border-top: 1px solid var(--color-hair);
+}
+
+.dash-overview-snapshot__metrics > a,
+.dash-overview-snapshot__metrics > div {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+    color: inherit;
+    text-decoration: none;
+}
+
+.dash-overview-snapshot__metrics strong {
+    font-family: 'Archivo Black', sans-serif;
+    font-size: 20px;
+    line-height: 1;
+    letter-spacing: -0.02em;
+}
+
 .dash-overview-layout {
     display: grid;
     grid-template-columns: 1fr;
@@ -944,8 +1046,25 @@
 }
 
 .dash-overview-project-row {
-    gap: 14px;
-    padding-left: clamp(18px, 2vw, 28px);
+    position: relative;
+    display: grid;
+    gap: 12px;
+    padding: 14px 0 14px 14px;
+    border-top: 1px solid var(--color-hair);
+    color: inherit;
+    text-decoration: none;
+}
+
+.dash-overview-project-row:first-child {
+    border-top-color: var(--color-ink);
+}
+
+.dash-overview-project-row__accent {
+    position: absolute;
+    left: 0;
+    top: 14px;
+    bottom: 14px;
+    width: 4px;
 }
 
 .dash-overview-project-row__head {
@@ -1284,6 +1403,30 @@
         border-left: 0;
     }
 
+    .dash-overview-snapshot {
+        grid-template-columns: minmax(0, 1fr) minmax(260px, 0.75fr);
+        align-items: start;
+    }
+
+    .dash-overview-snapshot__project,
+    .dash-overview-snapshot__progress {
+        grid-column: 1;
+    }
+
+    .dash-overview-snapshot__facts,
+    .dash-overview-snapshot__metrics {
+        grid-column: 2;
+    }
+
+    .dash-overview-snapshot__facts {
+        grid-template-columns: 1fr;
+        padding-top: 0;
+    }
+
+    .dash-overview-snapshot__metrics {
+        margin-top: 2px;
+    }
+
     .dash-client-project__meta,
     .dash-project-card__grid,
     .dash-project-hero__meta {
@@ -1355,6 +1498,32 @@
 
     .dash-overview-brief__metrics > :last-child {
         border-bottom: 0;
+    }
+
+    .dash-overview-snapshot {
+        grid-template-columns: minmax(0, 1.05fr) minmax(360px, 0.85fr) minmax(220px, 0.5fr);
+        column-gap: 26px;
+        row-gap: 12px;
+    }
+
+    .dash-overview-snapshot__project,
+    .dash-overview-snapshot__progress {
+        grid-column: 1;
+    }
+
+    .dash-overview-snapshot__facts {
+        grid-column: 2;
+        grid-row: 1 / span 2;
+        align-self: center;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .dash-overview-snapshot__metrics {
+        grid-column: 3;
+        grid-row: 1 / span 2;
+        align-self: center;
+        padding-top: 0;
+        border-top: 0;
     }
 
     .dash-client-projects,
