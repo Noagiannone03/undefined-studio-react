@@ -256,7 +256,7 @@ export default function Overview() {
 
                                 <div className="dash-grid dash-grid--2">
                                     {visibleProjects.map((project) => {
-                                        const { current, upcoming } = nextSteps(project)
+                                        const { current } = nextSteps(project)
                                         const latestUpdate = projectUpdates
                                             .filter((update) => update.projectId === project.id)
                                             .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())[0]
