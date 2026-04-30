@@ -52,7 +52,7 @@ export default function Clients() {
                     Les entreprises <span className="serif-italic">clientes.</span>
                 </h1>
                 <p className="dash-sub">
-                    Crée ici une entreprise. Ses accès et ses projets se gèrent ensuite directement depuis sa fiche.
+                    Comptes, accès et projets rattachés à chaque entreprise.
                 </p>
             </header>
 

@@ -2285,19 +2285,6 @@
     min-width: 0;
 }
 
-.dash-invoice-client__side {
-    border-top: 1px solid var(--color-hair);
-    padding-top: 14px;
-}
-
-.dash-invoice-client__side p {
-    margin: 4px 0 0;
-    max-width: 42ch;
-    font-size: 13px;
-    line-height: 1.45;
-    color: var(--color-ink-soft);
-}
-
 .dash-invoice-client__preview-head {
     display: flex;
     align-items: center;
@@ -2351,13 +2338,7 @@
 
 @media (min-width: 1100px) {
     .dash-invoice-client {
-        grid-template-columns: minmax(0, 1fr) 260px;
-        gap: 24px;
-    }
-
-    .dash-invoice-client__side {
-        position: sticky;
-        top: 18px;
+        grid-template-columns: 1fr;
     }
 }
 

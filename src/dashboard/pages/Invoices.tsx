@@ -246,8 +246,8 @@ export default function Invoices() {
                 </div>
                 <p className="dash-sub">
                     {isAdmin
-                        ? 'Crée une nouvelle facture ou archive une facture déjà émise. Les PDF sont stockés sur Firebase Storage.'
-                        : 'Consulte tes factures directement ici, avec téléchargement disponible si besoin.'}
+                        ? 'Création, envoi et suivi des règlements au même endroit.'
+                        : 'Historique clair des règlements, avec aperçu disponible à la demande.'}
                 </p>
             </header>
 
@@ -304,12 +304,6 @@ export default function Invoices() {
                             )
                         })}
                     </div>
-
-                    <aside className="dash-invoice-client__side">
-                        <span className="dash-kicker">Consultation</span>
-                        <p>Choisis une facture pour l'ouvrir en aperçu. Le téléchargement PDF reste disponible dans la fenêtre.</p>
-                    </aside>
-
                     {previewOpen && previewInvoice && (
                         <div className="dash-modal" role="dialog" aria-modal="true" aria-label={`Aperçu ${previewInvoice.number}`}>
                             <div className="dash-modal__backdrop" onClick={closePreview} />
