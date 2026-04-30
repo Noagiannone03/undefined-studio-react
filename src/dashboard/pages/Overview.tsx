@@ -215,57 +215,52 @@ export default function Overview() {
                 <EmptyState title="Aucun projet actif" body="Tes projets apparaîtront ici dès qu’ils sont lancés." />
             ) : (
                 <>
-                    <section className="dash-overview-focus">
+                    <section className="dash-overview-brief">
                         <Link
                             to={`/projects/${priorityProject.id}`}
-                            className="dash-card dash-card--link dash-overview-focus__main"
+                            className="dash-overview-brief__project"
                         >
-                            <span className="dash-card__accent" style={{ background: priorityProject.accent }} />
-                            <div className="dash-row-between" style={{ alignItems: 'flex-start' }}>
-                                <div>
+                            <span className="dash-overview-brief__accent" style={{ background: priorityProject.accent }} />
+                            <div className="dash-overview-brief__content">
+                                <div className="dash-overview-brief__head">
                                     <span className="dash-kicker">À suivre maintenant</span>
-                                    <h2 className="dash-h2 dash-overview-focus__title">{priorityProject.name}</h2>
+                                    <ProjectStatusPill status={priorityProject.status} />
                                 </div>
-                                <ProjectStatusPill status={priorityProject.status} />
-                            </div>
-                            <div className="dash-stack-sm">
-                                <div className="dash-row-between">
-                                    <span className="dash-kicker">Avancement</span>
-                                    <strong className="dash-progress__value">{priorityProject.progress}%</strong>
-                                </div>
-                                <ProgressBar value={priorityProject.progress} color={priorityProject.accent} />
-                            </div>
-                            <div className="dash-overview-focus__meta">
-                                <div>
-                                    <span className="dash-kicker">Étape actuelle</span>
-                                    <strong>{prioritySteps?.current?.label ?? 'À définir'}</strong>
-                                </div>
-                                <div>
-                                    <span className="dash-kicker">Prochaine étape</span>
-                                    <strong>{prioritySteps?.upcoming?.label ?? 'Planning à venir'}</strong>
-                                </div>
-                                <div>
-                                    <span className="dash-kicker">Livraison</span>
-                                    <strong>{deliveryHint(priorityProject.delivery)}</strong>
+                                <h2 className="dash-overview-brief__title">{priorityProject.name}</h2>
+                                <div className="dash-overview-brief__progress">
+                                    <ProgressBar value={priorityProject.progress} color={priorityProject.accent} />
+                                    <strong>{priorityProject.progress}%</strong>
                                 </div>
                             </div>
                         </Link>
 
-                        <div className="dash-overview-focus__stats">
-                            <Link to="/projects" className="dash-card dash-card--link dash-overview-stat">
-                                <span className="dash-kicker">Projets</span>
-                                <strong>{String(visibleProjects.length).padStart(2, '0')}</strong>
-                                <span>{activeProjects.length} actif{activeProjects.length > 1 ? 's' : ''}</span>
-                            </Link>
-                            <div className="dash-card dash-overview-stat">
-                                <span className="dash-kicker">Moyenne</span>
-                                <strong>{globalProgress}%</strong>
-                                <span>avancement global</span>
+                        <div className="dash-overview-brief__facts">
+                            <div>
+                                <span>Étape</span>
+                                <strong>{prioritySteps?.current?.label ?? 'À définir'}</strong>
                             </div>
-                            <Link to={actionCount > 0 ? '/tickets' : '/projects'} className="dash-card dash-card--link dash-overview-stat">
-                                <span className="dash-kicker">À traiter</span>
+                            <div>
+                                <span>Ensuite</span>
+                                <strong>{prioritySteps?.upcoming?.label ?? 'Planning à venir'}</strong>
+                            </div>
+                            <div>
+                                <span>Livraison</span>
+                                <strong>{deliveryHint(priorityProject.delivery)}</strong>
+                            </div>
+                        </div>
+
+                        <div className="dash-overview-brief__metrics">
+                            <Link to="/projects">
+                                <strong>{String(visibleProjects.length).padStart(2, '0')}</strong>
+                                <span>projets</span>
+                            </Link>
+                            <div>
+                                <strong>{globalProgress}%</strong>
+                                <span>moyenne</span>
+                            </div>
+                            <Link to={actionCount > 0 ? '/tickets' : '/projects'}>
                                 <strong>{actionCount}</strong>
-                                <span>{outstandingInvoices.length} facture{outstandingInvoices.length > 1 ? 's' : ''}, {openTickets.length} question{openTickets.length > 1 ? 's' : ''}</span>
+                                <span>à traiter</span>
                             </Link>
                         </div>
                     </section>
