@@ -904,6 +904,42 @@
     letter-spacing: -0.02em;
 }
 
+.dash-overview-strip {
+    display: grid;
+    grid-template-columns: 1fr;
+    border-top: 1px solid var(--color-ink);
+    border-bottom: 1px solid var(--color-hair);
+}
+
+.dash-overview-strip__item {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 14px;
+    padding: 12px 0;
+    border-top: 1px solid var(--color-hair);
+    color: inherit;
+    text-decoration: none;
+}
+
+.dash-overview-strip__item:first-child {
+    border-top: 0;
+}
+
+.dash-overview-strip__item span {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--color-ink-mute);
+}
+
+.dash-overview-strip__item strong {
+    font-size: 14px;
+    line-height: 1.2;
+    text-align: right;
+}
+
 .dash-overview-layout {
     display: grid;
     grid-template-columns: 1fr;
@@ -1048,8 +1084,9 @@
 .dash-overview-project-row {
     position: relative;
     display: grid;
-    gap: 12px;
-    padding: 14px 0 14px 14px;
+    grid-template-columns: 1fr;
+    gap: 10px;
+    padding: 13px 0 13px 14px;
     border-top: 1px solid var(--color-hair);
     color: inherit;
     text-decoration: none;
@@ -1075,14 +1112,14 @@
 
 .dash-overview-project-row__title {
     margin: 0;
-    font-size: clamp(18px, 2vw, 24px);
-    line-height: 1.1;
-    font-weight: 900;
+    font-size: 16px;
+    line-height: 1.25;
+    font-weight: 750;
 }
 
 .dash-overview-project-row__date {
     font-family: 'JetBrains Mono', monospace;
-    font-size: 11px;
+    font-size: 10px;
     line-height: 1.35;
     color: var(--color-ink-soft);
 }
@@ -1427,6 +1464,28 @@
         margin-top: 2px;
     }
 
+    .dash-overview-strip {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+
+    .dash-overview-strip__item {
+        display: block;
+        padding: 14px 16px;
+        border-top: 0;
+        border-left: 1px solid var(--color-hair);
+    }
+
+    .dash-overview-strip__item:first-child {
+        border-left: 0;
+        padding-left: 0;
+    }
+
+    .dash-overview-strip__item strong {
+        display: block;
+        margin-top: 5px;
+        text-align: left;
+    }
+
     .dash-client-project__meta,
     .dash-project-card__grid,
     .dash-project-hero__meta {
@@ -1445,6 +1504,15 @@
 
     .dash-overview-project-row__head > div {
         grid-column: span 2;
+    }
+
+    .dash-overview-project-row {
+        grid-template-columns: minmax(0, 1fr) minmax(120px, 0.28fr);
+        align-items: center;
+    }
+
+    .dash-overview-project-row .dash-stack-sm {
+        gap: 6px;
     }
 
     .dash-overview-meta {

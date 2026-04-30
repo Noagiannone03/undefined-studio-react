@@ -191,8 +191,6 @@ export default function Overview() {
     const nextDelivery = [...visibleProjects]
         .filter((project) => project.delivery)
         .sort((a, b) => new Date(a.delivery).getTime() - new Date(b.delivery).getTime())[0]
-    const priorityProject = nextDelivery ?? visibleProjects[0]
-    const prioritySteps = priorityProject ? nextSteps(priorityProject) : null
     const latestUpdates = [...projectUpdates]
         .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
         .slice(0, 3)
@@ -215,53 +213,22 @@ export default function Overview() {
                 <EmptyState title="Aucun projet actif" body="Tes projets apparaîtront ici dès qu’ils sont lancés." />
             ) : (
                 <>
-                    <section className="dash-overview-snapshot">
-                        <Link
-                            to={`/projects/${priorityProject.id}`}
-                            className="dash-overview-snapshot__project"
-                        >
-                            <span className="dash-overview-snapshot__accent" style={{ background: priorityProject.accent }} />
-                            <div>
-                                <span className="dash-kicker">À suivre</span>
-                                <h2>{priorityProject.name}</h2>
-                            </div>
-                            <ProjectStatusPill status={priorityProject.status} />
+                    <section className="dash-overview-strip" aria-label="Résumé dashboard">
+                        <Link to="/projects" className="dash-overview-strip__item">
+                            <span>Projets actifs</span>
+                            <strong>{activeProjects.length}</strong>
                         </Link>
-
-                        <div className="dash-overview-snapshot__progress">
-                            <span>Avancement</span>
-                            <ProgressBar value={priorityProject.progress} color={priorityProject.accent} />
-                            <strong>{priorityProject.progress}%</strong>
+                        <div className="dash-overview-strip__item">
+                            <span>Avancement moyen</span>
+                            <strong>{globalProgress}%</strong>
                         </div>
-
-                        <div className="dash-overview-snapshot__facts">
-                            <div>
-                                <span>Étape</span>
-                                <strong>{prioritySteps?.current?.label ?? 'À définir'}</strong>
-                            </div>
-                            <div>
-                                <span>Ensuite</span>
-                                <strong>{prioritySteps?.upcoming?.label ?? 'Planning à venir'}</strong>
-                            </div>
-                            <div>
-                                <span>Livraison</span>
-                                <strong>{deliveryHint(priorityProject.delivery)}</strong>
-                            </div>
-                        </div>
-
-                        <div className="dash-overview-snapshot__metrics">
-                            <Link to="/projects">
-                                <strong>{String(visibleProjects.length).padStart(2, '0')}</strong>
-                                <span>projets</span>
-                            </Link>
-                            <div>
-                                <strong>{globalProgress}%</strong>
-                                <span>moyenne</span>
-                            </div>
-                            <Link to={actionCount > 0 ? '/tickets' : '/projects'}>
-                                <strong>{actionCount}</strong>
-                                <span>à traiter</span>
-                            </Link>
+                        <Link to={actionCount > 0 ? '/tickets' : '/projects'} className="dash-overview-strip__item">
+                            <span>À traiter</span>
+                            <strong>{actionCount}</strong>
+                        </Link>
+                        <div className="dash-overview-strip__item dash-overview-strip__item--wide">
+                            <span>Prochaine livraison</span>
+                            <strong>{nextDelivery ? deliveryHint(nextDelivery.delivery) : 'Planning à venir'}</strong>
                         </div>
                     </section>
 
