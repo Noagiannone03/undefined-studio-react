@@ -191,9 +191,13 @@ export default function Overview() {
     const nextDelivery = [...visibleProjects]
         .filter((project) => project.delivery)
         .sort((a, b) => new Date(a.delivery).getTime() - new Date(b.delivery).getTime())[0]
+    const priorityProject = nextDelivery ?? visibleProjects[0]
+    const prioritySteps = priorityProject ? nextSteps(priorityProject) : null
     const latestUpdates = [...projectUpdates]
         .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
         .slice(0, 3)
+    const projectCards = visibleProjects.slice(0, 4)
+    const actionCount = outstandingInvoices.length + openTickets.length
     const firstName = user?.name?.split(' ')[0] ?? 'là'
 
     return (
@@ -204,43 +208,65 @@ export default function Overview() {
                 <h1 className="dash-h1">
                     Bonjour, <span className="serif-italic">{firstName}.</span>
                 </h1>
+                <p className="dash-sub">Une vue courte pour voir où en sont tes projets et ce qui demande une action.</p>
             </header>
 
             {visibleProjects.length === 0 ? (
                 <EmptyState title="Aucun projet actif" body="Tes projets apparaîtront ici dès qu’ils sont lancés." />
             ) : (
                 <>
-                    <section className="dash-overview-metrics">
-                        <Link to="/projects" className="dash-card dash-card--link dash-overview-panel dash-overview-panel--metric">
-                            <span className="dash-kicker">Projets suivis</span>
-                            <div className="dash-overview-metric__value">{String(visibleProjects.length).padStart(2, '0')}</div>
-                            <p className="dash-note">{activeProjects.length} actif{activeProjects.length > 1 ? 's' : ''}</p>
-                        </Link>
-
-                        <div className="dash-card dash-overview-panel dash-overview-panel--metric">
-                            <span className="dash-kicker">Avancement moyen</span>
-                            <div className="dash-overview-metric__value">{globalProgress}%</div>
-                            <ProgressBar value={globalProgress} color="var(--color-ink)" />
-                        </div>
-
-                        <div className="dash-card dash-overview-panel dash-overview-panel--metric">
-                            <span className="dash-kicker">Prochaine livraison</span>
-                            <h2 className="dash-h2 dash-overview-panel__title">{nextDelivery ? deliveryHint(nextDelivery.delivery) : '—'}</h2>
-                            <p className="dash-note">{nextDelivery?.name ?? 'Planning en préparation'}</p>
-                        </div>
-
-                        <div className="dash-card dash-overview-panel dash-overview-panel--metric">
-                            <span className="dash-kicker">Actions ouvertes</span>
-                            <div className="dash-overview-metric__split">
+                    <section className="dash-overview-focus">
+                        <Link
+                            to={`/projects/${priorityProject.id}`}
+                            className="dash-card dash-card--link dash-overview-focus__main"
+                        >
+                            <span className="dash-card__accent" style={{ background: priorityProject.accent }} />
+                            <div className="dash-row-between" style={{ alignItems: 'flex-start' }}>
                                 <div>
-                                    <strong>{outstandingInvoices.length}</strong>
-                                    <span> facture{outstandingInvoices.length > 1 ? 's' : ''}</span>
+                                    <span className="dash-kicker">À suivre maintenant</span>
+                                    <h2 className="dash-h2 dash-overview-focus__title">{priorityProject.name}</h2>
+                                </div>
+                                <ProjectStatusPill status={priorityProject.status} />
+                            </div>
+                            <div className="dash-stack-sm">
+                                <div className="dash-row-between">
+                                    <span className="dash-kicker">Avancement</span>
+                                    <strong className="dash-progress__value">{priorityProject.progress}%</strong>
+                                </div>
+                                <ProgressBar value={priorityProject.progress} color={priorityProject.accent} />
+                            </div>
+                            <div className="dash-overview-focus__meta">
+                                <div>
+                                    <span className="dash-kicker">Étape actuelle</span>
+                                    <strong>{prioritySteps?.current?.label ?? 'À définir'}</strong>
                                 </div>
                                 <div>
-                                    <strong>{openTickets.length}</strong>
-                                    <span> question{openTickets.length > 1 ? 's' : ''}</span>
+                                    <span className="dash-kicker">Prochaine étape</span>
+                                    <strong>{prioritySteps?.upcoming?.label ?? 'Planning à venir'}</strong>
+                                </div>
+                                <div>
+                                    <span className="dash-kicker">Livraison</span>
+                                    <strong>{deliveryHint(priorityProject.delivery)}</strong>
                                 </div>
                             </div>
+                        </Link>
+
+                        <div className="dash-overview-focus__stats">
+                            <Link to="/projects" className="dash-card dash-card--link dash-overview-stat">
+                                <span className="dash-kicker">Projets</span>
+                                <strong>{String(visibleProjects.length).padStart(2, '0')}</strong>
+                                <span>{activeProjects.length} actif{activeProjects.length > 1 ? 's' : ''}</span>
+                            </Link>
+                            <div className="dash-card dash-overview-stat">
+                                <span className="dash-kicker">Moyenne</span>
+                                <strong>{globalProgress}%</strong>
+                                <span>avancement global</span>
+                            </div>
+                            <Link to={actionCount > 0 ? '/tickets' : '/projects'} className="dash-card dash-card--link dash-overview-stat">
+                                <span className="dash-kicker">À traiter</span>
+                                <strong>{actionCount}</strong>
+                                <span>{outstandingInvoices.length} facture{outstandingInvoices.length > 1 ? 's' : ''}, {openTickets.length} question{openTickets.length > 1 ? 's' : ''}</span>
+                            </Link>
                         </div>
                     </section>
 
@@ -248,46 +274,36 @@ export default function Overview() {
                         <div className="dash-overview-main">
                             <section className="dash-stack">
                                 <div className="dash-row-between">
-                                    <h2 className="dash-h2">Pilotage projets</h2>
+                                    <h2 className="dash-h2">Projets</h2>
                                     <Link to="/projects" className="dash-kicker" style={{ textDecoration: 'none' }}>
                                         Tout voir →
                                     </Link>
                                 </div>
 
-                                <div className="dash-grid dash-grid--2">
-                                    {visibleProjects.map((project) => {
+                                <div className="dash-overview-project-list">
+                                    {projectCards.map((project) => {
                                         const { current } = nextSteps(project)
                                         const latestUpdate = projectUpdates
                                             .filter((update) => update.projectId === project.id)
                                             .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())[0]
-                                        // Is latest update recent? (within last 3 days)
-                                        const isRecentUpdate = latestUpdate && (new Date().getTime() - new Date(latestUpdate.date).getTime() < 3 * 24 * 60 * 60 * 1000);
+                                        const isRecentUpdate = latestUpdate && (new Date().getTime() - new Date(latestUpdate.date).getTime() < 3 * 24 * 60 * 60 * 1000)
 
                                         return (
-                                            <Link key={project.id} to={`/projects/${project.id}`} className="dash-card dash-card--pop dash-card--link">
+                                            <Link key={project.id} to={`/projects/${project.id}`} className="dash-card dash-card--link dash-overview-project-row">
                                                 <span className="dash-card__accent" style={{ background: project.accent }} />
-                                                
-                                                <div className="dash-row-between" style={{ alignItems: 'flex-start' }}>
-                                                    <div>
+                                                <div className="dash-overview-project-row__head">
+                                                    <div style={{ minWidth: 0 }}>
                                                         <div className="dash-row" style={{ gap: 8, marginBottom: 6 }}>
                                                             <ProjectStatusPill status={project.status} />
-                                                            {isRecentUpdate && (
-                                                                <span className="dash-pill dash-pill--klein">Nouveau point</span>
-                                                            )}
+                                                            {isRecentUpdate && <span className="dash-pill dash-pill--klein">Nouveau point</span>}
                                                         </div>
-                                                        <h3 className="dash-h2" style={{ fontSize: 'clamp(20px, 2.4vw, 26px)' }}>{project.name}</h3>
+                                                        <h3 className="dash-overview-project-row__title">{project.name}</h3>
+                                                        <p className="dash-note">Étape actuelle : {current?.label ?? 'À définir'}</p>
                                                     </div>
-                                                    <div style={{ textAlign: 'right' }}>
-                                                        <span className="dash-kicker">Livraison</span>
-                                                        <strong style={{ display: 'block', marginTop: 2, fontSize: 14 }}>{deliveryHint(project.delivery)}</strong>
-                                                    </div>
+                                                    <span className="dash-overview-project-row__date">{deliveryHint(project.delivery)}</span>
                                                 </div>
-
-                                                <div className="dash-stack-sm" style={{ marginTop: 16 }}>
-                                                    <div className="dash-row-between">
-                                                        <span className="dash-kicker">Avancement · {project.progress}%</span>
-                                                        <span className="dash-kicker" style={{ textTransform: 'none' }}>En cours : <strong>{current?.label ?? 'À définir'}</strong></span>
-                                                    </div>
+                                                <div className="dash-stack-sm">
+                                                    <span className="dash-kicker">Avancement · {project.progress}%</span>
                                                     <ProgressBar value={project.progress} color={project.accent} />
                                                 </div>
                                             </Link>
@@ -300,18 +316,18 @@ export default function Overview() {
                         <aside className="dash-overview-side">
                             <div className="dash-card dash-overview-panel">
                                 <div className="dash-row-between">
-                                    <h2 className="dash-h2" style={{ fontSize: 'clamp(18px, 2vw, 24px)' }}>À faire</h2>
-                                    <span className="dash-kicker">Global</span>
+                                    <h2 className="dash-h2" style={{ fontSize: 'clamp(18px, 2vw, 24px)' }}>Actions</h2>
+                                    <span className="dash-kicker">{actionCount} ouverte{actionCount > 1 ? 's' : ''}</span>
                                 </div>
                                 <div className="dash-overview-action__totals">
-                                    <div>
+                                    <Link to="/invoices" className="dash-overview-action__summary">
                                         <span className="dash-kicker">Factures</span>
-                                        <p className="dash-overview-action__value">{formatEur(dueTotal)}</p>
-                                    </div>
-                                    <div>
+                                        <strong>{formatEur(dueTotal)}</strong>
+                                    </Link>
+                                    <Link to="/tickets" className="dash-overview-action__summary">
                                         <span className="dash-kicker">Questions</span>
-                                        <p className="dash-overview-action__value">{openTickets.length}</p>
-                                    </div>
+                                        <strong>{openTickets.length}</strong>
+                                    </Link>
                                 </div>
                                 <div className="dash-stack-sm">
                                     {outstandingInvoices.slice(0, 2).map((invoice) => {
@@ -343,7 +359,7 @@ export default function Overview() {
                                         )
                                     })}
                                     {outstandingInvoices.length === 0 && openTickets.length === 0 && (
-                                        <p className="dash-note">Rien en attente pour le moment.</p>
+                                        <p className="dash-note" style={{ margin: 0 }}>Rien en attente pour le moment.</p>
                                     )}
                                 </div>
                             </div>
