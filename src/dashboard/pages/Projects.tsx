@@ -8,7 +8,7 @@ import { formatDate } from '../utils'
 
 export default function Projects() {
     const { user } = useAuth()
-    const { projects, findClient } = useDashboardData()
+    const { projects, findClient, hasClientScope, error } = useDashboardData()
 
     if (user?.role === 'admin') {
         return (
@@ -69,7 +69,14 @@ export default function Projects() {
                 </h1>
             </header>
 
-            {projects.length === 0 ? (
+            {error && <div className="login__error">{error}</div>}
+
+            {!hasClientScope ? (
+                <EmptyState
+                    title="Compte pas encore relié"
+                    body="Ton compte n'est pas encore associé à un dossier client. Contacte le studio pour activer l'accès."
+                />
+            ) : projects.length === 0 ? (
                 <EmptyState title="Aucun projet" body="On t'affichera tes projets ici." />
             ) : (
                 <section className="dash-grid dash-grid--2">

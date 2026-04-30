@@ -91,6 +91,7 @@ export type TicketMessage = {
 }
 
 export type InvoiceStatus = 'paid' | 'due' | 'overdue' | 'draft'
+export type InvoiceSource = 'generated' | 'uploaded'
 
 export type InvoiceItem = {
     id: string
@@ -106,11 +107,14 @@ export type Invoice = {
     title: string
     items: InvoiceItem[]
     terms: string[]
-    amount: number // total TTC in € — source of truth, derived from items
+    amount: number // total TTC in € — derived from items for generated, manually set for uploaded
     status: InvoiceStatus
     issued: string
     due: string
-    pdfUrl?: string // legacy: external PDF link, no longer written
+    source: InvoiceSource
+    pdfUrl?: string
+    storagePath?: string
+    notes?: string
     createdAt?: string
     updatedAt?: string
 }

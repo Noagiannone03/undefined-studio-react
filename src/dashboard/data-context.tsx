@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import type { ReactNode } from 'react'
+import type { FirestoreError } from 'firebase/firestore'
 import { useAuth } from './auth'
 import { DashboardDataContext, type DashboardDataContextValue } from './dashboard-data-store'
 import {
@@ -25,66 +26,49 @@ export function DashboardDataProvider({ children }: { children: ReactNode }) {
     const [ticketsState, setTicketsState] = useState<ScopedItems<Ticket>>({ scopeUid: null, items: [] })
     const [invoicesState, setInvoicesState] = useState<ScopedItems<Invoice>>({ scopeUid: null, items: [] })
     const [usersState, setUsersState] = useState<ScopedItems<UserProfile>>({ scopeUid: null, items: [] })
+    const [error, setError] = useState<string | null>(null)
 
     useEffect(() => {
         if (!user) return
 
         const scopeUid = user.uid
+        setError(null)
+
+        const reportError = (label: string) => (err: FirestoreError) => {
+            console.error(`[dashboard-data] ${label} subscription failed`, err)
+            setError(`Impossible de charger ${label}. Vérifie tes droits.`)
+        }
 
         const unsubs = [
             subscribeUsers(
                 user,
-                (items) => {
-                    setUsersState({ scopeUid, items })
-                },
-                () => {
-                    setUsersState({ scopeUid, items: [] })
-                },
+                (items) => setUsersState({ scopeUid, items }),
+                reportError('les utilisateurs'),
             ),
             subscribeClients(
                 user,
-                (items) => {
-                    setClientsState({ scopeUid, items })
-                },
-                () => {
-                    setClientsState({ scopeUid, items: [] })
-                },
+                (items) => setClientsState({ scopeUid, items }),
+                reportError('les clients'),
             ),
             subscribeProjects(
                 user,
-                (items) => {
-                    setProjectsState({ scopeUid, items })
-                },
-                () => {
-                    setProjectsState({ scopeUid, items: [] })
-                },
+                (items) => setProjectsState({ scopeUid, items }),
+                reportError('les projets'),
             ),
             subscribeProjectUpdates(
                 user,
-                (items) => {
-                    setProjectUpdatesState({ scopeUid, items })
-                },
-                () => {
-                    setProjectUpdatesState({ scopeUid, items: [] })
-                },
+                (items) => setProjectUpdatesState({ scopeUid, items }),
+                reportError('les nouvelles projet'),
             ),
             subscribeTickets(
                 user,
-                (items) => {
-                    setTicketsState({ scopeUid, items })
-                },
-                () => {
-                    setTicketsState({ scopeUid, items: [] })
-                },
+                (items) => setTicketsState({ scopeUid, items }),
+                reportError('les tickets'),
             ),
             subscribeInvoices(
                 user,
-                (items) => {
-                    setInvoicesState({ scopeUid, items })
-                },
-                () => {
-                    setInvoicesState({ scopeUid, items: [] })
-                },
+                (items) => setInvoicesState({ scopeUid, items }),
+                reportError('les factures'),
             ),
         ]
 
@@ -112,6 +96,11 @@ export function DashboardDataProvider({ children }: { children: ReactNode }) {
             ),
         )
 
+        const hasClientScope =
+            user?.role === 'admin'
+                ? true
+                : Boolean(user && (user.clientIds.length > 0 || user.clientId))
+
         return {
             loading,
             clients,
@@ -120,11 +109,16 @@ export function DashboardDataProvider({ children }: { children: ReactNode }) {
             tickets,
             invoices,
             users,
+            error,
+            hasClientScope,
             findClient: (id) => clients.find((client) => client.id === id),
             findProject: (id) => projects.find((project) => project.id === id),
-            updatesForProject: (projectId) => projectUpdates.filter((item) => item.projectId === projectId),
+            invoicesForProject: (projectId) =>
+                projectId ? invoices.filter((item) => item.projectId === projectId) : [],
+            updatesForProject: (projectId) =>
+                projectId ? projectUpdates.filter((item) => item.projectId === projectId) : [],
         }
-    }, [clientsState, invoicesState, projectUpdatesState, projectsState, ticketsState, user, usersState])
+    }, [clientsState, error, invoicesState, projectUpdatesState, projectsState, ticketsState, user, usersState])
 
     return <DashboardDataContext.Provider value={value}>{children}</DashboardDataContext.Provider>
 }

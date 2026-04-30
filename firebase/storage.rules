@@ -1,0 +1,36 @@
+rules_version = '2';
+
+service firebase.storage {
+  match /b/{bucket}/o {
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function isAdmin() {
+      return signedIn() && request.auth.uid == "kVurSY6zZMYaDI2xZJ3a4JydJFG2";
+    }
+
+    function userClientIds() {
+      return firestore.get(/databases/(default)/documents/users/$(request.auth.uid)).data.clientIds;
+    }
+
+    function canReadClient(clientId) {
+      return isAdmin()
+        || (signedIn() && clientId in userClientIds());
+    }
+
+    // PDFs des factures : invoices/{clientId}/{invoiceId}.pdf
+    match /invoices/{clientId}/{file=**} {
+      allow read: if canReadClient(clientId);
+      allow write: if isAdmin()
+        && (request.resource == null
+            || (request.resource.size < 10 * 1024 * 1024
+                && request.resource.contentType == 'application/pdf'));
+    }
+
+    // Tout le reste est fermé par défaut
+    match /{path=**} {
+      allow read, write: if false;
+    }
+  }
+}

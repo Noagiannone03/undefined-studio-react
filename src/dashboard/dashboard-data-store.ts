@@ -9,8 +9,11 @@ export type DashboardDataContextValue = {
     tickets: Ticket[]
     invoices: Invoice[]
     users: UserProfile[]
+    error: string | null
+    hasClientScope: boolean
     findClient: (id: string | undefined) => Client | undefined
     findProject: (id: string | undefined) => Project | undefined
+    invoicesForProject: (projectId: string | undefined) => Invoice[]
     updatesForProject: (projectId: string | undefined) => ProjectUpdate[]
 }
 

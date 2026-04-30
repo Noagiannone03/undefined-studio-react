@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import type { FormEvent } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { useAuth } from '../auth'
@@ -6,41 +6,142 @@ import { useDashboardData } from '../useDashboardData'
 import { EmptyState } from '../components/EmptyState'
 import { ProgressBar } from '../components/ProgressBar'
 import { InvoiceStatusPill, ProjectStatusPill, TicketStatusPill } from '../components/StatusPill'
+import { SaveIndicator } from '../components/SaveIndicator'
+import { useAutoSave } from '../components/useAutoSave'
 import { createProjectUpdate, updateProject } from '../firestore'
 import { mailApi } from '../api'
 import { formatDate, formatEur } from '../utils'
 import type { Milestone, ProjectStatus } from '../types'
 
-const PROJECT_STATUSES: ProjectStatus[] = ['discovery', 'design', 'build', 'review', 'live', 'paused']
+const PROJECT_STATUS_OPTIONS: { value: ProjectStatus; label: string; tone: 'mute' | 'klein' | 'tomato' | 'ink' }[] = [
+    { value: 'discovery', label: 'Cadrage', tone: 'mute' },
+    { value: 'design', label: 'Design', tone: 'klein' },
+    { value: 'build', label: 'Dev', tone: 'klein' },
+    { value: 'review', label: 'Revue', tone: 'tomato' },
+    { value: 'live', label: 'En ligne', tone: 'ink' },
+    { value: 'paused', label: 'En pause', tone: 'mute' },
+]
+
+const MILESTONE_STATUS_OPTIONS: { value: Milestone['status']; label: string }[] = [
+    { value: 'upcoming', label: 'À venir' },
+    { value: 'current', label: 'En cours' },
+    { value: 'done', label: 'Fait' },
+]
+
+type EditableProject = {
+    status: ProjectStatus
+    progress: number
+    kickoff: string
+    delivery: string
+    summary: string
+    milestones: Milestone[]
+}
+
+function projectsAreEqual(a: EditableProject, b: EditableProject): boolean {
+    if (
+        a.status !== b.status ||
+        a.progress !== b.progress ||
+        a.kickoff !== b.kickoff ||
+        a.delivery !== b.delivery ||
+        a.summary !== b.summary ||
+        a.milestones.length !== b.milestones.length
+    ) {
+        return false
+    }
+    for (let i = 0; i < a.milestones.length; i++) {
+        const left = a.milestones[i]
+        const right = b.milestones[i]
+        if (
+            left.id !== right.id ||
+            left.label !== right.label ||
+            left.status !== right.status ||
+            (left.date ?? '') !== (right.date ?? '') ||
+            (left.note ?? '') !== (right.note ?? '')
+        ) {
+            return false
+        }
+    }
+    return true
+}
 
 export default function ProjectDetail() {
     const { id } = useParams<{ id: string }>()
     const { user } = useAuth()
-    const { loading, findProject, findClient, updatesForProject, tickets, invoices } = useDashboardData()
+    const { loading, findProject, findClient, updatesForProject, tickets, invoicesForProject } = useDashboardData()
     const project = findProject(id)
+    const isAdmin = user?.role === 'admin'
 
-    const [status, setStatus] = useState<ProjectStatus>(project?.status ?? 'discovery')
-    const [progress, setProgress] = useState(String(project?.progress ?? 0))
-    const [kickoff, setKickoff] = useState(project?.kickoff ?? '')
-    const [delivery, setDelivery] = useState(project?.delivery ?? '')
-    const [summary, setSummary] = useState(project?.summary ?? '')
+    const baseline = useMemo<EditableProject | null>(() => {
+        if (!project) return null
+        return {
+            status: project.status,
+            progress: project.progress,
+            kickoff: project.kickoff,
+            delivery: project.delivery,
+            summary: project.summary ?? '',
+            milestones: project.milestones,
+        }
+    }, [project])
+
+    const [draft, setDraft] = useState<EditableProject | null>(baseline)
     const [updateTitle, setUpdateTitle] = useState('')
     const [updateBody, setUpdateBody] = useState('')
-    const [savingProject, setSavingProject] = useState(false)
     const [publishingUpdate, setPublishingUpdate] = useState(false)
-    const [error, setError] = useState<string | null>(null)
-    const [editMilestones, setEditMilestones] = useState<Milestone[]>(project?.milestones ?? [])
-    const [savingMilestones, setSavingMilestones] = useState(false)
+    const [updateError, setUpdateError] = useState<string | null>(null)
 
     useEffect(() => {
-        if (!project) return
-        setStatus(project.status)
-        setProgress(String(project.progress))
-        setKickoff(project.kickoff)
-        setDelivery(project.delivery)
-        setSummary(project.summary ?? '')
-        setEditMilestones(project.milestones)
-    }, [project])
+        if (!baseline) return
+        // Adopt server state whenever the snapshot changes — but only if user
+        // hasn't started editing the same fields locally (we trust auto-save
+        // to have already pushed local changes upstream).
+        setDraft(baseline)
+    }, [baseline])
+
+    const client = project ? findClient(project.clientId) : undefined
+
+    const { state: saveState, errorMessage: saveError, adopt: adoptDraft } = useAutoSave<EditableProject | null>({
+        value: draft,
+        enabled: Boolean(isAdmin && project && draft),
+        isEqual: (a, b) => {
+            if (!a || !b) return a === b
+            return projectsAreEqual(a, b)
+        },
+        onSave: async (next) => {
+            if (!project || !next) return
+            await updateProject(project.id, {
+                status: next.status,
+                progress: next.progress,
+                kickoff: next.kickoff,
+                delivery: next.delivery,
+                summary: next.summary,
+                milestones: next.milestones,
+            })
+
+            const contactEmail = client?.contactEmail
+            if (
+                contactEmail &&
+                (next.status !== project.status || next.progress !== project.progress)
+            ) {
+                mailApi.projectStatus({
+                    to: contactEmail,
+                    contactName: client?.contactName ?? '',
+                    clientName: client?.name ?? '',
+                    projectName: project.name,
+                    projectId: project.id,
+                    newStatus: next.status,
+                    progress: next.progress,
+                    summary: next.summary || undefined,
+                })
+            }
+        },
+    })
+
+    // After the snapshot updates, reset the baseline tracker so we don't
+    // re-fire saves for the same data.
+    useEffect(() => {
+        if (baseline) adoptDraft(baseline)
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [project?.updatedAt])
 
     if (loading && !project) {
         return (
@@ -51,7 +152,7 @@ export default function ProjectDetail() {
         )
     }
 
-    if (!project) {
+    if (!project || !draft) {
         return (
             <div className="dash-stack-lg">
                 <header className="dash-page-head">
@@ -66,83 +167,47 @@ export default function ProjectDetail() {
     }
 
     const projectTickets = tickets.filter((ticket) => ticket.projectId === project.id)
-    const projectInvoices = invoices.filter((invoice) => invoice.projectId === project.id)
+    const projectInvoices = invoicesForProject(project.id)
     const projectUpdates = updatesForProject(project.id)
-    const client = findClient(project.clientId)
 
-    const onSaveProject = async (event: FormEvent) => {
-        event.preventDefault()
-        setError(null)
-        setSavingProject(true)
-        try {
-            await updateProject(project.id, {
-                status,
-                progress: Number(progress) || 0,
-                kickoff,
-                delivery,
-                summary,
-            })
-
-            const contactEmail = client?.contactEmail
-            if (contactEmail && (status !== project.status || Number(progress) !== project.progress)) {
-                mailApi.projectStatus({
-                    to: contactEmail,
-                    contactName: client?.contactName ?? '',
-                    clientName: client?.name ?? '',
-                    projectName: project.name,
-                    projectId: project.id,
-                    newStatus: status,
-                    progress: Number(progress) || 0,
-                    summary: summary || undefined,
-                })
-            }
-        } catch {
-            setError("Impossible d'enregistrer le projet.")
-        } finally {
-            setSavingProject(false)
-        }
+    const patchDraft = (patch: Partial<EditableProject>) => {
+        setDraft((prev) => (prev ? { ...prev, ...patch } : prev))
     }
 
-    const onSaveMilestones = async () => {
-        setSavingMilestones(true)
-        setError(null)
-        try {
-            await updateProject(project.id, {
-                status: project.status,
-                progress: project.progress,
-                kickoff: project.kickoff,
-                delivery: project.delivery,
-                summary: project.summary,
-                milestones: editMilestones,
-            })
-        } catch {
-            setError('Impossible d\'enregistrer les étapes.')
-        } finally {
-            setSavingMilestones(false)
-        }
+    const patchMilestones = (next: Milestone[]) => {
+        setDraft((prev) => (prev ? { ...prev, milestones: next } : prev))
     }
 
     const addMilestone = () => {
-        setEditMilestones((prev) => [
-            ...prev,
+        patchMilestones([
+            ...draft.milestones,
             { id: `m-${Date.now()}`, label: '', status: 'upcoming' },
         ])
     }
 
-    const removeMilestone = (id: string) => {
-        setEditMilestones((prev) => prev.filter((m) => m.id !== id))
+    const removeMilestone = (mid: string) => {
+        patchMilestones(draft.milestones.filter((m) => m.id !== mid))
     }
 
-    const updateMilestone = (id: string, patch: Partial<Milestone>) => {
-        setEditMilestones((prev) =>
-            prev.map((m) => (m.id === id ? { ...m, ...patch } : m)),
+    const updateMilestone = (mid: string, patch: Partial<Milestone>) => {
+        patchMilestones(draft.milestones.map((m) => (m.id === mid ? { ...m, ...patch } : m)))
+    }
+
+    const moveMilestone = (mid: string, dir: -1 | 1) => {
+        const idx = draft.milestones.findIndex((m) => m.id === mid)
+        if (idx < 0) return
+        const next = idx + dir
+        if (next < 0 || next >= draft.milestones.length) return
+        const arr = [...draft.milestones]
+        ;[arr[idx], arr[next]] = [arr[next], arr[idx]]
+        patchMilestones(arr)
     }
 
     const onPublishUpdate = async (event: FormEvent) => {
         event.preventDefault()
-        setError(null)
+        setUpdateError(null)
         if (!updateTitle.trim() || !updateBody.trim()) {
-            setError('Titre et contenu requis pour publier une update.')
+            setUpdateError('Titre et contenu requis pour publier une update.')
             return
         }
 
@@ -164,8 +229,8 @@ export default function ProjectDetail() {
                     clientName: client?.name ?? '',
                     projectName: project.name,
                     projectId: project.id,
-                    newStatus: status,
-                    progress: Number(progress) || 0,
+                    newStatus: draft.status,
+                    progress: draft.progress,
                     isUpdate: true,
                     updateTitle,
                     updateBody,
@@ -175,7 +240,7 @@ export default function ProjectDetail() {
             setUpdateTitle('')
             setUpdateBody('')
         } catch {
-            setError('Publication impossible.')
+            setUpdateError('Publication impossible.')
         } finally {
             setPublishingUpdate(false)
         }
@@ -188,8 +253,8 @@ export default function ProjectDetail() {
                     ← Tous les projets
                 </Link>
                 <div className="dash-row" style={{ marginTop: 8 }}>
-                    <ProjectStatusPill status={project.status} />
-                    <span className="dash-kicker">{client?.name ?? 'Client'} · Livraison {formatDate(project.delivery)}</span>
+                    <ProjectStatusPill status={draft.status} />
+                    <span className="dash-kicker">{client?.name ?? 'Client'} · Livraison {formatDate(draft.delivery)}</span>
                 </div>
                 <h1 className="dash-h1" style={{ marginTop: 4 }}>{project.name}</h1>
                 <p className="dash-sub">{project.tagline}</p>
@@ -199,80 +264,113 @@ export default function ProjectDetail() {
                 <span className="dash-card__accent" style={{ background: project.accent }} />
                 <div className="dash-row-between">
                     <span className="dash-kicker">Avancement global</span>
-                    <span className="dash-progress__value">{project.progress}%</span>
+                    <span className="dash-progress__value">{draft.progress}%</span>
                 </div>
-                <ProgressBar value={project.progress} color={project.accent} />
+                <ProgressBar value={draft.progress} color={project.accent} />
                 <div className="dash-row" style={{ marginTop: 14 }}>
-                    <span className="dash-kicker">Kickoff · {formatDate(project.kickoff)}</span>
-                    {project.summary && <span className="dash-kicker">·</span>}
-                    {project.summary && <span className="dash-kicker">{project.summary}</span>}
+                    <span className="dash-kicker">Kickoff · {formatDate(draft.kickoff)}</span>
+                    {draft.summary && <span className="dash-kicker">·</span>}
+                    {draft.summary && <span className="dash-kicker">{draft.summary}</span>}
                 </div>
             </section>
 
-            {user?.role === 'admin' && (
-                <section className="dash-grid dash-grid--2" style={{ alignItems: 'start' }}>
-                    <form onSubmit={onSaveProject} className="dash-card dash-stack" noValidate>
+            {isAdmin && (
+                <section className="dash-edit">
+                    <div className="dash-edit__head">
                         <h2 className="dash-h2">Pilotage projet</h2>
-                        <div className="dash-grid dash-grid--2">
-                            <div>
-                                <label htmlFor="project-status" className="dash-label">Statut</label>
-                                <select id="project-status" className="dash-input" value={status} onChange={(event) => setStatus(event.target.value as ProjectStatus)}>
-                                    {PROJECT_STATUSES.map((item) => (
-                                        <option key={item} value={item}>{item}</option>
-                                    ))}
-                                </select>
-                            </div>
-                            <div>
-                                <label htmlFor="project-progress" className="dash-label">Avancement %</label>
-                                <input id="project-progress" type="number" min="0" max="100" className="dash-input" value={progress} onChange={(event) => setProgress(event.target.value)} />
-                            </div>
-                        </div>
-                        <div className="dash-grid dash-grid--2">
-                            <div>
-                                <label htmlFor="project-kickoff" className="dash-label">Kickoff</label>
-                                <input id="project-kickoff" type="date" className="dash-input" value={kickoff} onChange={(event) => setKickoff(event.target.value)} />
-                            </div>
-                            <div>
-                                <label htmlFor="project-delivery" className="dash-label">Livraison</label>
-                                <input id="project-delivery" type="date" className="dash-input" value={delivery} onChange={(event) => setDelivery(event.target.value)} />
-                            </div>
-                        </div>
-                        <div>
-                            <label htmlFor="project-summary" className="dash-label">Résumé visible</label>
-                            <textarea id="project-summary" className="dash-input dash-textarea" value={summary} onChange={(event) => setSummary(event.target.value)} />
-                        </div>
-                        <button type="submit" className="dash-btn" disabled={savingProject}>
-                            {savingProject ? 'Enregistrement...' : 'Enregistrer'}
-                        </button>
-                    </form>
+                        <SaveIndicator state={saveState} errorMessage={saveError} />
+                    </div>
 
-                    <form onSubmit={onPublishUpdate} className="dash-card dash-stack" noValidate>
-                        <h2 className="dash-h2">Publier une update client</h2>
+                    <div className="dash-stack-sm">
+                        <span className="dash-label">Statut</span>
+                        <div className="dash-status-picker">
+                            {PROJECT_STATUS_OPTIONS.map((opt) => (
+                                <button
+                                    key={opt.value}
+                                    type="button"
+                                    onClick={() => patchDraft({ status: opt.value })}
+                                    className={`dash-status-pick tone-${opt.tone}${draft.status === opt.value ? ' is-active' : ''}`}
+                                >
+                                    {opt.label}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+
+                    <div className="dash-stack-sm">
+                        <span className="dash-label">Avancement</span>
+                        <div className="dash-slider-wrap">
+                            <input
+                                type="range"
+                                min={0}
+                                max={100}
+                                step={1}
+                                value={draft.progress}
+                                onChange={(e) => patchDraft({ progress: Number(e.target.value) })}
+                                className="dash-slider"
+                            />
+                            <span className="dash-slider-value">{draft.progress}%</span>
+                        </div>
+                    </div>
+
+                    <div className="dash-grid dash-grid--2">
                         <div>
-                            <label htmlFor="update-title" className="dash-label">Titre</label>
-                            <input id="update-title" className="dash-input" value={updateTitle} onChange={(event) => setUpdateTitle(event.target.value)} />
+                            <label className="dash-label">Kickoff</label>
+                            <input
+                                type="date"
+                                className="dash-input"
+                                value={draft.kickoff}
+                                onChange={(e) => patchDraft({ kickoff: e.target.value })}
+                            />
                         </div>
                         <div>
-                            <label htmlFor="update-body" className="dash-label">Contenu</label>
-                            <textarea id="update-body" className="dash-input dash-textarea" value={updateBody} onChange={(event) => setUpdateBody(event.target.value)} />
+                            <label className="dash-label">Livraison</label>
+                            <input
+                                type="date"
+                                className="dash-input"
+                                value={draft.delivery}
+                                onChange={(e) => patchDraft({ delivery: e.target.value })}
+                            />
                         </div>
-                        <button type="submit" className="dash-btn" disabled={publishingUpdate}>
-                            {publishingUpdate ? 'Publication...' : 'Publier la nouvelle'}
-                        </button>
-                    </form>
+                    </div>
+
+                    <div className="dash-stack-sm">
+                        <span className="dash-label">Résumé visible (client)</span>
+                        <textarea
+                            className="dash-inline-textarea"
+                            value={draft.summary}
+                            onChange={(e) => patchDraft({ summary: e.target.value })}
+                            placeholder="En une phrase, où en est le projet ?"
+                        />
+                    </div>
                 </section>
             )}
 
-            {error && <div className="login__error">{error}</div>}
-
             <section className="dash-grid dash-grid--2" style={{ alignItems: 'start' }}>
-                <div className="dash-card">
-                    <h2 className="dash-h2">Étapes</h2>
-                    {user?.role === 'admin' ? (
+                <div className={isAdmin ? 'dash-edit' : 'dash-card'}>
+                    <div className="dash-edit__head">
+                        <h2 className="dash-h2">Étapes</h2>
+                        {isAdmin && <SaveIndicator state={saveState} errorMessage={saveError} />}
+                    </div>
+                    {isAdmin ? (
                         <div className="dash-stack">
-                            {editMilestones.map((milestone, index) => (
+                            {draft.milestones.map((milestone, index) => (
                                 <div key={milestone.id} className="dash-milestone-edit">
                                     <div className="dash-milestone-edit__row">
+                                        <div className="dash-milestone-edit__handle">
+                                            <button
+                                                type="button"
+                                                onClick={() => moveMilestone(milestone.id, -1)}
+                                                disabled={index === 0}
+                                                title="Monter"
+                                            >▲</button>
+                                            <button
+                                                type="button"
+                                                onClick={() => moveMilestone(milestone.id, 1)}
+                                                disabled={index === draft.milestones.length - 1}
+                                                title="Descendre"
+                                            >▼</button>
+                                        </div>
                                         <span className="dash-milestone-edit__num">{String(index + 1).padStart(2, '0')}</span>
                                         <input
                                             type="text"
@@ -281,15 +379,18 @@ export default function ProjectDetail() {
                                             placeholder="Nom de l'étape"
                                             onChange={(e) => updateMilestone(milestone.id, { label: e.target.value })}
                                         />
-                                        <select
-                                            className="dash-input dash-milestone-edit__status"
-                                            value={milestone.status}
-                                            onChange={(e) => updateMilestone(milestone.id, { status: e.target.value as Milestone['status'] })}
-                                        >
-                                            <option value="upcoming">À venir</option>
-                                            <option value="current">En cours</option>
-                                            <option value="done">Fait</option>
-                                        </select>
+                                        <div className="dash-milestone-edit__status-toggle">
+                                            {MILESTONE_STATUS_OPTIONS.map((opt) => (
+                                                <button
+                                                    key={opt.value}
+                                                    type="button"
+                                                    className={`tone-${opt.value}${milestone.status === opt.value ? ' is-active' : ''}`}
+                                                    onClick={() => updateMilestone(milestone.id, { status: opt.value })}
+                                                >
+                                                    {opt.label}
+                                                </button>
+                                            ))}
+                                        </div>
                                         <input
                                             type="date"
                                             className="dash-input dash-milestone-edit__date"
@@ -301,18 +402,18 @@ export default function ProjectDetail() {
                                             className="dash-milestone-edit__remove"
                                             title="Supprimer"
                                             onClick={() => removeMilestone(milestone.id)}
-                                        >
-                                            ×
-                                        </button>
+                                        >×</button>
                                     </div>
                                 </div>
                             ))}
                             <div className="dash-row" style={{ gap: 8, marginTop: 4 }}>
-                                <button type="button" className="dash-btn dash-btn--ghost" style={{ height: 40, fontSize: 12, padding: '0 16px' }} onClick={addMilestone}>
+                                <button
+                                    type="button"
+                                    className="dash-btn dash-btn--ghost"
+                                    style={{ height: 40, fontSize: 12, padding: '0 16px' }}
+                                    onClick={addMilestone}
+                                >
                                     + Étape
-                                </button>
-                                <button type="button" className="dash-btn" style={{ height: 40, fontSize: 12, padding: '0 16px' }} disabled={savingMilestones} onClick={onSaveMilestones}>
-                                    {savingMilestones ? 'Enregistrement…' : 'Enregistrer'}
                                 </button>
                             </div>
                         </div>
@@ -335,27 +436,74 @@ export default function ProjectDetail() {
                     )}
                 </div>
 
-                <div className="dash-card">
-                    <h2 className="dash-h2">Nouvelles du projet</h2>
-                    {projectUpdates.length === 0 ? (
-                        <p className="dash-sub">Rien de neuf.</p>
-                    ) : (
+                {isAdmin ? (
+                    <form onSubmit={onPublishUpdate} className="dash-card dash-stack" noValidate>
+                        <h2 className="dash-h2">Publier une update client</h2>
                         <div>
-                            {projectUpdates.map((update) => (
-                                <article key={update.id} className="dash-update">
-                                    <div className="dash-update__head">
-                                        <h3 className="dash-update__title">{update.title}</h3>
-                                        <span className="dash-update__meta">
-                                            {formatDate(update.date)} · {update.authorName}
-                                        </span>
-                                    </div>
-                                    <p className="dash-update__body">{update.body}</p>
-                                </article>
-                            ))}
+                            <label htmlFor="update-title" className="dash-label">Titre</label>
+                            <input
+                                id="update-title"
+                                className="dash-input"
+                                value={updateTitle}
+                                onChange={(event) => setUpdateTitle(event.target.value)}
+                            />
                         </div>
-                    )}
-                </div>
+                        <div>
+                            <label htmlFor="update-body" className="dash-label">Contenu</label>
+                            <textarea
+                                id="update-body"
+                                className="dash-input dash-textarea"
+                                value={updateBody}
+                                onChange={(event) => setUpdateBody(event.target.value)}
+                            />
+                        </div>
+                        <button type="submit" className="dash-btn" disabled={publishingUpdate}>
+                            {publishingUpdate ? 'Publication...' : 'Publier la nouvelle'}
+                        </button>
+                        {updateError && <div className="login__error">{updateError}</div>}
+                    </form>
+                ) : (
+                    <div className="dash-card">
+                        <h2 className="dash-h2">Nouvelles du projet</h2>
+                        {projectUpdates.length === 0 ? (
+                            <p className="dash-sub">Rien de neuf.</p>
+                        ) : (
+                            <div>
+                                {projectUpdates.map((update) => (
+                                    <article key={update.id} className="dash-update">
+                                        <div className="dash-update__head">
+                                            <h3 className="dash-update__title">{update.title}</h3>
+                                            <span className="dash-update__meta">
+                                                {formatDate(update.date)} · {update.authorName}
+                                            </span>
+                                        </div>
+                                        <p className="dash-update__body">{update.body}</p>
+                                    </article>
+                                ))}
+                            </div>
+                        )}
+                    </div>
+                )}
             </section>
+
+            {isAdmin && projectUpdates.length > 0 && (
+                <section className="dash-card">
+                    <h2 className="dash-h2">Historique des updates</h2>
+                    <div>
+                        {projectUpdates.map((update) => (
+                            <article key={update.id} className="dash-update">
+                                <div className="dash-update__head">
+                                    <h3 className="dash-update__title">{update.title}</h3>
+                                    <span className="dash-update__meta">
+                                        {formatDate(update.date)} · {update.authorName}
+                                    </span>
+                                </div>
+                                <p className="dash-update__body">{update.body}</p>
+                            </article>
+                        ))}
+                    </div>
+                </section>
+            )}
 
             <section className="dash-stack">
                 <div className="dash-row-between">
@@ -386,45 +534,42 @@ export default function ProjectDetail() {
                 )}
             </section>
 
-            {user?.role === 'client' && (
-                <section className="dash-stack">
-                    <div className="dash-row-between">
-                        <h2 className="dash-h2">Factures</h2>
-                        <Link to="/invoices" className="dash-kicker" style={{ textDecoration: 'none' }}>
-                            Toutes →
-                        </Link>
-                    </div>
-                    {projectInvoices.length === 0 ? (
-                        <EmptyState title="Aucune facture" body="Elles arriveront ici." />
-                    ) : (
-                        <div className="dash-card" style={{ padding: 0, overflow: 'hidden' }}>
-                            <div className="dash-table-wrap">
-                                <table className="dash-table">
-                                    <thead>
-                                        <tr>
-                                            <th>Numero</th>
-                                            <th>Emise</th>
-                                            <th>Montant</th>
-                                            <th>Statut</th>
+            <section className="dash-stack">
+                <div className="dash-row-between">
+                    <h2 className="dash-h2">Factures du projet</h2>
+                    <Link to="/invoices" className="dash-kicker" style={{ textDecoration: 'none' }}>
+                        Toutes →
+                    </Link>
+                </div>
+                {projectInvoices.length === 0 ? (
+                    <EmptyState title="Aucune facture" body="Les factures liées s'afficheront ici." />
+                ) : (
+                    <div className="dash-card" style={{ padding: 0, overflow: 'hidden' }}>
+                        <div className="dash-table-wrap">
+                            <table className="dash-table">
+                                <thead>
+                                    <tr>
+                                        <th>Numéro</th>
+                                        <th>Émise</th>
+                                        <th>Montant</th>
+                                        <th>Statut</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {projectInvoices.map((invoice) => (
+                                        <tr key={invoice.id}>
+                                            <td className="dash-table__num">{invoice.number}</td>
+                                            <td>{formatDate(invoice.issued)}</td>
+                                            <td className="dash-table__num">{formatEur(invoice.amount)}</td>
+                                            <td><InvoiceStatusPill status={invoice.status} /></td>
                                         </tr>
-                                    </thead>
-                                    <tbody>
-                                        {projectInvoices.map((invoice) => (
-                                            <tr key={invoice.id}>
-                                                <td className="dash-table__num">{invoice.number}</td>
-                                                <td>{formatDate(invoice.issued)}</td>
-                                                <td className="dash-table__num">{formatEur(invoice.amount)}</td>
-                                                <td><InvoiceStatusPill status={invoice.status} /></td>
-                                            </tr>
-                                        ))}
-
-                                    </tbody>
-                                </table>
-                            </div>
+                                    ))}
+                                </tbody>
+                            </table>
                         </div>
-                    )}
-                </section>
-            )}
+                    </div>
+                )}
+            </section>
         </div>
     )
 }

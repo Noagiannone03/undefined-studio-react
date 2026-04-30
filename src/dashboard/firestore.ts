@@ -25,6 +25,7 @@ import type {
     ClientStatus,
     Invoice,
     InvoiceItem,
+    InvoiceSource,
     InvoiceStatus,
     Milestone,
     Project,
@@ -36,6 +37,7 @@ import type {
     TicketStatus,
     UserProfile,
 } from './types'
+import { deleteInvoicePdf } from './invoice/storage'
 
 type Unsubscribe = () => void
 
@@ -44,6 +46,15 @@ type ErrorCallback = (error: FirestoreError) => void
 
 type CreateClientInput = {
     name: string
+    contactName: string
+    contactEmail: string
+    billingEmail: string
+    notes?: string
+}
+
+type UpdateClientInput = {
+    name: string
+    status: ClientStatus
     contactName: string
     contactEmail: string
     billingEmail: string
@@ -113,9 +124,18 @@ type CreateInvoiceInput = {
     status: InvoiceStatus
     issued: string
     due: string
+    source: InvoiceSource
+    amount?: number // explicit override for uploaded invoices (no items)
+    notes?: string
 }
 
 type UpdateInvoiceInput = CreateInvoiceInput
+
+type AttachInvoicePdfInput = {
+    pdfUrl: string
+    storagePath: string
+    source?: InvoiceSource
+}
 
 const USERS = 'users'
 const CLIENTS = 'clients'
@@ -153,6 +173,10 @@ function asTicketPriority(value: unknown): TicketPriority {
 
 function asInvoiceStatus(value: unknown): InvoiceStatus {
     return value === 'due' || value === 'overdue' || value === 'draft' ? value : 'paid'
+}
+
+function asInvoiceSource(value: unknown): InvoiceSource {
+    return value === 'uploaded' ? 'uploaded' : 'generated'
 }
 
 function normalizeMilestones(value: unknown): Milestone[] {
@@ -348,6 +372,7 @@ function mapInvoice(id: string, data: Record<string, unknown>): Invoice {
         : ''
     const items = normalizeInvoiceItems(data.items)
     const computedAmount = sumInvoiceItems(items)
+    const source = asInvoiceSource(data.source)
     return {
         id,
         clientId: typeof data.clientId === 'string' ? data.clientId : '',
@@ -357,13 +382,16 @@ function mapInvoice(id: string, data: Record<string, unknown>): Invoice {
         items,
         terms: normalizeStringList(data.terms),
         amount:
-            items.length > 0
+            source === 'generated' && items.length > 0
                 ? computedAmount
-                : typeof data.amount === 'number' ? data.amount : 0,
+                : typeof data.amount === 'number' ? data.amount : computedAmount,
         status: asInvoiceStatus(data.status),
         issued: typeof data.issued === 'string' ? data.issued : '',
         due: typeof data.due === 'string' ? data.due : '',
+        source,
         pdfUrl: typeof data.pdfUrl === 'string' ? data.pdfUrl : undefined,
+        storagePath: typeof data.storagePath === 'string' ? data.storagePath : undefined,
+        notes: typeof data.notes === 'string' ? data.notes : undefined,
         createdAt: toIsoDate(data.createdAt),
         updatedAt: toIsoDate(data.updatedAt),
     }
@@ -592,6 +620,18 @@ export async function createClient(input: CreateClientInput) {
     return id
 }
 
+export async function updateClient(clientId: string, input: UpdateClientInput) {
+    await updateDoc(doc(db, CLIENTS, clientId), {
+        name: input.name.trim(),
+        status: input.status,
+        contactName: input.contactName.trim(),
+        contactEmail: input.contactEmail.trim().toLowerCase(),
+        billingEmail: input.billingEmail.trim().toLowerCase(),
+        notes: input.notes?.trim() || '',
+        updatedAt: isoNow(),
+    })
+}
+
 export async function createClientAccount(input: CreateClientAccountInput) {
     const secondaryAuth = getSecondaryAdminAuth()
     const created = await createUserWithEmailAndPassword(
@@ -716,26 +756,41 @@ export async function updateTicketStatus(ticketId: string, status: TicketStatus)
     })
 }
 
-export async function createInvoice(input: CreateInvoiceInput) {
-    const id = createReadableId('invoice', input.number || input.title || input.clientId)
-    const now = isoNow()
+function buildInvoicePayload(input: CreateInvoiceInput) {
     const items = input.items.map((item, index) => ({
         id: item.id || `item-${index + 1}`,
         description: item.description.trim(),
         amount: Number.isFinite(item.amount) ? Number(item.amount) : 0,
     }))
 
-    await setDoc(doc(db, INVOICES, id), {
+    const computed = sumInvoiceItems(items)
+    const amount =
+        input.source === 'uploaded'
+            ? Number.isFinite(input.amount) ? Number(input.amount) : computed
+            : computed
+
+    return {
         clientId: input.clientId,
         projectId: input.projectId || '',
         number: input.number.trim(),
         title: input.title.trim(),
         items,
         terms: input.terms.map((line) => line.trim()).filter(Boolean),
-        amount: sumInvoiceItems(items),
+        amount,
         status: input.status,
         issued: input.issued,
         due: input.due,
+        source: input.source,
+        notes: input.notes?.trim() || '',
+    }
+}
+
+export async function createInvoice(input: CreateInvoiceInput) {
+    const id = createReadableId('invoice', input.number || input.title || input.clientId)
+    const now = isoNow()
+
+    await setDoc(doc(db, INVOICES, id), {
+        ...buildInvoicePayload(input),
         createdAt: now,
         updatedAt: now,
     })
@@ -744,29 +799,27 @@ export async function createInvoice(input: CreateInvoiceInput) {
 }
 
 export async function updateInvoice(invoiceId: string, input: UpdateInvoiceInput) {
-    const items = input.items.map((item, index) => ({
-        id: item.id || `item-${index + 1}`,
-        description: item.description.trim(),
-        amount: Number.isFinite(item.amount) ? Number(item.amount) : 0,
-    }))
-
     await updateDoc(doc(db, INVOICES, invoiceId), {
-        clientId: input.clientId,
-        projectId: input.projectId || '',
-        number: input.number.trim(),
-        title: input.title.trim(),
-        items,
-        terms: input.terms.map((line) => line.trim()).filter(Boolean),
-        amount: sumInvoiceItems(items),
-        status: input.status,
-        issued: input.issued,
-        due: input.due,
+        ...buildInvoicePayload(input),
         updatedAt: isoNow(),
     })
 }
 
-export async function deleteInvoice(invoiceId: string) {
-    await deleteDoc(doc(db, INVOICES, invoiceId))
+export async function attachInvoicePdf(invoiceId: string, input: AttachInvoicePdfInput) {
+    const patch: Record<string, unknown> = {
+        pdfUrl: input.pdfUrl,
+        storagePath: input.storagePath,
+        updatedAt: isoNow(),
+    }
+    if (input.source) patch.source = input.source
+    await updateDoc(doc(db, INVOICES, invoiceId), patch)
+}
+
+export async function deleteInvoice(invoice: Pick<Invoice, 'id' | 'storagePath'>) {
+    if (invoice.storagePath) {
+        await deleteInvoicePdf(invoice.storagePath)
+    }
+    await deleteDoc(doc(db, INVOICES, invoice.id))
 }
 
 export async function replyToTicket(input: ReplyToTicketInput) {
@@ -791,6 +844,7 @@ export async function replyToTicket(input: ReplyToTicketInput) {
 
 export type {
     CreateClientInput,
+    UpdateClientInput,
     CreateClientAccountInput,
     CreateProjectInput,
     UpdateProjectInput,
@@ -798,5 +852,6 @@ export type {
     CreateTicketInput,
     CreateInvoiceInput,
     UpdateInvoiceInput,
+    AttachInvoicePdfInput,
     ReplyToTicketInput,
 }

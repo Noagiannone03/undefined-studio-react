@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
 import { pdf } from '@react-pdf/renderer'
 import { EmptyState } from '../components/EmptyState'
 import { InvoiceStatusPill } from '../components/StatusPill'
@@ -6,23 +7,21 @@ import { useDashboardData } from '../useDashboardData'
 import { useAuth } from '../auth'
 import { InvoicePDF } from '../invoice/InvoicePDF'
 import { mailApi } from '../api'
+import {
+    blobToBase64,
+    uploadInvoicePdf,
+} from '../invoice/storage'
+import { attachInvoicePdf, updateInvoice } from '../firestore'
 import { formatDate, formatEur } from '../utils'
 import type { Invoice } from '../types'
 
-async function pdfToBase64(invoice: Invoice, client: ReturnType<ReturnType<typeof useDashboardData>['findClient']>): Promise<string> {
-    const blob = await pdf(<InvoicePDF invoice={invoice} client={client ?? null} />).toBlob()
-    const buffer = await blob.arrayBuffer()
-    const bytes = new Uint8Array(buffer)
-    let binary = ''
-    for (let i = 0; i < bytes.length; i++) binary += String.fromCharCode(bytes[i])
-    return btoa(binary)
-}
-
 export default function Invoices() {
+    const navigate = useNavigate()
     const { user } = useAuth()
-    const { invoices, findProject, findClient } = useDashboardData()
-    const [sendingId, setSendingId] = useState<string | null>(null)
-    const [sentIds, setSentIds] = useState<Set<string>>(new Set())
+    const { invoices, findProject, findClient, hasClientScope, error } = useDashboardData()
+    const isAdmin = user?.role === 'admin'
+
+    const [activeId, setActiveId] = useState<string | null>(null)
 
     const paid = invoices.filter((invoice) => invoice.status === 'paid').reduce((sum, invoice) => sum + invoice.amount, 0)
     const due = invoices.filter((invoice) => invoice.status !== 'paid').reduce((sum, invoice) => sum + invoice.amount, 0)
@@ -34,10 +33,36 @@ export default function Invoices() {
             alert('Aucun email de facturation trouvé pour ce client.')
             return
         }
+        if (invoice.source === 'uploaded' && !invoice.pdfUrl) {
+            alert('PDF manquant pour cette facture importée.')
+            return
+        }
 
-        setSendingId(invoice.id)
+        setActiveId(invoice.id)
         try {
-            const pdfBase64 = await pdfToBase64(invoice, client)
+            let pdfBase64: string
+
+            if (invoice.source === 'generated') {
+                const blob = await pdf(<InvoicePDF invoice={invoice} client={client ?? null} />).toBlob()
+                if (!invoice.storagePath) {
+                    const stored = await uploadInvoicePdf({
+                        clientId: invoice.clientId,
+                        invoiceId: invoice.id,
+                        blob,
+                    })
+                    await attachInvoicePdf(invoice.id, {
+                        pdfUrl: stored.pdfUrl,
+                        storagePath: stored.storagePath,
+                    })
+                }
+                pdfBase64 = await blobToBase64(blob)
+            } else {
+                const res = await fetch(invoice.pdfUrl as string)
+                if (!res.ok) throw new Error('Impossible de récupérer le PDF stocké.')
+                const blob = await res.blob()
+                pdfBase64 = await blobToBase64(blob)
+            }
+
             await mailApi.invoice({
                 to,
                 contactName: client?.contactName ?? client?.name ?? '',
@@ -49,36 +74,85 @@ export default function Invoices() {
                 items: invoice.items,
                 pdfBase64,
             })
-            setSentIds((prev) => new Set([...prev, invoice.id]))
-        } catch {
-            alert('Échec de l\'envoi. Vérifie la config SMTP sur le serveur.')
+
+            if (invoice.status === 'draft') {
+                await updateInvoice(invoice.id, {
+                    clientId: invoice.clientId,
+                    projectId: invoice.projectId || undefined,
+                    number: invoice.number,
+                    title: invoice.title,
+                    items: invoice.items,
+                    terms: invoice.terms,
+                    status: 'due',
+                    issued: invoice.issued,
+                    due: invoice.due,
+                    source: invoice.source,
+                    amount: invoice.source === 'uploaded' ? invoice.amount : undefined,
+                    notes: invoice.notes,
+                })
+            }
+        } catch (err) {
+            console.error('[invoices/send]', err)
+            alert(err instanceof Error ? err.message : 'Échec de l\'envoi.')
         } finally {
-            setSendingId(null)
+            setActiveId(null)
         }
     }
 
     const onDownloadPdf = async (invoice: Invoice) => {
-        const client = findClient(invoice.clientId)
-        const blob = await pdf(<InvoicePDF invoice={invoice} client={client ?? null} />).toBlob()
-        const url = URL.createObjectURL(blob)
-        const a = document.createElement('a')
-        a.href = url
-        a.download = `Facture-${invoice.number}.pdf`
-        a.click()
-        URL.revokeObjectURL(url)
+        if (invoice.pdfUrl) {
+            window.open(invoice.pdfUrl, '_blank', 'noopener')
+            return
+        }
+        if (invoice.source === 'generated') {
+            const client = findClient(invoice.clientId)
+            const blob = await pdf(<InvoicePDF invoice={invoice} client={client ?? null} />).toBlob()
+            const url = URL.createObjectURL(blob)
+            const a = document.createElement('a')
+            a.href = url
+            a.download = `Facture-${invoice.number}.pdf`
+            a.click()
+            URL.revokeObjectURL(url)
+        }
+    }
+
+    if (!isAdmin && !hasClientScope) {
+        return (
+            <div className="dash-stack-lg">
+                <header className="dash-page-head">
+                    <span className="dash-kicker">( 04 ) — Factures</span>
+                    <h1 className="dash-h1">L'état des <span className="serif-italic">comptes.</span></h1>
+                </header>
+                <EmptyState
+                    title="Compte pas encore relié"
+                    body="Ton compte n'est pas encore associé à un dossier client. Contacte le studio pour activer l'accès."
+                />
+            </div>
+        )
     }
 
     return (
         <div className="dash-stack-lg">
             <header className="dash-page-head">
                 <span className="dash-kicker">( 04 ) — Factures</span>
-                <h1 className="dash-h1">
-                    L'état des <span className="serif-italic">comptes.</span>
-                </h1>
+                <div className="dash-row-between" style={{ alignItems: 'flex-end' }}>
+                    <h1 className="dash-h1">
+                        L'état des <span className="serif-italic">comptes.</span>
+                    </h1>
+                    {isAdmin && (
+                        <div className="dash-row" style={{ gap: 8 }}>
+                            <Link to="/invoices/new" className="dash-btn">+ Nouvelle facture</Link>
+                        </div>
+                    )}
+                </div>
                 <p className="dash-sub">
-                    PDF généré ici, envoi par mail en un clic.
+                    {isAdmin
+                        ? 'Génère, valide, envoie. Les PDF sont stockés sur Firebase Storage.'
+                        : 'Toutes tes factures, téléchargeables en un clic.'}
                 </p>
             </header>
+
+            {error && <div className="login__error">{error}</div>}
 
             <section className="dash-grid dash-grid--2">
                 <div className="dash-card">
@@ -94,7 +168,13 @@ export default function Invoices() {
             </section>
 
             {invoices.length === 0 ? (
-                <EmptyState title="Aucune facture" body="Elles apparaîtront ici au fil du projet." />
+                <EmptyState
+                    title="Aucune facture"
+                    body={isAdmin
+                        ? 'Crée une facture ou importe un PDF existant.'
+                        : 'Tes factures apparaîtront ici dès qu\'elles seront émises.'}
+                    action={isAdmin && <Link to="/invoices/new" className="dash-btn" style={{ marginTop: 12 }}>+ Nouvelle facture</Link>}
+                />
             ) : (
                 <section className="dash-card" style={{ padding: 0, overflow: 'hidden' }}>
                     <div className="dash-table-wrap">
@@ -102,6 +182,7 @@ export default function Invoices() {
                             <thead>
                                 <tr>
                                     <th>Numéro</th>
+                                    {isAdmin && <th>Client</th>}
                                     <th>Projet</th>
                                     <th>Émise</th>
                                     <th>Échéance</th>
@@ -113,11 +194,23 @@ export default function Invoices() {
                             <tbody>
                                 {invoices.map((invoice) => {
                                     const project = findProject(invoice.projectId)
-                                    const isSending = sendingId === invoice.id
-                                    const wasSent = sentIds.has(invoice.id)
+                                    const client = isAdmin ? findClient(invoice.clientId) : null
+                                    const isActive = activeId === invoice.id
                                     return (
                                         <tr key={invoice.id}>
-                                            <td className="dash-table__num">{invoice.number}</td>
+                                            <td className="dash-table__num">
+                                                {isAdmin ? (
+                                                    <Link
+                                                        to={`/invoices/${invoice.id}`}
+                                                        style={{ textDecoration: 'underline', color: 'inherit' }}
+                                                    >
+                                                        {invoice.number}
+                                                    </Link>
+                                                ) : (
+                                                    invoice.number
+                                                )}
+                                            </td>
+                                            {isAdmin && <td>{client?.name ?? '—'}</td>}
                                             <td>{project?.name ?? '—'}</td>
                                             <td>{formatDate(invoice.issued)}</td>
                                             <td>{formatDate(invoice.due)}</td>
@@ -133,21 +226,26 @@ export default function Invoices() {
                                                     >
                                                         PDF
                                                     </button>
-                                                    {user?.role === 'admin' && (
-                                                        <button
-                                                            type="button"
-                                                            className="dash-btn"
-                                                            style={{
-                                                                height: 34,
-                                                                fontSize: 12,
-                                                                padding: '0 14px',
-                                                                background: wasSent ? 'var(--color-ink)' : undefined,
-                                                            }}
-                                                            disabled={isSending || wasSent}
-                                                            onClick={() => onSendInvoice(invoice)}
-                                                        >
-                                                            {wasSent ? 'Envoyé ✓' : isSending ? 'Envoi…' : 'Envoyer'}
-                                                        </button>
+                                                    {isAdmin && (
+                                                        <>
+                                                            <button
+                                                                type="button"
+                                                                className="dash-btn dash-btn--ghost"
+                                                                style={{ height: 34, fontSize: 12, padding: '0 14px' }}
+                                                                onClick={() => navigate(`/invoices/${invoice.id}`)}
+                                                            >
+                                                                Éditer
+                                                            </button>
+                                                            <button
+                                                                type="button"
+                                                                className="dash-btn"
+                                                                style={{ height: 34, fontSize: 12, padding: '0 14px' }}
+                                                                disabled={isActive}
+                                                                onClick={() => onSendInvoice(invoice)}
+                                                            >
+                                                                {isActive ? 'Envoi…' : 'Envoyer'}
+                                                            </button>
+                                                        </>
                                                     )}
                                                 </div>
                                             </td>

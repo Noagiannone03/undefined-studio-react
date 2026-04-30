@@ -149,19 +149,17 @@ export function SidebarBody({ onNavigate }: { onNavigate?: () => void }) {
                         </svg>
                     }
                 />
-                {clientMode && (
-                    <Item
-                        to="/invoices"
-                        onClick={onNavigate}
-                        label="Factures"
-                        icon={
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="20" height="20">
-                                <path d="M6 2h12v20l-3-2-3 2-3-2-3 2V2z" />
-                                <path d="M9 8h6M9 12h6M9 16h4" />
-                            </svg>
-                        }
-                    />
-                )}
+                <Item
+                    to="/invoices"
+                    onClick={onNavigate}
+                    label="Factures"
+                    icon={
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="20" height="20">
+                            <path d="M6 2h12v20l-3-2-3 2-3-2-3 2V2z" />
+                            <path d="M9 8h6M9 12h6M9 16h4" />
+                        </svg>
+                    }
+                />
             </ul>
 
             <div className="dash-sidebar__foot">

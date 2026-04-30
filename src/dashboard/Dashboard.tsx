@@ -11,6 +11,7 @@ import ProjectDetail from './pages/ProjectDetail'
 import Tickets from './pages/Tickets'
 import NewTicket from './pages/NewTicket'
 import Invoices from './pages/Invoices'
+import InvoiceDetail from './pages/InvoiceDetail'
 import Clients from './pages/Clients'
 import ClientDetail from './pages/ClientDetail'
 import SetupPassword from './pages/SetupPassword'
@@ -51,7 +52,9 @@ export default function Dashboard({ basename = '/' }: { basename?: string }) {
                             <Route path="/projects/:id" element={<ProjectDetail />} />
                             <Route path="/tickets" element={<Tickets />} />
                             <Route path="/tickets/new" element={<NewTicket />} />
-                            <Route path="/invoices" element={<ClientOnly><Invoices /></ClientOnly>} />
+                            <Route path="/invoices" element={<Invoices />} />
+                            <Route path="/invoices/new" element={<AdminOnly><InvoiceDetail /></AdminOnly>} />
+                            <Route path="/invoices/:id" element={<AdminOnly><InvoiceDetail /></AdminOnly>} />
                         </Route>
                         <Route path="*" element={<Navigate to="/" replace />} />
                     </Routes>
@@ -64,11 +67,5 @@ export default function Dashboard({ basename = '/' }: { basename?: string }) {
 function AdminOnly({ children }: { children: ReactElement }) {
     const { user } = useAuth()
     if (user?.role !== 'admin') return <Navigate to="/" replace />
-    return children
-}
-
-function ClientOnly({ children }: { children: ReactElement }) {
-    const { user } = useAuth()
-    if (user?.role !== 'client') return <Navigate to="/" replace />
     return children
 }

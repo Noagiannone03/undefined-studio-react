@@ -2,6 +2,7 @@ import { getApp, getApps, initializeApp } from 'firebase/app'
 import { getAnalytics, isSupported } from 'firebase/analytics'
 import { getAuth, initializeAuth, inMemoryPersistence, type Auth } from 'firebase/auth'
 import { getFirestore } from 'firebase/firestore'
+import { getStorage } from 'firebase/storage'
 
 const firebaseConfig = {
     apiKey: 'AIzaSyA7Vv_o470vFcSM-JEG78ypUBAIyn1yYEs',
@@ -18,6 +19,7 @@ export const ADMIN_UIDS = new Set(['kVurSY6zZMYaDI2xZJ3a4JydJFG2'])
 export const app = getApps().length ? getApp() : initializeApp(firebaseConfig)
 export const auth = getAuth(app)
 export const db = getFirestore(app)
+export const storage = getStorage(app)
 
 let analyticsStarted = false
 void (async () => {
