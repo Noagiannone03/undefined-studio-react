@@ -216,31 +216,34 @@ export default function ProjectDetail() {
                     {project.tagline && <p className="dash-sub">{project.tagline}</p>}
                 </header>
 
+                <section className="dash-project-detail-summary">
+                    <div className="dash-card dash-project-detail-summary__main">
+                        <span className="dash-card__accent" style={{ background: project.accent }} />
+                        <div className="dash-row-between" style={{ alignItems: 'flex-start', gap: 16 }}>
+                            <div>
+                                <span className="dash-kicker">État du projet</span>
+                                <h2 className="dash-h2">{currentStep?.label ?? 'Étape à définir'}</h2>
+                            </div>
+                            <ProjectStatusPill status={draft.status} />
+                        </div>
+                        <div className="dash-stack-sm">
+                            <div className="dash-row-between">
+                                <span className="dash-kicker">{doneCount}/{totalCount || 0} étapes faites</span>
+                                <strong className="dash-progress__value">{progress}%</strong>
+                            </div>
+                            <ProgressBar value={progress} color={project.accent} />
+                        </div>
+                    </div>
+                    <div className="dash-card dash-project-detail-summary__stats">
+                        <div><span className="dash-kicker">Phase</span><strong>{currentPhase?.label ?? '—'}</strong></div>
+                        <div><span className="dash-kicker">Départ</span><strong>{formatDate(draft.kickoff)}</strong></div>
+                        <div><span className="dash-kicker">Livraison</span><strong>{formatDate(draft.delivery)}</strong></div>
+                    </div>
+                </section>
+
                 <div className="dash-overview-layout">
                     {/* COLONNE GAUCHE (MAIN) */}
                     <div className="dash-overview-main">
-                        {/* HERO — avancement live */}
-                        <section className="dash-card dash-card--pop" style={{ position: 'relative' }}>
-                            <span className="dash-card__accent" style={{ background: project.accent }} />
-                            <div className="dash-row-between" style={{ alignItems: 'flex-start', gap: 16, flexWrap: 'wrap' }}>
-                                <div style={{ minWidth: 0 }}>
-                                    <span className="dash-kicker">Avancement calculé · {totalCount === 0 ? 'aucune étape' : `${doneCount}/${totalCount} étapes faites`}</span>
-                                    <div className="dash-h1" style={{ marginTop: 4, fontSize: 'clamp(40px, 6vw, 72px)', lineHeight: 1 }}>
-                                        {progress}<span style={{ fontSize: '0.5em' }}>%</span>
-                                    </div>
-                                </div>
-                                <div style={{ textAlign: 'right' }}>
-                                    <span className="dash-kicker">Phase</span>
-                                    <p className="dash-h2" style={{ marginTop: 4, fontSize: 'clamp(18px, 2.4vw, 26px)' }}>
-                                        {currentPhase?.label ?? '—'}
-                                    </p>
-                                </div>
-                            </div>
-                            <div style={{ marginTop: 16 }}>
-                                <ProgressBar value={progress} color={project.accent} />
-                            </div>
-                        </section>
-
                         {/* ÉTAPES — focal point */}
                         <section className="dash-edit">
                             <div className="dash-edit__head">
@@ -332,9 +335,9 @@ export default function ProjectDetail() {
                             </div>
                             <div className="dash-row" style={{ gap: 12, alignItems: 'center', marginTop: 16 }}>
                                 <button type="submit" className="dash-btn" disabled={publishingUpdate}>
-                                    {publishingUpdate ? 'Envoi…' : 'Publier le point'}
+                                    {publishingUpdate ? 'Envoi...' : 'Publier le point'}
                                 </button>
-                                {updateSuccess && <span className="dash-kicker" style={{ color: 'var(--color-ink)' }}>Envoyé ✓</span>}
+                                {updateSuccess && <span className="dash-kicker" style={{ color: 'var(--color-ink)' }}>Envoyé</span>}
                             </div>
                             {updateError && <div className="login__error" style={{ marginTop: 8 }}>{updateError}</div>}
                         </form>
@@ -473,32 +476,39 @@ export default function ProjectDetail() {
                 <Link to="/projects" className="dash-kicker" style={{ textDecoration: 'none', alignSelf: 'flex-start' }}>
                     ← Projets
                 </Link>
+                <h1 className="dash-h1">{project.name}</h1>
+                {project.tagline && <p className="dash-sub">{project.tagline}</p>}
             </header>
+
+            <section className="dash-project-detail-summary">
+                <div className="dash-card dash-project-detail-summary__main">
+                    <span className="dash-card__accent" style={{ background: project.accent }} />
+                    <div className="dash-row-between" style={{ alignItems: 'flex-start', gap: 16 }}>
+                        <div>
+                            <span className="dash-kicker">En ce moment</span>
+                            <h2 className="dash-h2">{currentStep?.label ?? 'Étape à définir'}</h2>
+                        </div>
+                        <ProjectStatusPill status={project.status} />
+                    </div>
+                    <div className="dash-stack-sm">
+                        <div className="dash-row-between">
+                            <span className="dash-kicker">{doneCount}/{draft.milestones.length || 0} étapes faites</span>
+                            <strong className="dash-progress__value">{progress}%</strong>
+                        </div>
+                        <ProgressBar value={progress} color={project.accent} />
+                    </div>
+                </div>
+                <div className="dash-card dash-project-detail-summary__stats">
+                    <div><span className="dash-kicker">Phase</span><strong>{currentPhase?.label ?? 'En cours'}</strong></div>
+                    <div><span className="dash-kicker">Prochaine étape</span><strong>{nextStep?.label ?? '—'}</strong></div>
+                    <div><span className="dash-kicker">Livraison</span><strong>{formatDate(project.delivery)}</strong></div>
+                </div>
+            </section>
 
             <div className="dash-overview-layout">
                 {/* COLONNE GAUCHE (MAIN) */}
                 <div className="dash-overview-main">
-                    <section className="dash-project-hero">
-                        <span className="dash-card__accent" style={{ background: project.accent }} />
-                        <div className="dash-project-hero__main">
-                            <div className="dash-stack-sm">
-                                <div className="dash-row" style={{ gap: 8, flexWrap: 'wrap' }}>
-                                    <ProjectStatusPill status={project.status} />
-                                    <span className="dash-kicker">Livraison · {formatDate(project.delivery)}</span>
-                                </div>
-                                <h1 className="dash-h1 dash-project-hero__title">{project.name}</h1>
-                                {project.tagline && <p className="dash-sub dash-project-hero__sub">{project.tagline}</p>}
-                            </div>
-                            <div className="dash-project-hero__progress">
-                                <span>{progress}%</span>
-                                <small>avancé</small>
-                            </div>
-                        </div>
-
-                        <ProgressBar value={progress} color={project.accent} />
-                    </section>
-
-                    <div className="dash-card dash-project-section" style={{ marginTop: 16 }}>
+                    <div className="dash-card dash-project-section">
                         <div className="dash-row-between">
                             <h2 className="dash-h2" style={{ fontSize: 'clamp(18px, 2vw, 24px)' }}>Étapes</h2>
                             <span className="dash-kicker">{doneCount}/{draft.milestones.length || 0}</span>

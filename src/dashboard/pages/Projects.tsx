@@ -25,25 +25,21 @@ function ProjectCard({ project, clientName, showClient }: { project: Project; cl
             <span className="dash-card__accent" style={{ background: project.accent }} />
             <div className="dash-project-card__head">
                 <div className="dash-stack-sm">
-                    <ProjectStatusPill status={project.status} />
+                    <div className="dash-row" style={{ gap: 8, flexWrap: 'wrap' }}>
+                        <ProjectStatusPill status={project.status} />
+                        {showClient && <span className="dash-kicker">{clientName ?? 'Client'}</span>}
+                    </div>
                     <h2 className="dash-h2 dash-project-card__title">{project.name}</h2>
-                    {project.tagline && <p className="dash-sub dash-project-card__sub">{project.tagline}</p>}
+                    {project.tagline && <p className="dash-note dash-project-card__sub">{project.tagline}</p>}
                 </div>
                 <div className="dash-project-card__score">
                     <span>{project.progress}%</span>
-                    <small>avancé</small>
                 </div>
             </div>
 
             <ProgressBar value={project.progress} color={project.accent} />
 
             <div className="dash-project-card__grid">
-                {showClient && (
-                    <div>
-                        <span className="dash-kicker">Client</span>
-                        <strong>{clientName ?? 'Client'}</strong>
-                    </div>
-                )}
                 <div>
                     <span className="dash-kicker">En cours</span>
                     <strong>{current?.label ?? 'À définir'}</strong>
@@ -66,6 +62,9 @@ export default function Projects() {
     const { projects, findClient, hasClientScope, error } = useDashboardData()
     const sortedProjects = [...projects].sort((a, b) => projectSortValue(a).localeCompare(projectSortValue(b)))
     const activeCount = projects.filter((project) => project.status !== 'live' && project.status !== 'paused').length
+    const liveCount = projects.filter((project) => project.status === 'live').length
+    const pausedCount = projects.filter((project) => project.status === 'paused').length
+    const nextProject = sortedProjects.find((project) => project.status !== 'live' && project.status !== 'paused') ?? sortedProjects[0]
 
     if (user?.role === 'admin') {
         return (
@@ -87,12 +86,26 @@ export default function Projects() {
                         action={<Link to="/clients" className="dash-btn" style={{ marginTop: 8 }}>Voir les clients →</Link>}
                     />
                 ) : (
-                    <section className="dash-project-list">
-                        {sortedProjects.map((project) => {
-                            const client = findClient(project.clientId)
-                            return <ProjectCard key={project.id} project={project} clientName={client?.name} showClient />
-                        })}
-                    </section>
+                    <>
+                        <section className="dash-project-summary">
+                            <div className="dash-card dash-project-summary__main">
+                                <span className="dash-kicker">Prochain à suivre</span>
+                                <h2 className="dash-h2">{nextProject?.name ?? 'Aucun projet'}</h2>
+                                <p className="dash-note">{nextProject ? `Livraison ${formatDate(nextProject.delivery)}` : 'Planning vide'}</p>
+                            </div>
+                            <div className="dash-card dash-project-summary__stats">
+                                <div><span className="dash-kicker">En cours</span><strong>{activeCount}</strong></div>
+                                <div><span className="dash-kicker">En ligne</span><strong>{liveCount}</strong></div>
+                                <div><span className="dash-kicker">Pause</span><strong>{pausedCount}</strong></div>
+                            </div>
+                        </section>
+                        <section className="dash-project-list">
+                            {sortedProjects.map((project) => {
+                                const client = findClient(project.clientId)
+                                return <ProjectCard key={project.id} project={project} clientName={client?.name} showClient />
+                            })}
+                        </section>
+                    </>
                 )}
             </div>
         )
@@ -105,6 +118,7 @@ export default function Projects() {
                 <h1 className="dash-h1">
                     Tes <span className="serif-italic">projets.</span>
                 </h1>
+                <p className="dash-sub">Une liste simple pour suivre l’avancement, l’étape en cours et la prochaine livraison.</p>
             </header>
 
             {error && <div className="login__error">{error}</div>}
@@ -117,11 +131,25 @@ export default function Projects() {
             ) : projects.length === 0 ? (
                 <EmptyState title="Aucun projet" body="On t'affichera tes projets ici." />
             ) : (
-                <section className="dash-project-list">
-                    {sortedProjects.map((project) => (
-                        <ProjectCard key={project.id} project={project} />
-                    ))}
-                </section>
+                <>
+                    <section className="dash-project-summary">
+                        <div className="dash-card dash-project-summary__main">
+                            <span className="dash-kicker">À suivre</span>
+                            <h2 className="dash-h2">{nextProject?.name ?? 'Aucun projet'}</h2>
+                            <p className="dash-note">{nextProject ? `Livraison ${formatDate(nextProject.delivery)}` : 'Planning en préparation'}</p>
+                        </div>
+                        <div className="dash-card dash-project-summary__stats">
+                            <div><span className="dash-kicker">Projets</span><strong>{projects.length}</strong></div>
+                            <div><span className="dash-kicker">Actifs</span><strong>{activeCount}</strong></div>
+                            <div><span className="dash-kicker">Livrés</span><strong>{liveCount}</strong></div>
+                        </div>
+                    </section>
+                    <section className="dash-project-list">
+                        {sortedProjects.map((project) => (
+                            <ProjectCard key={project.id} project={project} />
+                        ))}
+                    </section>
+                </>
             )}
         </div>
     )

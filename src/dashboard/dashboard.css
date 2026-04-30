@@ -627,24 +627,27 @@
     display: grid;
     grid-template-columns: 1fr;
     gap: 12px;
+    align-items: start;
 }
 
 .dash-overview-focus__main {
-    gap: clamp(18px, 3vw, 28px);
-    padding-left: clamp(20px, 3vw, 34px);
+    gap: 12px;
+    padding: clamp(16px, 2vw, 22px);
+    padding-left: clamp(20px, 2vw, 28px);
 }
 
 .dash-overview-focus__title {
-    margin-top: 6px;
-    font-size: clamp(26px, 4vw, 46px);
-    max-width: 16ch;
+    margin-top: 4px;
+    font-size: clamp(22px, 2.6vw, 32px);
+    line-height: 1.04;
+    max-width: 22ch;
 }
 
 .dash-overview-focus__meta {
     display: grid;
     grid-template-columns: 1fr;
-    gap: 12px;
-    padding-top: 14px;
+    gap: 10px;
+    padding-top: 10px;
     border-top: 1px solid var(--color-hair);
 }
 
@@ -654,8 +657,8 @@
 
 .dash-overview-focus__meta strong {
     display: block;
-    margin-top: 4px;
-    font-size: 14px;
+    margin-top: 3px;
+    font-size: 13px;
     line-height: 1.35;
 }
 
@@ -667,19 +670,20 @@
 
 .dash-overview-stat {
     justify-content: space-between;
-    min-height: 118px;
+    min-height: 88px;
+    padding: 14px;
 }
 
 .dash-overview-stat strong {
     font-family: 'Archivo Black', sans-serif;
-    font-size: clamp(26px, 4vw, 40px);
+    font-size: clamp(22px, 3vw, 30px);
     line-height: 0.95;
     letter-spacing: -0.03em;
 }
 
 .dash-overview-stat span:last-child {
     color: var(--color-ink-soft);
-    font-size: 13px;
+    font-size: 12px;
     line-height: 1.35;
 }
 
@@ -856,9 +860,53 @@
     gap: 12px;
 }
 
+.dash-project-summary,
+.dash-project-detail-summary {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 12px;
+}
+
+.dash-project-summary__main,
+.dash-project-detail-summary__main {
+    gap: 16px;
+    padding-left: clamp(20px, 2vw, 30px);
+}
+
+.dash-project-summary__stats,
+.dash-project-detail-summary__stats {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0;
+    padding: 0;
+}
+
+.dash-project-summary__stats > div,
+.dash-project-detail-summary__stats > div {
+    min-width: 0;
+    padding: clamp(14px, 2vw, 20px);
+    border-left: 1px solid var(--color-hair);
+}
+
+.dash-project-summary__stats > div:first-child,
+.dash-project-detail-summary__stats > div:first-child {
+    border-left: 0;
+}
+
+.dash-project-summary__stats strong,
+.dash-project-detail-summary__stats strong {
+    display: block;
+    margin-top: 5px;
+    font-family: 'Archivo Black', sans-serif;
+    font-size: clamp(20px, 3vw, 32px);
+    line-height: 1;
+    letter-spacing: -0.03em;
+    overflow-wrap: anywhere;
+}
+
 .dash-client-project,
 .dash-project-card {
-    gap: 16px;
+    gap: 14px;
     padding-left: clamp(18px, 2vw, 30px);
     transition: transform 180ms ease, border-color 180ms ease;
 }
@@ -880,16 +928,16 @@
 
 .dash-client-project__title,
 .dash-project-card__title {
-    font-size: clamp(22px, 2.6vw, 34px);
-    line-height: 0.98;
-    max-width: 18ch;
+    font-size: clamp(19px, 2vw, 26px);
+    line-height: 1.05;
+    max-width: 22ch;
 }
 
 .dash-client-project__sub,
 .dash-project-card__sub {
-    font-size: 15px;
-    line-height: 1.45;
-    max-width: 54ch;
+    font-size: 13px;
+    line-height: 1.4;
+    max-width: 58ch;
 }
 
 .dash-client-project__progress,
@@ -905,7 +953,7 @@
 .dash-project-hero__progress span {
     display: block;
     font-family: 'Archivo Black', sans-serif;
-    font-size: clamp(26px, 4vw, 48px);
+    font-size: clamp(24px, 3vw, 36px);
     line-height: 0.9;
     letter-spacing: -0.04em;
     color: var(--color-ink);
@@ -1078,6 +1126,11 @@
         grid-template-columns: 1fr 1fr;
     }
 
+    .dash-project-summary,
+    .dash-project-detail-summary {
+        grid-template-columns: minmax(0, 1.2fr) minmax(300px, 0.8fr);
+    }
+
     .dash-overview-focus__stats {
         grid-template-columns: repeat(3, minmax(0, 1fr));
     }
@@ -1121,19 +1174,19 @@
     }
 
     .dash-overview-focus {
-        grid-template-columns: minmax(0, 1.45fr) minmax(300px, 0.55fr);
-        gap: 24px;
+        grid-template-columns: minmax(0, 1fr) 300px;
+        gap: 16px;
     }
 
     .dash-overview-focus__stats {
         grid-template-columns: 1fr;
-        gap: 12px;
+        gap: 8px;
     }
 
     .dash-client-projects,
     .dash-project-list {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 24px;
+        grid-template-columns: 1fr;
+        gap: 14px;
     }
 
     .dash-project-detail-grid {
