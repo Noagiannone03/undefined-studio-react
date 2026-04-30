@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom'
 import { useAuth } from '../auth'
 import { useDashboardData } from '../useDashboardData'
+import { EmptyState } from '../components/EmptyState'
 import { InvoiceStatusPill, ProjectStatusPill, TicketStatusPill } from '../components/StatusPill'
 import { ProgressBar } from '../components/ProgressBar'
 import { formatDate, formatEur } from '../utils'
@@ -93,6 +94,7 @@ export default function Overview() {
     }
 
     const activeProjects = projects.filter((project) => project.status !== 'live' && project.status !== 'paused')
+    const visibleProjects = activeProjects.length > 0 ? activeProjects : projects
     const openTickets = tickets.filter((ticket) => ticket.status !== 'resolved')
     const outstandingInvoices = invoices.filter((invoice) => invoice.status !== 'paid')
     const dueTotal = outstandingInvoices.reduce((sum, invoice) => sum + invoice.amount, 0)
@@ -140,33 +142,37 @@ export default function Overview() {
 
             <section className="dash-stack">
                 <div className="dash-row-between">
-                    <h2 className="dash-h2">Projets en cours</h2>
+                    <h2 className="dash-h2">{activeProjects.length > 0 ? 'Projets en cours' : 'Tes projets'}</h2>
                     <Link to="/projects" className="dash-kicker" style={{ textDecoration: 'none' }}>
                         Tous les projets →
                     </Link>
                 </div>
-                <div className="dash-grid dash-grid--2">
-                    {activeProjects.map((project) => (
-                        <div key={project.id}>
-                            <Link to={`/projects/${project.id}`} className="dash-card dash-card--pop dash-card--link">
-                                <span className="dash-card__accent" style={{ background: project.accent }} />
-                                <div className="dash-row-between">
-                                    <ProjectStatusPill status={project.status} />
-                                    <span className="dash-kicker">Livraison · {formatDate(project.delivery)}</span>
-                                </div>
-                                <h3 className="dash-h2" style={{ marginTop: 8 }}>{project.name}</h3>
-                                <p className="dash-sub" style={{ fontSize: 16 }}>{project.tagline}</p>
-                                <div className="dash-stack-sm" style={{ marginTop: 14 }}>
+                {visibleProjects.length === 0 ? (
+                    <EmptyState title="Aucun projet" body="Tes projets apparaîtront ici dès qu’ils seront activés." />
+                ) : (
+                    <div className="dash-grid dash-grid--2">
+                        {visibleProjects.map((project) => (
+                            <div key={project.id}>
+                                <Link to={`/projects/${project.id}`} className="dash-card dash-card--pop dash-card--link">
+                                    <span className="dash-card__accent" style={{ background: project.accent }} />
                                     <div className="dash-row-between">
-                                        <span className="dash-kicker">Avancement</span>
-                                        <span className="dash-progress__value">{project.progress}%</span>
+                                        <ProjectStatusPill status={project.status} />
+                                        <span className="dash-kicker">Livraison · {formatDate(project.delivery)}</span>
                                     </div>
-                                    <ProgressBar value={project.progress} color={project.accent} />
-                                </div>
-                            </Link>
-                        </div>
-                    ))}
-                </div>
+                                    <h3 className="dash-h2" style={{ marginTop: 8 }}>{project.name}</h3>
+                                    <p className="dash-sub" style={{ fontSize: 16 }}>{project.tagline}</p>
+                                    <div className="dash-stack-sm" style={{ marginTop: 14 }}>
+                                        <div className="dash-row-between">
+                                            <span className="dash-kicker">Avancement</span>
+                                            <span className="dash-progress__value">{project.progress}%</span>
+                                        </div>
+                                        <ProgressBar value={project.progress} color={project.accent} />
+                                    </div>
+                                </Link>
+                            </div>
+                        ))}
+                    </div>
+                )}
             </section>
 
             <section className="dash-stack">
