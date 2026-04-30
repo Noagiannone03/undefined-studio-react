@@ -216,237 +216,247 @@ export default function ProjectDetail() {
                     {project.tagline && <p className="dash-sub">{project.tagline}</p>}
                 </header>
 
-                {/* HERO — avancement live */}
-                <section className="dash-card dash-card--pop" style={{ position: 'relative' }}>
-                    <span className="dash-card__accent" style={{ background: project.accent }} />
-                    <div className="dash-row-between" style={{ alignItems: 'flex-start', gap: 16, flexWrap: 'wrap' }}>
-                        <div style={{ minWidth: 0 }}>
-                            <span className="dash-kicker">Avancement calculé · {totalCount === 0 ? 'aucune étape' : `${doneCount}/${totalCount} étapes faites`}</span>
-                            <div className="dash-h1" style={{ marginTop: 4, fontSize: 'clamp(40px, 6vw, 72px)', lineHeight: 1 }}>
-                                {progress}<span style={{ fontSize: '0.5em' }}>%</span>
+                <div className="dash-overview-layout">
+                    {/* COLONNE GAUCHE (MAIN) */}
+                    <div className="dash-overview-main">
+                        {/* HERO — avancement live */}
+                        <section className="dash-card dash-card--pop" style={{ position: 'relative' }}>
+                            <span className="dash-card__accent" style={{ background: project.accent }} />
+                            <div className="dash-row-between" style={{ alignItems: 'flex-start', gap: 16, flexWrap: 'wrap' }}>
+                                <div style={{ minWidth: 0 }}>
+                                    <span className="dash-kicker">Avancement calculé · {totalCount === 0 ? 'aucune étape' : `${doneCount}/${totalCount} étapes faites`}</span>
+                                    <div className="dash-h1" style={{ marginTop: 4, fontSize: 'clamp(40px, 6vw, 72px)', lineHeight: 1 }}>
+                                        {progress}<span style={{ fontSize: '0.5em' }}>%</span>
+                                    </div>
+                                </div>
+                                <div style={{ textAlign: 'right' }}>
+                                    <span className="dash-kicker">Phase</span>
+                                    <p className="dash-h2" style={{ marginTop: 4, fontSize: 'clamp(18px, 2.4vw, 26px)' }}>
+                                        {currentPhase?.label ?? '—'}
+                                    </p>
+                                </div>
                             </div>
-                        </div>
-                        <div style={{ textAlign: 'right' }}>
-                            <span className="dash-kicker">Phase</span>
-                            <p className="dash-h2" style={{ marginTop: 4, fontSize: 'clamp(18px, 2.4vw, 26px)' }}>
-                                {currentPhase?.label ?? '—'}
-                            </p>
-                        </div>
-                    </div>
-                    <div style={{ marginTop: 16 }}>
-                        <ProgressBar value={progress} color={project.accent} />
-                    </div>
-                </section>
+                            <div style={{ marginTop: 16 }}>
+                                <ProgressBar value={progress} color={project.accent} />
+                            </div>
+                        </section>
 
-                {/* ÉTAPES — focal point */}
-                <section className="dash-edit">
-                    <div className="dash-edit__head">
-                        <div>
-                            <h2 className="dash-h2">Étapes</h2>
-                            <p className="dash-sub" style={{ fontSize: 13, margin: '2px 0 0' }}>
-                                Clique sur le statut pour cycler : à faire → en cours → faite.
-                            </p>
-                        </div>
-                        <button
-                            type="button"
-                            className="dash-btn dash-btn--ghost"
-                            style={{ height: 36, fontSize: 12, padding: '0 16px' }}
-                            onClick={addMilestone}
-                        >
-                            + Ajouter
-                        </button>
-                    </div>
-
-                    {draft.milestones.length === 0 ? (
-                        <p className="dash-sub" style={{ fontSize: 14 }}>
-                            Ajoute une première étape pour structurer l’avancement.
-                        </p>
-                    ) : (
-                        <div className="dash-step-list">
-                            {draft.milestones.map((milestone, index) => (
-                                <div key={milestone.id} className={`dash-step dash-step--${milestone.status}`}>
-                                    <span className="dash-step__num">{String(index + 1).padStart(2, '0')}</span>
-                                    <input
-                                        className="dash-step__label"
-                                        value={milestone.label}
-                                        onChange={(e) => updateMilestoneField(milestone.id, { label: e.target.value })}
-                                        placeholder={`Étape ${index + 1}`}
-                                    />
-                                    <button
-                                        type="button"
-                                        className={`dash-step__status dash-step__status--${milestone.status}`}
-                                        onClick={() => setMilestoneStatus(milestone.id, MILESTONE_CYCLE[milestone.status])}
-                                        title="Cycler le statut"
-                                    >
-                                        {MILESTONE_LABEL[milestone.status]}
-                                    </button>
-                                    <input
-                                        type="date"
-                                        className="dash-step__date"
-                                        value={milestone.date ?? ''}
-                                        onChange={(e) => updateMilestoneField(milestone.id, { date: e.target.value || undefined })}
-                                    />
-                                    <button
-                                        type="button"
-                                        className="dash-step__remove"
-                                        title="Supprimer"
-                                        onClick={() => removeMilestone(milestone.id)}
-                                    >×</button>
+                        {/* ÉTAPES — focal point */}
+                        <section className="dash-edit">
+                            <div className="dash-edit__head">
+                                <div>
+                                    <h2 className="dash-h2">Étapes</h2>
+                                    <p className="dash-sub" style={{ fontSize: 13, margin: '2px 0 0' }}>
+                                        Clique sur le statut pour cycler : à faire → en cours → faite.
+                                    </p>
                                 </div>
-                            ))}
-                        </div>
-                    )}
-                </section>
-
-                {/* RÉGLAGES — phase + dates + note */}
-                <section className="dash-edit">
-                    <div className="dash-edit__head">
-                        <h2 className="dash-h2">Réglages</h2>
-                    </div>
-
-                    <div className="dash-stack-sm">
-                        <span className="dash-label">Phase du projet</span>
-                        <div className="dash-status-picker">
-                            {PHASE_OPTIONS.map((opt) => (
                                 <button
-                                    key={opt.value}
                                     type="button"
-                                    onClick={() => patch({ status: opt.value })}
-                                    className={`dash-status-pick tone-${opt.tone}${draft.status === opt.value ? ' is-active' : ''}`}
+                                    className="dash-btn dash-btn--ghost"
+                                    style={{ height: 36, fontSize: 12, padding: '0 16px' }}
+                                    onClick={addMilestone}
                                 >
-                                    {opt.label}
+                                    + Ajouter
                                 </button>
-                            ))}
-                        </div>
-                    </div>
+                            </div>
 
-                    <div className="dash-grid dash-grid--2">
-                        <div className="dash-stack-sm">
-                            <span className="dash-label">Départ</span>
-                            <input type="date" className="dash-input" value={draft.kickoff}
-                                onChange={(e) => patch({ kickoff: e.target.value })} />
-                        </div>
-                        <div className="dash-stack-sm">
-                            <span className="dash-label">Livraison cible</span>
-                            <input type="date" className="dash-input" value={draft.delivery}
-                                onChange={(e) => patch({ delivery: e.target.value })} />
-                        </div>
-                    </div>
+                            {draft.milestones.length === 0 ? (
+                                <p className="dash-sub" style={{ fontSize: 14 }}>
+                                    Ajoute une première étape pour structurer l’avancement.
+                                </p>
+                            ) : (
+                                <div className="dash-step-list">
+                                    {draft.milestones.map((milestone, index) => (
+                                        <div key={milestone.id} className={`dash-step dash-step--${milestone.status}`}>
+                                            <span className="dash-step__num">{String(index + 1).padStart(2, '0')}</span>
+                                            <input
+                                                className="dash-step__label"
+                                                value={milestone.label}
+                                                onChange={(e) => updateMilestoneField(milestone.id, { label: e.target.value })}
+                                                placeholder={`Étape ${index + 1}`}
+                                            />
+                                            <button
+                                                type="button"
+                                                className={`dash-step__status dash-step__status--${milestone.status}`}
+                                                onClick={() => setMilestoneStatus(milestone.id, MILESTONE_CYCLE[milestone.status])}
+                                                title="Cycler le statut"
+                                            >
+                                                {MILESTONE_LABEL[milestone.status]}
+                                            </button>
+                                            <input
+                                                type="date"
+                                                className="dash-step__date"
+                                                value={milestone.date ?? ''}
+                                                onChange={(e) => updateMilestoneField(milestone.id, { date: e.target.value || undefined })}
+                                            />
+                                            <button
+                                                type="button"
+                                                className="dash-step__remove"
+                                                title="Supprimer"
+                                                onClick={() => removeMilestone(milestone.id)}
+                                            >×</button>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+                        </section>
 
-                    <div className="dash-stack-sm">
-                        <span className="dash-label">Note interne (non visible client)</span>
-                        <textarea
-                            className="dash-inline-textarea"
-                            value={draft.summary}
-                            onChange={(e) => patch({ summary: e.target.value })}
-                            placeholder="Mémo interne — non visible par le client."
-                        />
-                    </div>
-                </section>
+                        {/* UPDATE CLIENT */}
+                        <form onSubmit={onPublishUpdate} className="dash-card dash-card--pop" noValidate>
+                            <div className="dash-row-between" style={{ alignItems: 'flex-start', marginBottom: 12 }}>
+                                <div>
+                                    <h2 className="dash-h2">Envoyer un point au client</h2>
+                                    <p className="dash-sub" style={{ fontSize: 13, margin: '2px 0 0' }}>
+                                        Le client reçoit le message par email et le retrouve dans son espace.
+                                    </p>
+                                </div>
+                            </div>
+                            <div className="dash-stack-sm">
+                                <span className="dash-label">Étape concernée</span>
+                                <select className="dash-input" value={updateMilestoneId}
+                                    onChange={(e) => setUpdateMilestoneId(e.target.value)}>
+                                    <option value="">Général</option>
+                                    {draft.milestones.map((m) => (
+                                        <option key={m.id} value={m.id}>{m.label || 'Étape'}</option>
+                                    ))}
+                                </select>
+                            </div>
+                            <div className="dash-stack-sm" style={{ marginTop: 12 }}>
+                                <span className="dash-label">Message</span>
+                                <textarea
+                                    className="dash-input dash-textarea"
+                                    value={updateBody}
+                                    onChange={(e) => setUpdateBody(e.target.value)}
+                                    placeholder="Ce qui a été fait, ce qui arrive ensuite, ce que le client doit savoir."
+                                />
+                            </div>
+                            <div className="dash-row" style={{ gap: 12, alignItems: 'center', marginTop: 16 }}>
+                                <button type="submit" className="dash-btn" disabled={publishingUpdate}>
+                                    {publishingUpdate ? 'Envoi…' : 'Publier le point'}
+                                </button>
+                                {updateSuccess && <span className="dash-kicker" style={{ color: 'var(--color-ink)' }}>Envoyé ✓</span>}
+                            </div>
+                            {updateError && <div className="login__error" style={{ marginTop: 8 }}>{updateError}</div>}
+                        </form>
 
-                {/* UPDATE CLIENT */}
-                <form onSubmit={onPublishUpdate} className="dash-edit" noValidate>
-                    <div className="dash-edit__head">
-                        <div>
-                            <h2 className="dash-h2">Envoyer un point au client</h2>
-                            <p className="dash-sub" style={{ fontSize: 13, margin: '2px 0 0' }}>
-                                Le client reçoit le message par email et le retrouve dans son espace.
-                            </p>
-                        </div>
-                    </div>
-                    <div className="dash-stack-sm">
-                        <span className="dash-label">Étape concernée</span>
-                        <select className="dash-input" value={updateMilestoneId}
-                            onChange={(e) => setUpdateMilestoneId(e.target.value)}>
-                            <option value="">Général</option>
-                            {draft.milestones.map((m) => (
-                                <option key={m.id} value={m.id}>{m.label || 'Étape'}</option>
-                            ))}
-                        </select>
-                    </div>
-                    <div className="dash-stack-sm">
-                        <span className="dash-label">Message</span>
-                        <textarea
-                            className="dash-input dash-textarea"
-                            value={updateBody}
-                            onChange={(e) => setUpdateBody(e.target.value)}
-                            placeholder="Ce qui a été fait, ce qui arrive ensuite, ce que le client doit savoir."
-                        />
-                    </div>
-                    <div className="dash-row" style={{ gap: 12, alignItems: 'center' }}>
-                        <button type="submit" className="dash-btn" disabled={publishingUpdate}>
-                            {publishingUpdate ? 'Envoi…' : 'Publier'}
-                        </button>
-                        {updateSuccess && <span className="dash-kicker" style={{ color: 'var(--color-ink)' }}>Envoyé ✓</span>}
-                    </div>
-                    {updateError && <div className="login__error">{updateError}</div>}
-                </form>
-
-                {/* HISTORIQUE */}
-                {projectUpdates.length > 0 && (
-                    <section className="dash-card">
-                        <h2 className="dash-h2" style={{ marginBottom: 8 }}>Historique</h2>
-                        {projectUpdates.map((update) => (
-                            <article key={update.id} className="dash-update">
-                                <div className="dash-update__head">
-                                    <div>
-                                        <h3 className="dash-update__title">{update.title}</h3>
-                                        {update.milestoneLabel && (
-                                            <span className="dash-pill dash-pill--mute" style={{ marginTop: 6 }}>
-                                                {update.milestoneLabel}
+                        {/* HISTORIQUE */}
+                        {projectUpdates.length > 0 && (
+                            <section className="dash-card">
+                                <h2 className="dash-h2" style={{ marginBottom: 8 }}>Historique des points</h2>
+                                <div className="dash-stack-sm">
+                                    {projectUpdates.map((update) => (
+                                        <article key={update.id} className="dash-update dash-update--quiet">
+                                            <div className="dash-update__head">
+                                                <div>
+                                                    <h3 className="dash-update__title" style={{ fontSize: 15 }}>{update.title}</h3>
+                                                    {update.milestoneLabel && (
+                                                        <span className="dash-pill dash-pill--mute" style={{ marginTop: 6 }}>
+                                                            {update.milestoneLabel}
+                                                        </span>
+                                                    )}
+                                                </div>
+                                                <span className="dash-update__meta">{formatDate(update.date)} · {update.authorName}</span>
+                                            </div>
+                                            <p className="dash-update__body">{update.body}</p>
+                                        </article>
+                                    ))}
+                                </div>
+                            </section>
+                        )}
+                        
+                        {/* TICKETS + FACTURES GRID (Admin) */}
+                        <div className="dash-grid dash-grid--2" style={{ alignItems: 'start' }}>
+                            <section className="dash-card">
+                                <div className="dash-row-between" style={{ marginBottom: 4 }}>
+                                    <h2 className="dash-h2" style={{ fontSize: 'clamp(16px, 2vw, 22px)' }}>Tickets</h2>
+                                    <span className="dash-kicker">{projectTickets.length} ticket{projectTickets.length !== 1 ? 's' : ''}</span>
+                                </div>
+                                {projectTickets.length === 0 ? (
+                                    <p className="dash-sub" style={{ fontSize: 14 }}>Aucun ticket sur ce projet.</p>
+                                ) : (
+                                    projectTickets.map((ticket) => (
+                                        <div key={ticket.id} className="dash-row-between" style={{ padding: '10px 0', borderBottom: '1px solid var(--color-hair)' }}>
+                                            <span style={{ fontSize: 14, flex: 1, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                                                {ticket.subject}
                                             </span>
-                                        )}
-                                    </div>
-                                    <span className="dash-update__meta">{formatDate(update.date)} · {update.authorName}</span>
-                                </div>
-                                <p className="dash-update__body">{update.body}</p>
-                            </article>
-                        ))}
-                    </section>
-                )}
+                                            <TicketStatusPill status={ticket.status} />
+                                        </div>
+                                    ))
+                                )}
+                            </section>
 
-                {/* TICKETS + FACTURES */}
-                <div className="dash-grid dash-grid--2" style={{ alignItems: 'start' }}>
-                    <section className="dash-card">
-                        <div className="dash-row-between" style={{ marginBottom: 4 }}>
-                            <h2 className="dash-h2" style={{ fontSize: 'clamp(16px, 2vw, 22px)' }}>Tickets</h2>
-                            <span className="dash-kicker">{projectTickets.length} ticket{projectTickets.length !== 1 ? 's' : ''}</span>
-                        </div>
-                        {projectTickets.length === 0 ? (
-                            <p className="dash-sub" style={{ fontSize: 14 }}>Aucun ticket sur ce projet.</p>
-                        ) : (
-                            projectTickets.map((ticket) => (
-                                <div key={ticket.id} className="dash-row-between" style={{ padding: '10px 0', borderBottom: '1px solid var(--color-hair)' }}>
-                                    <span style={{ fontSize: 14, flex: 1, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                                        {ticket.subject}
-                                    </span>
-                                    <TicketStatusPill status={ticket.status} />
+                            <section className="dash-card">
+                                <div className="dash-row-between" style={{ marginBottom: 4 }}>
+                                    <h2 className="dash-h2" style={{ fontSize: 'clamp(16px, 2vw, 22px)' }}>Factures</h2>
+                                    <Link to="/invoices" className="dash-kicker" style={{ textDecoration: 'none' }}>Voir tout →</Link>
                                 </div>
-                            ))
-                        )}
-                    </section>
-
-                    <section className="dash-card">
-                        <div className="dash-row-between" style={{ marginBottom: 4 }}>
-                            <h2 className="dash-h2" style={{ fontSize: 'clamp(16px, 2vw, 22px)' }}>Factures</h2>
-                            <Link to="/invoices" className="dash-kicker" style={{ textDecoration: 'none' }}>Voir tout →</Link>
+                                {projectInvoices.length === 0 ? (
+                                    <p className="dash-sub" style={{ fontSize: 14 }}>Aucune facture liée.</p>
+                                ) : (
+                                    projectInvoices.map((invoice) => (
+                                        <Link key={invoice.id} to={`/invoices/${invoice.id}`}
+                                            className="dash-row-between"
+                                            style={{ padding: '10px 0', borderBottom: '1px solid var(--color-hair)', textDecoration: 'none', color: 'inherit' }}>
+                                            <div>
+                                                <span className="dash-kicker">{invoice.number}</span>
+                                                <p style={{ margin: '2px 0 0', fontSize: 14, fontWeight: 600 }}>{formatEur(invoice.amount)}</p>
+                                            </div>
+                                            <InvoiceStatusPill status={invoice.status} />
+                                        </Link>
+                                    ))
+                                )}
+                            </section>
                         </div>
-                        {projectInvoices.length === 0 ? (
-                            <p className="dash-sub" style={{ fontSize: 14 }}>Aucune facture liée.</p>
-                        ) : (
-                            projectInvoices.map((invoice) => (
-                                <Link key={invoice.id} to={`/invoices/${invoice.id}`}
-                                    className="dash-row-between"
-                                    style={{ padding: '10px 0', borderBottom: '1px solid var(--color-hair)', textDecoration: 'none', color: 'inherit' }}>
-                                    <div>
-                                        <span className="dash-kicker">{invoice.number}</span>
-                                        <p style={{ margin: '2px 0 0', fontSize: 14, fontWeight: 600 }}>{formatEur(invoice.amount)}</p>
-                                    </div>
-                                    <InvoiceStatusPill status={invoice.status} />
-                                </Link>
-                            ))
-                        )}
-                    </section>
+                    </div>
+
+                    {/* COLONNE DROITE (SIDEBAR) */}
+                    <div className="dash-overview-side">
+                        {/* RÉGLAGES — phase + dates + note */}
+                        <section className="dash-card">
+                            <div className="dash-row-between" style={{ marginBottom: 12 }}>
+                                <h2 className="dash-h2" style={{ fontSize: 'clamp(18px, 2vw, 24px)' }}>Réglages</h2>
+                            </div>
+
+                            <div className="dash-stack-sm">
+                                <span className="dash-label">Phase du projet</span>
+                                <div className="dash-status-picker">
+                                    {PHASE_OPTIONS.map((opt) => (
+                                        <button
+                                            key={opt.value}
+                                            type="button"
+                                            onClick={() => patch({ status: opt.value })}
+                                            className={`dash-status-pick tone-${opt.tone}${draft.status === opt.value ? ' is-active' : ''}`}
+                                        >
+                                            {opt.label}
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+
+                            <div className="dash-stack-sm" style={{ marginTop: 16 }}>
+                                <span className="dash-label">Départ</span>
+                                <input type="date" className="dash-input" value={draft.kickoff}
+                                    onChange={(e) => patch({ kickoff: e.target.value })} style={{ height: 40, fontSize: 14 }} />
+                            </div>
+                            
+                            <div className="dash-stack-sm" style={{ marginTop: 12 }}>
+                                <span className="dash-label">Livraison cible</span>
+                                <input type="date" className="dash-input" value={draft.delivery}
+                                    onChange={(e) => patch({ delivery: e.target.value })} style={{ height: 40, fontSize: 14 }} />
+                            </div>
+
+                            <div className="dash-stack-sm" style={{ marginTop: 16 }}>
+                                <span className="dash-label">Note interne (non visible client)</span>
+                                <textarea
+                                    className="dash-inline-textarea"
+                                    value={draft.summary}
+                                    onChange={(e) => patch({ summary: e.target.value })}
+                                    placeholder="Mémo interne — non visible par le client."
+                                    style={{ minHeight: 120 }}
+                                />
+                            </div>
+                        </section>
+                    </div>
                 </div>
             </div>
         )
@@ -465,126 +475,131 @@ export default function ProjectDetail() {
                 </Link>
             </header>
 
-            <section className="dash-project-hero">
-                <span className="dash-card__accent" style={{ background: project.accent }} />
-                <div className="dash-project-hero__main">
-                    <div className="dash-stack-sm">
-                        <div className="dash-row" style={{ gap: 8, flexWrap: 'wrap' }}>
-                            <ProjectStatusPill status={project.status} />
-                            <span className="dash-kicker">Livraison · {formatDate(project.delivery)}</span>
+            <div className="dash-overview-layout">
+                {/* COLONNE GAUCHE (MAIN) */}
+                <div className="dash-overview-main">
+                    <section className="dash-project-hero">
+                        <span className="dash-card__accent" style={{ background: project.accent }} />
+                        <div className="dash-project-hero__main">
+                            <div className="dash-stack-sm">
+                                <div className="dash-row" style={{ gap: 8, flexWrap: 'wrap' }}>
+                                    <ProjectStatusPill status={project.status} />
+                                    <span className="dash-kicker">Livraison · {formatDate(project.delivery)}</span>
+                                </div>
+                                <h1 className="dash-h1 dash-project-hero__title">{project.name}</h1>
+                                {project.tagline && <p className="dash-sub dash-project-hero__sub">{project.tagline}</p>}
+                            </div>
+                            <div className="dash-project-hero__progress">
+                                <span>{progress}%</span>
+                                <small>avancé</small>
+                            </div>
                         </div>
-                        <h1 className="dash-h1 dash-project-hero__title">{project.name}</h1>
-                        {project.tagline && <p className="dash-sub dash-project-hero__sub">{project.tagline}</p>}
-                    </div>
-                    <div className="dash-project-hero__progress">
-                        <span>{progress}%</span>
-                        <small>avancé</small>
-                    </div>
-                </div>
 
-                <ProgressBar value={progress} color={project.accent} />
-
-                <div className="dash-project-hero__meta">
-                    <div>
-                        <span className="dash-kicker">Phase actuelle</span>
-                        <strong>{currentPhase?.label ?? 'En cours'}</strong>
-                    </div>
-                    <div>
-                        <span className="dash-kicker">En cours</span>
-                        <strong>{currentStep?.label ?? 'À définir'}</strong>
-                    </div>
-                    <div>
-                        <span className="dash-kicker">Prochaine étape</span>
-                        <strong>{nextStep?.label ?? '—'}</strong>
-                    </div>
-                    <div>
-                        <span className="dash-kicker">Étapes faites</span>
-                        <strong>{doneCount}/{draft.milestones.length || 0}</strong>
-                    </div>
-                </div>
-            </section>
-
-            <section className="dash-project-detail-grid">
-                <div className="dash-card dash-project-section">
-                    <div className="dash-row-between">
-                        <h2 className="dash-h2" style={{ fontSize: 'clamp(18px, 2vw, 24px)' }}>Étapes</h2>
-                        <span className="dash-kicker">{doneCount}/{draft.milestones.length || 0}</span>
-                    </div>
-                    {project.milestones.length === 0 ? (
-                        <p className="dash-note">Les étapes apparaîtront ici dès qu’elles sont planifiées.</p>
-                    ) : (
-                        <ul className="dash-timeline dash-timeline--compact">
-                            {project.milestones.map((milestone) => (
-                                <li key={milestone.id} className={`dash-milestone dash-milestone--${milestone.status}`}>
-                                    <span className="dash-milestone__marker" />
-                                    <span className="dash-milestone__line" />
-                                    <p className="dash-milestone__title">{milestone.label || 'Étape projet'}</p>
-                                    <p className="dash-milestone__date">
-                                        {milestone.date ? formatDate(milestone.date) : MILESTONE_LABEL[milestone.status]}
-                                    </p>
-                                </li>
-                            ))}
-                        </ul>
-                    )}
-                </div>
-
-                <div className="dash-card dash-project-section">
-                    <div className="dash-row-between">
-                        <h2 className="dash-h2" style={{ fontSize: 'clamp(18px, 2vw, 24px)' }}>Derniers points</h2>
-                        <span className="dash-kicker">{projectUpdates.length}</span>
-                    </div>
-                    {projectUpdates.length === 0 ? (
-                        <p className="dash-note">Aucun point partagé pour l’instant.</p>
-                    ) : (
-                        projectUpdates.slice(0, 4).map((update) => (
-                            <article key={update.id} className="dash-update dash-update--quiet">
-                                <div className="dash-update__head">
-                                    <h3 className="dash-update__title">{update.title}</h3>
-                                    <span className="dash-update__meta">{formatDate(update.date)}</span>
-                                </div>
-                                <p className="dash-update__body">{update.body}</p>
-                            </article>
-                        ))
-                    )}
-                </div>
-            </section>
-
-            <div className="dash-grid dash-grid--2" style={{ alignItems: 'start' }}>
-                <section className="dash-card">
-                    <div className="dash-row-between">
-                        <h2 className="dash-h2" style={{ fontSize: 'clamp(16px, 2vw, 22px)' }}>Questions</h2>
-                        <Link to="/tickets/new" className="dash-kicker" style={{ textDecoration: 'none' }}>
-                            Nouveau →
-                        </Link>
-                    </div>
-                    {openTickets.length === 0 ? (
-                        <p className="dash-sub" style={{ fontSize: 14 }}>Aucune question ouverte.</p>
-                    ) : (
-                        openTickets.map((ticket) => (
-                            <div key={ticket.id} className="dash-row-between" style={{ padding: '10px 0', borderBottom: '1px solid var(--color-hair)' }}>
-                                <span style={{ fontSize: 14, flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                                    {ticket.subject}
-                                </span>
-                                <TicketStatusPill status={ticket.status} />
-                            </div>
-                        ))
-                    )}
-                </section>
-
-                {projectInvoices.length > 0 && (
-                    <section className="dash-card">
-                        <h2 className="dash-h2" style={{ fontSize: 'clamp(16px, 2vw, 22px)', marginBottom: 4 }}>Factures</h2>
-                        {projectInvoices.map((invoice) => (
-                            <div key={invoice.id} className="dash-row-between" style={{ padding: '10px 0', borderBottom: '1px solid var(--color-hair)' }}>
-                                <div>
-                                    <span className="dash-kicker">{invoice.number}</span>
-                                    <p style={{ margin: '2px 0 0', fontSize: 14, fontWeight: 600 }}>{formatEur(invoice.amount)}</p>
-                                </div>
-                                <InvoiceStatusPill status={invoice.status} />
-                            </div>
-                        ))}
+                        <ProgressBar value={progress} color={project.accent} />
                     </section>
-                )}
+
+                    <div className="dash-card dash-project-section" style={{ marginTop: 16 }}>
+                        <div className="dash-row-between">
+                            <h2 className="dash-h2" style={{ fontSize: 'clamp(18px, 2vw, 24px)' }}>Étapes</h2>
+                            <span className="dash-kicker">{doneCount}/{draft.milestones.length || 0}</span>
+                        </div>
+                        {project.milestones.length === 0 ? (
+                            <p className="dash-note">Les étapes apparaîtront ici dès qu’elles sont planifiées.</p>
+                        ) : (
+                            <ul className="dash-timeline dash-timeline--compact">
+                                {project.milestones.map((milestone) => (
+                                    <li key={milestone.id} className={`dash-milestone dash-milestone--${milestone.status}`}>
+                                        <span className="dash-milestone__marker" />
+                                        <span className="dash-milestone__line" />
+                                        <p className="dash-milestone__title">{milestone.label || 'Étape projet'}</p>
+                                        <p className="dash-milestone__date">
+                                            {milestone.date ? formatDate(milestone.date) : MILESTONE_LABEL[milestone.status]}
+                                        </p>
+                                    </li>
+                                ))}
+                            </ul>
+                        )}
+                    </div>
+                    
+                    {/* TICKETS + FACTURES (Client) */}
+                    <div className="dash-grid dash-grid--2" style={{ alignItems: 'start', marginTop: 16 }}>
+                        <section className="dash-card">
+                            <div className="dash-row-between">
+                                <h2 className="dash-h2" style={{ fontSize: 'clamp(16px, 2vw, 22px)' }}>Questions</h2>
+                                <Link to="/tickets/new" className="dash-kicker" style={{ textDecoration: 'none' }}>
+                                    Nouveau →
+                                </Link>
+                            </div>
+                            {openTickets.length === 0 ? (
+                                <p className="dash-sub" style={{ fontSize: 14 }}>Aucune question ouverte.</p>
+                            ) : (
+                                openTickets.map((ticket) => (
+                                    <div key={ticket.id} className="dash-row-between" style={{ padding: '10px 0', borderBottom: '1px solid var(--color-hair)' }}>
+                                        <span style={{ fontSize: 14, flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                                            {ticket.subject}
+                                        </span>
+                                        <TicketStatusPill status={ticket.status} />
+                                    </div>
+                                ))
+                            )}
+                        </section>
+
+                        {projectInvoices.length > 0 && (
+                            <section className="dash-card">
+                                <h2 className="dash-h2" style={{ fontSize: 'clamp(16px, 2vw, 22px)', marginBottom: 4 }}>Factures</h2>
+                                {projectInvoices.map((invoice) => (
+                                    <div key={invoice.id} className="dash-row-between" style={{ padding: '10px 0', borderBottom: '1px solid var(--color-hair)' }}>
+                                        <div>
+                                            <span className="dash-kicker">{invoice.number}</span>
+                                            <p style={{ margin: '2px 0 0', fontSize: 14, fontWeight: 600 }}>{formatEur(invoice.amount)}</p>
+                                        </div>
+                                        <InvoiceStatusPill status={invoice.status} />
+                                    </div>
+                                ))}
+                            </section>
+                        )}
+                    </div>
+                </div>
+
+                {/* COLONNE DROITE (SIDEBAR) */}
+                <div className="dash-overview-side">
+                    <div className="dash-card">
+                        <div className="dash-stack-sm" style={{ gap: 16 }}>
+                            <div>
+                                <span className="dash-kicker">Phase actuelle</span>
+                                <strong style={{ display: 'block', marginTop: 4, fontSize: 15 }}>{currentPhase?.label ?? 'En cours'}</strong>
+                            </div>
+                            <div style={{ borderTop: '1px solid var(--color-hair)', paddingTop: 12 }}>
+                                <span className="dash-kicker">En cours</span>
+                                <strong style={{ display: 'block', marginTop: 4, fontSize: 15 }}>{currentStep?.label ?? 'À définir'}</strong>
+                            </div>
+                            <div style={{ borderTop: '1px solid var(--color-hair)', paddingTop: 12 }}>
+                                <span className="dash-kicker">Prochaine étape</span>
+                                <strong style={{ display: 'block', marginTop: 4, fontSize: 15 }}>{nextStep?.label ?? '—'}</strong>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="dash-card dash-project-section" style={{ marginTop: 16 }}>
+                        <div className="dash-row-between">
+                            <h2 className="dash-h2" style={{ fontSize: 'clamp(18px, 2vw, 24px)' }}>Derniers points</h2>
+                            <span className="dash-kicker">{projectUpdates.length}</span>
+                        </div>
+                        {projectUpdates.length === 0 ? (
+                            <p className="dash-note">Aucun point partagé pour l’instant.</p>
+                        ) : (
+                            projectUpdates.slice(0, 4).map((update) => (
+                                <article key={update.id} className="dash-update dash-update--quiet">
+                                    <div className="dash-update__head">
+                                        <h3 className="dash-update__title" style={{ fontSize: 15 }}>{update.title}</h3>
+                                        <span className="dash-update__meta">{formatDate(update.date)}</span>
+                                    </div>
+                                    <p className="dash-update__body">{update.body}</p>
+                                </article>
+                            ))
+                        )}
+                    </div>
+                </div>
             </div>
         </div>
     )
