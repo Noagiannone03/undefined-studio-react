@@ -141,13 +141,14 @@ export default function Invoices() {
                     </h1>
                     {isAdmin && (
                         <div className="dash-row" style={{ gap: 8 }}>
-                            <Link to="/invoices/new" className="dash-btn">+ Nouvelle facture</Link>
+                            <Link to="/invoices/new?mode=generated" className="dash-btn">+ Nouvelle facture</Link>
+                            <Link to="/invoices/new?mode=uploaded" className="dash-btn dash-btn--ghost">Uploader une ancienne facture</Link>
                         </div>
                     )}
                 </div>
                 <p className="dash-sub">
                     {isAdmin
-                        ? 'Génère, valide, envoie. Les PDF sont stockés sur Firebase Storage.'
+                        ? 'Crée une nouvelle facture ou archive une facture déjà émise. Les PDF sont stockés sur Firebase Storage.'
                         : 'Toutes tes factures, téléchargeables en un clic.'}
                 </p>
             </header>
@@ -171,9 +172,9 @@ export default function Invoices() {
                 <EmptyState
                     title="Aucune facture"
                     body={isAdmin
-                        ? 'Crée une facture ou importe un PDF existant.'
+                        ? 'Crée une nouvelle facture ou importe une facture déjà émise.'
                         : 'Tes factures apparaîtront ici dès qu\'elles seront émises.'}
-                    action={isAdmin && <Link to="/invoices/new" className="dash-btn" style={{ marginTop: 12 }}>+ Nouvelle facture</Link>}
+                    action={isAdmin && <Link to="/invoices/new?mode=generated" className="dash-btn" style={{ marginTop: 12 }}>+ Nouvelle facture</Link>}
                 />
             ) : (
                 <section className="dash-card" style={{ padding: 0, overflow: 'hidden' }}>

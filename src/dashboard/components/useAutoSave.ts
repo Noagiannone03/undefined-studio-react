@@ -28,40 +28,51 @@ export function useAutoSave<T>({
     const [errorMessage, setErrorMessage] = useState<string | null>(null)
     const lastSavedRef = useRef<T>(value)
     const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
-    const onSaveRef = useRef(onSave)
-    const isEqualRef = useRef(isEqual)
-
-    onSaveRef.current = onSave
-    isEqualRef.current = isEqual
+    const savingStateTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+    const savedStateTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
     const equals = useCallback((a: T, b: T) => {
-        if (isEqualRef.current) return isEqualRef.current(a, b)
+        if (isEqual) return isEqual(a, b)
         return Object.is(a, b)
-    }, [])
-
-    // Reset baseline if upstream data refreshes (e.g. Firestore snapshot updates).
-    // We only adopt new baselines coming from outside while we're in idle/saved.
-    const externalUpdateRef = useRef(false)
-    useEffect(() => {
-        externalUpdateRef.current = true
-    }, [enabled])
+    }, [isEqual])
 
     useEffect(() => {
-        if (!enabled) return
+        if (!enabled) {
+            if (timerRef.current) {
+                clearTimeout(timerRef.current)
+                timerRef.current = null
+            }
+            if (savingStateTimerRef.current) {
+                clearTimeout(savingStateTimerRef.current)
+                savingStateTimerRef.current = null
+            }
+            return
+        }
+
         if (equals(value, lastSavedRef.current)) {
             return
         }
 
-        setState('saving')
-        setErrorMessage(null)
+        if (savedStateTimerRef.current) {
+            clearTimeout(savedStateTimerRef.current)
+            savedStateTimerRef.current = null
+        }
+
+        if (savingStateTimerRef.current) {
+            clearTimeout(savingStateTimerRef.current)
+        }
+        savingStateTimerRef.current = setTimeout(() => {
+            setState('saving')
+            setErrorMessage(null)
+        }, 0)
 
         if (timerRef.current) clearTimeout(timerRef.current)
         timerRef.current = setTimeout(async () => {
             try {
-                await onSaveRef.current(value)
+                await onSave(value)
                 lastSavedRef.current = value
                 setState('saved')
-                setTimeout(() => {
+                savedStateTimerRef.current = setTimeout(() => {
                     setState((prev) => (prev === 'saved' ? 'idle' : prev))
                 }, 1400)
             } catch (err) {
@@ -72,11 +83,38 @@ export function useAutoSave<T>({
         }, delay)
 
         return () => {
-            if (timerRef.current) clearTimeout(timerRef.current)
+            if (timerRef.current) {
+                clearTimeout(timerRef.current)
+                timerRef.current = null
+            }
+            if (savingStateTimerRef.current) {
+                clearTimeout(savingStateTimerRef.current)
+                savingStateTimerRef.current = null
+            }
         }
-    }, [value, equals, delay, enabled])
+    }, [value, equals, delay, enabled, onSave])
+
+    useEffect(() => {
+        return () => {
+            if (timerRef.current) clearTimeout(timerRef.current)
+            if (savingStateTimerRef.current) clearTimeout(savingStateTimerRef.current)
+            if (savedStateTimerRef.current) clearTimeout(savedStateTimerRef.current)
+        }
+    }, [])
 
     const adopt = useCallback((next: T) => {
+        if (timerRef.current) {
+            clearTimeout(timerRef.current)
+            timerRef.current = null
+        }
+        if (savingStateTimerRef.current) {
+            clearTimeout(savingStateTimerRef.current)
+            savingStateTimerRef.current = null
+        }
+        if (savedStateTimerRef.current) {
+            clearTimeout(savedStateTimerRef.current)
+            savedStateTimerRef.current = null
+        }
         lastSavedRef.current = next
         setState('idle')
         setErrorMessage(null)

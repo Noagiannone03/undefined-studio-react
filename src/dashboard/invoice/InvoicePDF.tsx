@@ -5,9 +5,7 @@ import {
     Text,
     View,
     Svg,
-    Circle,
-    Rect,
-    G,
+    Path,
 } from '@react-pdf/renderer'
 import type { Client, Invoice } from '../types'
 import { STUDIO_PROFILE } from './StudioProfile'
@@ -15,10 +13,13 @@ import { formatInvoiceDate, formatInvoiceEur } from './format'
 
 const COLORS = {
     ink: '#0E0E0C',
-    paper: '#FFFFFF',
-    hair: '#0E0E0C',
+    paper: '#EFEBDD',
+    paper2: '#E6E1D0',
+    hair: '#CFC8B8',
     soft: '#3A3A38',
-    mute: '#7A7A78',
+    mute: '#6E6A61',
+    klein: '#1D1DBF',
+    tomato: '#E84A2A',
 }
 
 const styles = StyleSheet.create({
@@ -44,7 +45,7 @@ const styles = StyleSheet.create({
         letterSpacing: -0.5,
         maxWidth: 380,
     },
-    seal: { width: 60, height: 60 },
+    mark: { width: 74, height: 52 },
 
     metaBlock: { marginBottom: 18 },
     metaLine: { fontSize: 10, color: COLORS.ink },
@@ -75,13 +76,14 @@ const styles = StyleSheet.create({
 
     table: {
         borderWidth: 1,
-        borderColor: COLORS.ink,
+        borderColor: COLORS.hair,
+        backgroundColor: COLORS.paper,
         marginBottom: 28,
     },
     tableRow: {
         flexDirection: 'row',
         borderBottomWidth: 1,
-        borderBottomColor: COLORS.ink,
+        borderBottomColor: COLORS.hair,
         minHeight: 38,
     },
     tableRowLast: { borderBottomWidth: 0 },
@@ -95,7 +97,7 @@ const styles = StyleSheet.create({
         paddingVertical: 12,
         paddingHorizontal: 16,
         borderRightWidth: 1,
-        borderRightColor: COLORS.ink,
+        borderRightColor: COLORS.hair,
         textAlign: 'center',
         justifyContent: 'center',
     },
@@ -111,8 +113,9 @@ const styles = StyleSheet.create({
     },
 
     totalBar: {
-        backgroundColor: COLORS.ink,
-        color: COLORS.paper,
+        backgroundColor: COLORS.paper2,
+        borderTopWidth: 2,
+        borderTopColor: COLORS.klein,
         flexDirection: 'row',
         justifyContent: 'flex-end',
         alignItems: 'center',
@@ -121,13 +124,13 @@ const styles = StyleSheet.create({
         gap: 24,
     },
     totalLabel: {
-        color: COLORS.paper,
+        color: COLORS.ink,
         fontFamily: 'Helvetica-Bold',
         fontSize: 12,
         letterSpacing: 1,
     },
     totalValue: {
-        color: COLORS.paper,
+        color: COLORS.ink,
         fontFamily: 'Helvetica-Bold',
         fontSize: 14,
         minWidth: 90,
@@ -156,31 +159,23 @@ const styles = StyleSheet.create({
     },
 })
 
-/**
- * Petit sceau décoratif (cercle dentelé).
- * Pas un logo — juste un repère visuel discret comme dans le modèle.
- */
-function Seal() {
-    const teeth = Array.from({ length: 16 })
+function UndefinedMark() {
     return (
-        <Svg style={styles.seal} viewBox="0 0 60 60">
-            <G>
-                {teeth.map((_, i) => {
-                    const angle = (i / teeth.length) * 360
-                    return (
-                        <Rect
-                            key={i}
-                            x={29}
-                            y={2}
-                            width={2}
-                            height={6}
-                            fill={COLORS.ink}
-                            transform={`rotate(${angle} 30 30)`}
-                        />
-                    )
-                })}
-            </G>
-            <Circle cx={30} cy={30} r={20} stroke={COLORS.ink} strokeWidth={1} fill="none" />
+        <Svg style={styles.mark} viewBox="0 0 40 28">
+            <Path
+                d="M2 2L16 14L2 26"
+                stroke={COLORS.tomato}
+                strokeWidth={3}
+                strokeLinecap="round"
+                strokeLinejoin="round"
+            />
+            <Path
+                d="M18 2L32 14L18 26"
+                stroke={COLORS.klein}
+                strokeWidth={3}
+                strokeLinecap="round"
+                strokeLinejoin="round"
+            />
         </Svg>
     )
 }
@@ -205,7 +200,7 @@ export function InvoicePDF({ invoice, client }: InvoicePDFProps) {
                 {/* Header */}
                 <View style={styles.headerRow}>
                     <Text style={styles.title}>{invoice.title || 'Facture'}</Text>
-                    <Seal />
+                    <UndefinedMark />
                 </View>
 
                 {/* Date + numéro */}

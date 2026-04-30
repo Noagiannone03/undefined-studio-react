@@ -18,6 +18,11 @@ type ScopedItems<T> = {
     items: T[]
 }
 
+type ScopedError = {
+    scopeUid: string | null
+    message: string | null
+}
+
 export function DashboardDataProvider({ children }: { children: ReactNode }) {
     const { user } = useAuth()
     const [clientsState, setClientsState] = useState<ScopedItems<Client>>({ scopeUid: null, items: [] })
@@ -26,17 +31,19 @@ export function DashboardDataProvider({ children }: { children: ReactNode }) {
     const [ticketsState, setTicketsState] = useState<ScopedItems<Ticket>>({ scopeUid: null, items: [] })
     const [invoicesState, setInvoicesState] = useState<ScopedItems<Invoice>>({ scopeUid: null, items: [] })
     const [usersState, setUsersState] = useState<ScopedItems<UserProfile>>({ scopeUid: null, items: [] })
-    const [error, setError] = useState<string | null>(null)
+    const [errorState, setErrorState] = useState<ScopedError>({ scopeUid: null, message: null })
 
     useEffect(() => {
         if (!user) return
 
         const scopeUid = user.uid
-        setError(null)
 
         const reportError = (label: string) => (err: FirestoreError) => {
             console.error(`[dashboard-data] ${label} subscription failed`, err)
-            setError(`Impossible de charger ${label}. Vérifie tes droits.`)
+            setErrorState({
+                scopeUid,
+                message: `Impossible de charger ${label}. Vérifie tes droits.`,
+            })
         }
 
         const unsubs = [
@@ -84,6 +91,7 @@ export function DashboardDataProvider({ children }: { children: ReactNode }) {
         const tickets = user && ticketsState.scopeUid === user.uid ? ticketsState.items : []
         const invoices = user && invoicesState.scopeUid === user.uid ? invoicesState.items : []
         const users = user && usersState.scopeUid === user.uid ? usersState.items : []
+        const error = user && errorState.scopeUid === user.uid ? errorState.message : null
         const loading = Boolean(
             user &&
             (
@@ -118,7 +126,7 @@ export function DashboardDataProvider({ children }: { children: ReactNode }) {
             updatesForProject: (projectId) =>
                 projectId ? projectUpdates.filter((item) => item.projectId === projectId) : [],
         }
-    }, [clientsState, error, invoicesState, projectUpdatesState, projectsState, ticketsState, user, usersState])
+    }, [clientsState, errorState, invoicesState, projectUpdatesState, projectsState, ticketsState, user, usersState])
 
     return <DashboardDataContext.Provider value={value}>{children}</DashboardDataContext.Provider>
 }

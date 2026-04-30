@@ -123,10 +123,17 @@ export default function InvoiceDetail() {
     const existing = mode === 'edit' ? invoices.find((inv) => inv.id === id) : undefined
 
     // ── Mode tab (only matters in 'new' mode); for 'edit' it's locked to the existing invoice's source
-    const [tab, setTab] = useState<InvoiceSource>(existing?.source ?? 'generated')
+    const requestedMode = searchParams.get('mode')
+    const requestedTab: InvoiceSource = requestedMode === 'uploaded' ? 'uploaded' : 'generated'
+
+    const [tab, setTab] = useState<InvoiceSource>(existing?.source ?? requestedTab)
     useEffect(() => {
-        if (existing) setTab(existing.source)
-    }, [existing?.id, existing?.source])
+        if (existing) {
+            setTab(existing.source)
+            return
+        }
+        if (mode === 'new') setTab(requestedTab)
+    }, [existing, mode, requestedTab])
 
     const [draft, setDraft] = useState<EditableInvoice>(() => {
         if (existing) {
@@ -201,7 +208,7 @@ export default function InvoiceDetail() {
             notes: existing.notes ?? '',
             amount: existing.amount,
         })
-    }, [existing?.updatedAt])
+    }, [existing])
 
     const previewInvoice = useMemo(
         () => buildPreviewInvoice(draft, existing?.id ?? 'preview', existing?.source ?? tab),
@@ -282,8 +289,7 @@ export default function InvoiceDetail() {
                 amount: existing.amount,
             })
         }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [existing?.updatedAt])
+    }, [adoptDraft, existing])
 
     if (!isAdmin) {
         return (
@@ -629,7 +635,9 @@ export default function InvoiceDetail() {
                 <div className="dash-row-between" style={{ marginTop: 8 }}>
                     <h1 className="dash-h1">
                         {mode === 'new' ? (
-                            <>Nouvelle <span className="serif-italic">facture.</span></>
+                            tab === 'uploaded'
+                                ? <>Importer une <span className="serif-italic">facture existante.</span></>
+                                : <>Créer une <span className="serif-italic">nouvelle facture.</span></>
                         ) : (
                             draft.title || 'Facture'
                         )}
@@ -652,7 +660,7 @@ export default function InvoiceDetail() {
                         className={`dash-tab${tab === 'generated' ? ' is-active' : ''}`}
                         onClick={() => setTab('generated')}
                     >
-                        Générer une facture
+                        Créer une nouvelle facture
                     </button>
                     <button
                         type="button"
@@ -661,7 +669,7 @@ export default function InvoiceDetail() {
                         className={`dash-tab${tab === 'uploaded' ? ' is-active' : ''}`}
                         onClick={() => setTab('uploaded')}
                     >
-                        Importer un PDF
+                        Uploader une ancienne facture
                     </button>
                 </div>
             )}
@@ -702,6 +710,10 @@ export default function InvoiceDetail() {
                     {/* ── Upload-specific: drop zone */}
                     {(existing?.source === 'uploaded' || (mode === 'new' && tab === 'uploaded')) && (
                         <div className="dash-stack-sm">
+                            <div className="dash-note" style={{ marginBottom: 4 }}>
+                                Le PDF reste la source de vérité. Les champs ci-dessous servent à archiver la facture dans la base:
+                                client, numéro, dates, montant et statut.
+                            </div>
                             <span className="dash-label">{existing ? 'Remplacer le PDF' : 'Fichier PDF'}</span>
                             <label
                                 htmlFor="invoice-pdf"
@@ -755,7 +767,7 @@ export default function InvoiceDetail() {
                     </div>
 
                     <div className="dash-stack-sm">
-                        <span className="dash-label">Titre</span>
+                        <span className="dash-label">{(existing?.source ?? tab) === 'uploaded' ? 'Titre (optionnel)' : 'Titre'}</span>
                         <input
                             className="dash-input"
                             value={draft.title}
@@ -920,7 +932,7 @@ export default function InvoiceDetail() {
                                         onClick={onUploadSubmit}
                                         disabled={actionRunning !== null || !uploadFile}
                                     >
-                                        {actionRunning === 'upload' ? 'Upload…' : 'Importer la facture'}
+                                        {actionRunning === 'upload' ? 'Upload…' : 'Archiver cette facture'}
                                     </button>
                                     <Link to="/invoices" className="dash-btn dash-btn--ghost">Annuler</Link>
                                 </>
