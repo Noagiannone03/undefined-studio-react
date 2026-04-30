@@ -22,6 +22,9 @@ export default function Invoices() {
     const location = useLocation()
 
     const [activeId, setActiveId] = useState<string | null>(null)
+    const [previewId, setPreviewId] = useState<string | null>(null)
+    const [previewUrl, setPreviewUrl] = useState<string | null>(null)
+    const [previewError, setPreviewError] = useState<string | null>(null)
     const [successMessage, setSuccessMessage] = useState<string | null>(
         (location.state as { justSent?: string } | null)?.justSent
             ? `Facture ${(location.state as { justSent: string }).justSent} envoyée.`
@@ -36,6 +39,51 @@ export default function Invoices() {
 
     const paid = invoices.filter((invoice) => invoice.status === 'paid').reduce((sum, invoice) => sum + invoice.amount, 0)
     const due = invoices.filter((invoice) => invoice.status !== 'paid').reduce((sum, invoice) => sum + invoice.amount, 0)
+    const previewInvoice = invoices.find((invoice) => invoice.id === previewId) ?? invoices[0]
+
+    useEffect(() => {
+        if (isAdmin || previewId || invoices.length === 0) return
+        setPreviewId(invoices[0].id)
+    }, [invoices, isAdmin, previewId])
+
+    useEffect(() => {
+        if (!previewInvoice || isAdmin) return
+
+        let cancelled = false
+        let objectUrl: string | null = null
+        setPreviewUrl(null)
+        setPreviewError(null)
+
+        const buildPreview = async () => {
+            try {
+                if (previewInvoice.pdfUrl) {
+                    if (!cancelled) setPreviewUrl(previewInvoice.pdfUrl)
+                    return
+                }
+
+                if (previewInvoice.source !== 'generated') {
+                    throw new Error('Aucun PDF disponible pour cette facture.')
+                }
+
+                const client = findClient(previewInvoice.clientId)
+                const blob = await pdf(<InvoicePDF invoice={previewInvoice} client={client ?? null} />).toBlob()
+                if (cancelled) return
+                objectUrl = URL.createObjectURL(blob)
+                setPreviewUrl(objectUrl)
+            } catch (err) {
+                if (!cancelled) {
+                    setPreviewError(err instanceof Error ? err.message : 'Prévisualisation impossible.')
+                }
+            }
+        }
+
+        void buildPreview()
+
+        return () => {
+            cancelled = true
+            if (objectUrl) URL.revokeObjectURL(objectUrl)
+        }
+    }, [findClient, isAdmin, previewInvoice])
 
     const onSendInvoice = async (invoice: Invoice) => {
         const client = findClient(invoice.clientId)
@@ -189,7 +237,7 @@ export default function Invoices() {
                 <p className="dash-sub">
                     {isAdmin
                         ? 'Crée une nouvelle facture ou archive une facture déjà émise. Les PDF sont stockés sur Firebase Storage.'
-                        : 'Toutes tes factures, téléchargeables en un clic.'}
+                        : 'Consulte tes factures directement ici, avec téléchargement disponible si besoin.'}
                 </p>
             </header>
 
@@ -219,6 +267,66 @@ export default function Invoices() {
                         : 'Tes factures apparaîtront ici dès qu\'elles seront émises.'}
                     action={isAdmin && <Link to="/invoices/new?mode=generated" className="dash-btn" style={{ marginTop: 12 }}>+ Nouvelle facture</Link>}
                 />
+            ) : !isAdmin ? (
+                <section className="dash-invoice-client">
+                    <div className="dash-invoice-client__list">
+                        {invoices.map((invoice) => {
+                            const project = findProject(invoice.projectId)
+                            const selected = previewInvoice?.id === invoice.id
+                            return (
+                                <button
+                                    key={invoice.id}
+                                    type="button"
+                                    className={`dash-invoice-client__item${selected ? ' is-active' : ''}`}
+                                    onClick={() => setPreviewId(invoice.id)}
+                                >
+                                    <span className="dash-invoice-client__item-accent" />
+                                    <span className="dash-invoice-client__item-main">
+                                        <span className="dash-kicker">{invoice.number}</span>
+                                        <strong>{invoice.title || project?.name || 'Facture'}</strong>
+                                        <span>{project?.name ?? 'Projet'} · émise le {formatDate(invoice.issued)}</span>
+                                    </span>
+                                    <span className="dash-invoice-client__item-side">
+                                        <strong>{formatEur(invoice.amount)}</strong>
+                                        <InvoiceStatusPill status={invoice.status} />
+                                    </span>
+                                </button>
+                            )
+                        })}
+                    </div>
+
+                    <aside className="dash-invoice-client__preview">
+                        {previewInvoice ? (
+                            <>
+                                <div className="dash-invoice-client__preview-head">
+                                    <div>
+                                        <span className="dash-kicker">Prévisualisation</span>
+                                        <h2>{previewInvoice.number}</h2>
+                                    </div>
+                                    <button
+                                        type="button"
+                                        className="dash-btn dash-btn--ghost"
+                                        style={{ height: 34, fontSize: 12, padding: '0 14px' }}
+                                        onClick={() => onDownloadPdf(previewInvoice)}
+                                    >
+                                        PDF
+                                    </button>
+                                </div>
+                                <div className="dash-invoice-client__frame">
+                                    {previewError ? (
+                                        <div className="dash-invoice-client__empty">{previewError}</div>
+                                    ) : previewUrl ? (
+                                        <iframe title={`Aperçu ${previewInvoice.number}`} src={previewUrl} />
+                                    ) : (
+                                        <div className="dash-invoice-client__empty">Chargement de l'aperçu...</div>
+                                    )}
+                                </div>
+                            </>
+                        ) : (
+                            <div className="dash-invoice-client__empty">Sélectionne une facture.</div>
+                        )}
+                    </aside>
+                </section>
             ) : (
                 <section className="dash-card" style={{ padding: 0, overflow: 'hidden' }}>
                     <div className="dash-table-wrap">

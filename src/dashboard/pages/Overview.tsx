@@ -330,7 +330,7 @@ export default function Overview() {
                                         return (
                                             <Link
                                                 key={invoice.id}
-                                                to={`/invoices/${invoice.id}`}
+                                                to="/invoices"
                                                 className="dash-overview-listing"
                                             >
                                                 <div>

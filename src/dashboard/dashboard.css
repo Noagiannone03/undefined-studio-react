@@ -2126,6 +2126,160 @@
     text-transform: uppercase;
 }
 
+.dash-invoice-client {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 16px;
+    align-items: start;
+}
+
+.dash-invoice-client__list {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0;
+    border-top: 1px solid var(--color-ink);
+}
+
+.dash-invoice-client__item {
+    position: relative;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 10px;
+    width: 100%;
+    padding: 14px 0 14px 14px;
+    border: 0;
+    border-bottom: 1px solid var(--color-hair);
+    background: transparent;
+    color: inherit;
+    text-align: left;
+    cursor: pointer;
+}
+
+.dash-invoice-client__item:hover,
+.dash-invoice-client__item.is-active {
+    background: color-mix(in srgb, var(--color-ink) 4%, transparent);
+}
+
+.dash-invoice-client__item.is-active {
+    border-bottom-color: var(--color-ink);
+}
+
+.dash-invoice-client__item-accent {
+    position: absolute;
+    left: 0;
+    top: 14px;
+    bottom: 14px;
+    width: 4px;
+    background: var(--color-klein);
+    opacity: 0;
+}
+
+.dash-invoice-client__item.is-active .dash-invoice-client__item-accent {
+    opacity: 1;
+}
+
+.dash-invoice-client__item-main,
+.dash-invoice-client__item-side {
+    min-width: 0;
+}
+
+.dash-invoice-client__item-main {
+    display: grid;
+    gap: 4px;
+}
+
+.dash-invoice-client__item-main strong {
+    font-size: 15px;
+    line-height: 1.25;
+}
+
+.dash-invoice-client__item-main span:last-child {
+    font-size: 13px;
+    line-height: 1.35;
+    color: var(--color-ink-soft);
+}
+
+.dash-invoice-client__item-side {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+.dash-invoice-client__item-side > strong {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+}
+
+.dash-invoice-client__preview {
+    border: 1px solid var(--color-hair);
+    background: var(--color-paper);
+    min-width: 0;
+}
+
+.dash-invoice-client__preview-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--color-hair);
+}
+
+.dash-invoice-client__preview-head h2 {
+    margin: 3px 0 0;
+    font-size: 18px;
+    line-height: 1.1;
+    font-weight: 900;
+}
+
+.dash-invoice-client__frame {
+    height: min(72vh, 760px);
+    min-height: 460px;
+    background: var(--color-paper-2);
+}
+
+.dash-invoice-client__frame iframe {
+    width: 100%;
+    height: 100%;
+    border: 0;
+    background: var(--color-paper);
+}
+
+.dash-invoice-client__empty {
+    display: grid;
+    place-items: center;
+    min-height: 260px;
+    padding: 24px;
+    color: var(--color-ink-soft);
+    font-size: 14px;
+    text-align: center;
+}
+
+@media (min-width: 760px) {
+    .dash-invoice-client__item {
+        grid-template-columns: minmax(0, 1fr) auto;
+        align-items: center;
+    }
+
+    .dash-invoice-client__item-side {
+        flex-direction: column;
+        align-items: flex-end;
+    }
+}
+
+@media (min-width: 1100px) {
+    .dash-invoice-client {
+        grid-template-columns: minmax(320px, 0.7fr) minmax(0, 1.3fr);
+        gap: 24px;
+    }
+
+    .dash-invoice-client__preview {
+        position: sticky;
+        top: 18px;
+    }
+}
+
 .dash-invoice-row {
     display: grid;
     grid-template-columns: 1fr 140px auto;
