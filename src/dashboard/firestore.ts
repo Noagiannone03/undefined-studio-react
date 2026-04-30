@@ -455,10 +455,9 @@ export async function ensureUserProfile(user: FirebaseUser) {
     }
 
     const current = snapshot.data() as Record<string, unknown>
-    if (current.email !== user.email || current.name !== baseName) {
+    if (current.email !== user.email) {
         await updateDoc(ref, {
             email: user.email ?? '',
-            name: baseName,
             updatedAt: now,
         })
     }

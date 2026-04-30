@@ -41,6 +41,24 @@ function nextSteps(project: Project) {
     return { current, upcoming }
 }
 
+function normalizedName(value: string | undefined) {
+    return value?.trim().replace(/\s+/g, ' ') ?? ''
+}
+
+function firstNameFrom(value: string | undefined) {
+    return normalizedName(value).split(' ')[0] ?? ''
+}
+
+function nameLooksDerivedFromEmail(name: string | undefined, email: string | undefined) {
+    const normalized = normalizedName(name).toLowerCase()
+    const local = email?.split('@')[0]
+        ?.split(/[._-\s]/)
+        .filter(Boolean)
+        .join(' ')
+        .toLowerCase()
+    return Boolean(normalized && local && normalized === local)
+}
+
 export default function Overview() {
     const { user } = useAuth()
     const { clients, projects, projectUpdates, tickets, invoices, users, findClient, findProject } = useDashboardData()
@@ -196,7 +214,10 @@ export default function Overview() {
         .slice(0, 3)
     const projectCards = visibleProjects.slice(0, 4)
     const actionCount = outstandingInvoices.length + openTickets.length
-    const firstName = user?.name?.split(' ')[0] ?? 'là'
+    const scopedClient = user?.clientId ? findClient(user.clientId) : undefined
+    const displayFirstName = nameLooksDerivedFromEmail(user?.name, user?.email)
+        ? firstNameFrom(scopedClient?.contactName) || firstNameFrom(scopedClient?.name) || 'là'
+        : firstNameFrom(user?.name) || firstNameFrom(scopedClient?.contactName) || 'là'
 
     return (
         <div className="dash-stack-lg">
@@ -204,9 +225,9 @@ export default function Overview() {
             <header className="dash-page-head">
                 <span className="dash-kicker">( 01 ) — Aperçu</span>
                 <h1 className="dash-h1">
-                    Bonjour, <span className="serif-italic">{firstName}.</span>
+                    Bonjour, <span className="serif-italic">{displayFirstName}.</span>
                 </h1>
-                <p className="dash-sub">Une vue courte pour voir où en sont tes projets et ce qui demande une action.</p>
+                <p className="dash-sub">L’essentiel du suivi : avancement, prochaines livraisons et points à traiter.</p>
             </header>
 
             {visibleProjects.length === 0 ? (
