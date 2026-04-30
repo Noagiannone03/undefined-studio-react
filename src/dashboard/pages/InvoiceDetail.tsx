@@ -474,26 +474,6 @@ export default function InvoiceDetail() {
         }
     }
 
-    const onDownload = async () => {
-        if (existing?.pdfUrl) {
-            window.open(existing.pdfUrl, '_blank', 'noopener')
-            return
-        }
-        setActionRunning('download')
-        try {
-            const inv = buildPreviewInvoice(draft, existing?.id ?? 'preview', existing?.source ?? 'generated')
-            const blob = await generateBlob(inv)
-            const url = URL.createObjectURL(blob)
-            const a = document.createElement('a')
-            a.href = url
-            a.download = `Facture-${draft.number || 'brouillon'}.pdf`
-            a.click()
-            URL.revokeObjectURL(url)
-        } finally {
-            setActionRunning(null)
-        }
-    }
-
     const onDelete = async () => {
         if (!existing) return
         if (!confirm(`Supprimer la facture ${existing.number} ? Cette action est définitive.`)) return
@@ -503,27 +483,6 @@ export default function InvoiceDetail() {
             navigate('/invoices', { replace: true })
         } catch (err) {
             setActionError(err instanceof Error ? err.message : 'Suppression échouée.')
-            setActionRunning(null)
-        }
-    }
-
-    const onReplacePdf = async () => {
-        if (!existing) return
-        setActionRunning('send')
-        setActionError(null)
-        try {
-            const inv = buildPreviewInvoice(draft, existing.id, 'generated')
-            const blob = await generateBlob(inv)
-            if (existing.storagePath) await deleteInvoicePdf(existing.storagePath)
-            const stored = await uploadInvoicePdf({ clientId: draft.clientId, invoiceId: existing.id, blob })
-            await attachInvoicePdf(existing.id, {
-                pdfUrl: stored.pdfUrl,
-                storagePath: stored.storagePath,
-                source: 'generated',
-            })
-        } catch (err) {
-            setActionError(err instanceof Error ? err.message : 'Échec MAJ PDF.')
-        } finally {
             setActionRunning(null)
         }
     }
@@ -905,7 +864,7 @@ export default function InvoiceDetail() {
                                         onClick={onValidateAndSend}
                                         disabled={actionRunning !== null}
                                     >
-                                        {actionRunning === 'send' ? 'Envoi…' : 'Valider & envoyer'}
+                                        {actionRunning === 'send' ? 'Envoi…' : 'Créer et envoyer'}
                                     </button>
                                     <button
                                         type="button"
@@ -914,14 +873,6 @@ export default function InvoiceDetail() {
                                         disabled={actionRunning !== null}
                                     >
                                         Enregistrer en brouillon
-                                    </button>
-                                    <button
-                                        type="button"
-                                        className="dash-btn dash-btn--ghost"
-                                        onClick={onDownload}
-                                        disabled={actionRunning !== null}
-                                    >
-                                        Aperçu PDF
                                     </button>
                                 </>
                             ) : (
@@ -946,7 +897,7 @@ export default function InvoiceDetail() {
                                         onClick={onValidateAndSend}
                                         disabled={actionRunning !== null}
                                     >
-                                        {actionRunning === 'send' ? 'Envoi…' : 'Renvoyer & MAJ PDF'}
+                                        {actionRunning === 'send' ? 'Envoi…' : 'Envoyer au client'}
                                     </button>
                                 )}
                                 {existing?.source === 'uploaded' && uploadFile && (
@@ -969,24 +920,6 @@ export default function InvoiceDetail() {
                                         {actionRunning === 'pay' ? 'MAJ…' : 'Marquer payée'}
                                     </button>
                                 )}
-                                {existing?.source === 'generated' && (
-                                    <button
-                                        type="button"
-                                        className="dash-btn dash-btn--ghost"
-                                        onClick={onReplacePdf}
-                                        disabled={actionRunning !== null}
-                                    >
-                                        Régénérer PDF stocké
-                                    </button>
-                                )}
-                                <button
-                                    type="button"
-                                    className="dash-btn dash-btn--ghost"
-                                    onClick={onDownload}
-                                    disabled={actionRunning !== null}
-                                >
-                                    Télécharger
-                                </button>
                                 <button
                                     type="button"
                                     className="dash-btn dash-btn--tomato"

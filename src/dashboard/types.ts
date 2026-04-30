@@ -62,6 +62,8 @@ export type ProjectUpdate = {
     title: string
     body: string
     authorName: string
+    milestoneId?: string
+    milestoneLabel?: string
 }
 
 export type TicketStatus = 'open' | 'answered' | 'resolved'

@@ -95,6 +95,8 @@ type CreateProjectUpdateInput = {
     title: string
     body: string
     authorName: string
+    milestoneId?: string
+    milestoneLabel?: string
 }
 
 type CreateTicketInput = {
@@ -316,6 +318,8 @@ function mapProjectUpdate(id: string, data: Record<string, unknown>): ProjectUpd
         title: typeof data.title === 'string' ? data.title : 'Mise à jour',
         body: typeof data.body === 'string' ? data.body : '',
         authorName: typeof data.authorName === 'string' ? data.authorName : 'Undefined',
+        milestoneId: typeof data.milestoneId === 'string' && data.milestoneId ? data.milestoneId : undefined,
+        milestoneLabel: typeof data.milestoneLabel === 'string' && data.milestoneLabel ? data.milestoneLabel : undefined,
     }
 }
 
@@ -719,6 +723,8 @@ export async function createProjectUpdate(input: CreateProjectUpdateInput) {
         title: input.title.trim(),
         body: input.body.trim(),
         authorName: input.authorName.trim(),
+        ...(input.milestoneId ? { milestoneId: input.milestoneId } : {}),
+        ...(input.milestoneLabel ? { milestoneLabel: input.milestoneLabel.trim() } : {}),
         date: now,
         createdAt: now,
     })

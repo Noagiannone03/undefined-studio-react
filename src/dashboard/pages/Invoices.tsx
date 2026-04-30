@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import { pdf } from '@react-pdf/renderer'
 import { EmptyState } from '../components/EmptyState'
 import { InvoiceStatusPill } from '../components/StatusPill'
@@ -16,7 +16,6 @@ import { formatDate, formatEur } from '../utils'
 import type { Invoice } from '../types'
 
 export default function Invoices() {
-    const navigate = useNavigate()
     const { user } = useAuth()
     const { invoices, findProject, findClient, hasClientScope, error } = useDashboardData()
     const isAdmin = user?.role === 'admin'
@@ -94,6 +93,31 @@ export default function Invoices() {
         } catch (err) {
             console.error('[invoices/send]', err)
             alert(err instanceof Error ? err.message : 'Échec de l\'envoi.')
+        } finally {
+            setActiveId(null)
+        }
+    }
+
+    const onMarkPaid = async (invoice: Invoice) => {
+        setActiveId(invoice.id)
+        try {
+            await updateInvoice(invoice.id, {
+                clientId: invoice.clientId,
+                projectId: invoice.projectId || undefined,
+                number: invoice.number,
+                title: invoice.title,
+                items: invoice.items,
+                terms: invoice.terms,
+                status: 'paid',
+                issued: invoice.issued,
+                due: invoice.due,
+                source: invoice.source,
+                amount: invoice.source === 'uploaded' ? invoice.amount : undefined,
+                notes: invoice.notes,
+            })
+        } catch (err) {
+            console.error('[invoices/mark-paid]', err)
+            alert(err instanceof Error ? err.message : 'Impossible de mettre la facture à jour.')
         } finally {
             setActiveId(null)
         }
@@ -231,14 +255,6 @@ export default function Invoices() {
                                                         <>
                                                             <button
                                                                 type="button"
-                                                                className="dash-btn dash-btn--ghost"
-                                                                style={{ height: 34, fontSize: 12, padding: '0 14px' }}
-                                                                onClick={() => navigate(`/invoices/${invoice.id}`)}
-                                                            >
-                                                                Éditer
-                                                            </button>
-                                                            <button
-                                                                type="button"
                                                                 className="dash-btn"
                                                                 style={{ height: 34, fontSize: 12, padding: '0 14px' }}
                                                                 disabled={isActive}
@@ -246,6 +262,17 @@ export default function Invoices() {
                                                             >
                                                                 {isActive ? 'Envoi…' : 'Envoyer'}
                                                             </button>
+                                                            {invoice.status !== 'paid' && (
+                                                                <button
+                                                                    type="button"
+                                                                    className="dash-btn dash-btn--ghost"
+                                                                    style={{ height: 34, fontSize: 12, padding: '0 14px' }}
+                                                                    disabled={isActive}
+                                                                    onClick={() => onMarkPaid(invoice)}
+                                                                >
+                                                                    {isActive ? 'MAJ…' : 'Payée'}
+                                                                </button>
+                                                            )}
                                                         </>
                                                     )}
                                                 </div>
