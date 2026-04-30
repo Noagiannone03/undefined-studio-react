@@ -52,7 +52,7 @@ export default function Clients() {
                     Les entreprises <span className="serif-italic">clientes.</span>
                 </h1>
                 <p className="dash-sub">
-                    Comptes, accès et projets rattachés à chaque entreprise.
+                    Les bons contacts, les bons accès, les bons dossiers.
                 </p>
             </header>
 

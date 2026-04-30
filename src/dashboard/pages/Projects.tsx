@@ -75,7 +75,7 @@ export default function Projects() {
                         Tous les <span className="serif-italic">chantiers.</span>
                     </h1>
                     <p className="dash-sub">
-                        Vue d’ensemble des livraisons, phases et dossiers clients.
+                        Ce qui avance, ce qui bloque, ce qui part bientôt.
                     </p>
                 </header>
 
@@ -118,7 +118,7 @@ export default function Projects() {
                 <h1 className="dash-h1">
                     Tes <span className="serif-italic">projets.</span>
                 </h1>
-                <p className="dash-sub">Avancement, étapes et livraisons sans chercher l’information.</p>
+                <p className="dash-sub">Le point simple sur ce qui avance et ce qui arrive ensuite.</p>
             </header>
 
             {error && <div className="login__error">{error}</div>}

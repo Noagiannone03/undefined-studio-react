@@ -101,8 +101,8 @@ export default function Tickets() {
                 </h1>
                 <p className="dash-sub">
                     {user?.role === 'admin'
-                        ? 'Demandes clients, réponses et sujets ouverts.'
-                        : 'Les échanges importants restent regroupés au même endroit.'}
+                        ? 'Les demandes arrivent ici, les réponses repartent vite.'
+                        : 'Un doute, une question, un détail à éclaircir : tout reste ici.'}
                 </p>
             </header>
 

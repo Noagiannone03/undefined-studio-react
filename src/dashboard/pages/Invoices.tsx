@@ -246,8 +246,8 @@ export default function Invoices() {
                 </div>
                 <p className="dash-sub">
                     {isAdmin
-                        ? 'Création, envoi et suivi des règlements au même endroit.'
-                        : 'Historique clair des règlements, avec aperçu disponible à la demande.'}
+                        ? 'On garde les factures propres, envoyées, retrouvables.'
+                        : 'Tes factures restent ici, prêtes à ouvrir quand tu en as besoin.'}
                 </p>
             </header>
 

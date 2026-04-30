@@ -227,7 +227,7 @@ export default function Overview() {
                 <h1 className="dash-h1">
                     Bonjour, <span className="serif-italic">{displayFirstName}.</span>
                 </h1>
-                <p className="dash-sub">L’essentiel du suivi : avancement, prochaines livraisons et points à traiter.</p>
+                <p className="dash-sub">Tout ce qui compte aujourd’hui, sans fouiller partout.</p>
             </header>
 
             {visibleProjects.length === 0 ? (
