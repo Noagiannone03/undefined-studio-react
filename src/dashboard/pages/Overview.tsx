@@ -144,11 +144,11 @@ export default function Overview() {
         )
     }
 
-    const activeProjects = projects.filter((p) => p.status !== ‘live’ && p.status !== ‘paused’)
+    const activeProjects = projects.filter((p) => p.status !== 'live' && p.status !== 'paused')
     const visibleProjects = activeProjects.length > 0 ? activeProjects : projects
-    const openTickets = tickets.filter((t) => t.status !== ‘resolved’)
-    const outstandingInvoices = invoices.filter((inv) => inv.status !== ‘paid’)
-    const firstName = user?.name?.split(‘ ‘)[0] ?? ‘là’
+    const openTickets = tickets.filter((t) => t.status !== 'resolved')
+    const outstandingInvoices = invoices.filter((inv) => inv.status !== 'paid')
+    const firstName = user?.name?.split(' ')[0] ?? 'là'
 
     return (
         <div className="dash-stack-lg">
@@ -163,10 +163,10 @@ export default function Overview() {
             {visibleProjects.length === 0 ? (
                 <EmptyState title="Aucun projet actif" body="Tes projets apparaîtront ici dès qu’ils sont lancés." />
             ) : (
-                <div className={visibleProjects.length === 1 ? ‘dash-stack’ : ‘dash-grid dash-grid--2’}>
+                <div className={visibleProjects.length === 1 ? 'dash-stack' : 'dash-grid dash-grid--2'}>
                     {visibleProjects.map((project) => {
-                        const activeStep = project.milestones.find((m) => m.status === ‘current’)
-                            ?? project.milestones.find((m) => m.status === ‘upcoming’)
+                        const activeStep = project.milestones.find((m) => m.status === 'current')
+                            ?? project.milestones.find((m) => m.status === 'upcoming')
                         return (
                             <Link key={project.id} to={`/projects/${project.id}`} className="dash-card dash-card--pop dash-card--link">
                                 <span className="dash-card__accent" style={{ background: project.accent }} />
@@ -179,7 +179,7 @@ export default function Overview() {
                                     <p className="dash-sub" style={{ fontSize: 15 }}>{project.tagline}</p>
                                 )}
                                 {activeStep && (
-                                    <p style={{ margin: ‘6px 0 0’, fontSize: 13, color: ‘var(--color-ink-soft)’, fontStyle: ‘italic’ }}>
+                                    <p style={{ margin: '6px 0 0', fontSize: 13, color: 'var(--color-ink-soft)', fontStyle: 'italic' }}>
                                         En cours : {activeStep.label}
                                     </p>
                                 )}
@@ -198,22 +198,22 @@ export default function Overview() {
 
             {/* Tickets + Factures — seulement si nécessaire */}
             {(openTickets.length > 0 || outstandingInvoices.length > 0) && (
-                <div className="dash-grid dash-grid--2" style={{ alignItems: ‘start’ }}>
+                <div className="dash-grid dash-grid--2" style={{ alignItems: 'start' }}>
                     {openTickets.length > 0 && (
                         <div className="dash-card">
                             <div className="dash-row-between">
-                                <h2 className="dash-h2" style={{ fontSize: ‘clamp(16px, 2vw, 22px)’ }}>Questions ouvertes</h2>
-                                <Link to="/tickets" className="dash-kicker" style={{ textDecoration: ‘none’ }}>Voir tout →</Link>
+                                <h2 className="dash-h2" style={{ fontSize: 'clamp(16px, 2vw, 22px)' }}>Questions ouvertes</h2>
+                                <Link to="/tickets" className="dash-kicker" style={{ textDecoration: 'none' }}>Voir tout →</Link>
                             </div>
                             {openTickets.slice(0, 3).map((ticket) => {
                                 const proj = findProject(ticket.projectId)
                                 return (
                                     <Link key={ticket.id} to="/tickets" className="dash-card dash-card--link" style={{ padding: 12 }}>
                                         <div className="dash-row-between">
-                                            <span className="dash-kicker">{proj?.name ?? ‘Sans projet’}</span>
+                                            <span className="dash-kicker">{proj?.name ?? 'Sans projet'}</span>
                                             <TicketStatusPill status={ticket.status} />
                                         </div>
-                                        <p style={{ margin: ‘4px 0 0’, fontSize: 14, fontWeight: 600 }}>{ticket.subject}</p>
+                                        <p style={{ margin: '4px 0 0', fontSize: 14, fontWeight: 600 }}>{ticket.subject}</p>
                                     </Link>
                                 )
                             })}
@@ -223,16 +223,16 @@ export default function Overview() {
                     {outstandingInvoices.length > 0 && (
                         <div className="dash-card">
                             <div className="dash-row-between">
-                                <h2 className="dash-h2" style={{ fontSize: ‘clamp(16px, 2vw, 22px)’ }}>À régler</h2>
-                                <Link to="/invoices" className="dash-kicker" style={{ textDecoration: ‘none’ }}>Voir tout →</Link>
+                                <h2 className="dash-h2" style={{ fontSize: 'clamp(16px, 2vw, 22px)' }}>À régler</h2>
+                                <Link to="/invoices" className="dash-kicker" style={{ textDecoration: 'none' }}>Voir tout →</Link>
                             </div>
                             {outstandingInvoices.map((invoice) => {
                                 const proj = findProject(invoice.projectId)
                                 return (
-                                    <div key={invoice.id} className="dash-row-between" style={{ padding: ‘10px 0’, borderBottom: ‘1px solid var(--color-hair)’ }}>
+                                    <div key={invoice.id} className="dash-row-between" style={{ padding: '10px 0', borderBottom: '1px solid var(--color-hair)' }}>
                                         <div>
                                             <span className="dash-kicker">{proj?.name ?? invoice.number}</span>
-                                            <p style={{ margin: ‘2px 0 0’, fontSize: 15, fontWeight: 700 }}>{formatEur(invoice.amount)}</p>
+                                            <p style={{ margin: '2px 0 0', fontSize: 15, fontWeight: 700 }}>{formatEur(invoice.amount)}</p>
                                         </div>
                                         <InvoiceStatusPill status={invoice.status} />
                                     </div>
