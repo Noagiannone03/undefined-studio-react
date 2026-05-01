@@ -23,6 +23,7 @@ export type Client = {
     contactName: string
     contactEmail: string
     billingEmail: string
+    address?: string
     notes?: string
     createdAt?: string
     updatedAt?: string

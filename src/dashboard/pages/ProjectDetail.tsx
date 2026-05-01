@@ -311,12 +311,15 @@ export default function ProjectDetail() {
                                             >
                                                 {MILESTONE_LABEL[milestone.status]}
                                             </button>
-                                            <input
-                                                type="date"
-                                                className="dash-step__date"
-                                                value={milestone.date ?? ''}
-                                                onChange={(e) => updateMilestoneField(milestone.id, { date: e.target.value || undefined })}
-                                            />
+                                            <label className="dash-step__date-wrap">
+                                                <span>Fin prévue</span>
+                                                <input
+                                                    type="date"
+                                                    className="dash-step__date"
+                                                    value={milestone.date ?? ''}
+                                                    onChange={(e) => updateMilestoneField(milestone.id, { date: e.target.value || undefined })}
+                                                />
+                                            </label>
                                             <button
                                                 type="button"
                                                 className="dash-step__remove"
@@ -461,7 +464,7 @@ export default function ProjectDetail() {
                             </div>
 
                             <div className="dash-stack-sm" style={{ marginTop: 16 }}>
-                                <span className="dash-label">Départ</span>
+                                <span className="dash-label">Date de démarrage</span>
                                 <input type="date" className="dash-input" value={draft.kickoff}
                                     onChange={(e) => patch({ kickoff: e.target.value })} style={{ height: 40, fontSize: 14 }} />
                             </div>
@@ -582,7 +585,8 @@ export default function ProjectDetail() {
                                         <span className="dash-milestone__line" />
                                         <p className="dash-milestone__title">{milestone.label || 'Étape projet'}</p>
                                         <p className="dash-milestone__date">
-                                            {milestone.date ? formatDate(milestone.date) : MILESTONE_LABEL[milestone.status]}
+                                            <span>{milestone.date ? 'Fin prévue' : 'Statut'}</span>
+                                            <strong>{milestone.date ? formatDate(milestone.date) : MILESTONE_LABEL[milestone.status]}</strong>
                                         </p>
                                         {milestoneUpdates.length > 0 && (
                                             <div className="dash-milestone__updates">

@@ -51,6 +51,7 @@ type CreateClientInput = {
     contactName: string
     contactEmail: string
     billingEmail: string
+    address?: string
     notes?: string
 }
 
@@ -60,6 +61,7 @@ type UpdateClientInput = {
     contactName: string
     contactEmail: string
     billingEmail: string
+    address?: string
     notes?: string
 }
 
@@ -290,6 +292,7 @@ function mapClient(id: string, data: Record<string, unknown>): Client {
         contactEmail,
         billingEmail:
             typeof data.billingEmail === 'string' ? data.billingEmail : contactEmail,
+        address: typeof data.address === 'string' ? data.address : undefined,
         notes: typeof data.notes === 'string' ? data.notes : undefined,
         createdAt: toIsoDate(data.createdAt),
         updatedAt: toIsoDate(data.updatedAt),
@@ -626,6 +629,7 @@ export async function createClient(input: CreateClientInput) {
         contactName: input.contactName.trim(),
         contactEmail: input.contactEmail.trim().toLowerCase(),
         billingEmail: input.billingEmail.trim().toLowerCase(),
+        address: input.address?.trim() || '',
         notes: input.notes?.trim() || '',
         createdAt: now,
         updatedAt: now,
@@ -641,6 +645,7 @@ export async function updateClient(clientId: string, input: UpdateClientInput) {
         contactName: input.contactName.trim(),
         contactEmail: input.contactEmail.trim().toLowerCase(),
         billingEmail: input.billingEmail.trim().toLowerCase(),
+        address: input.address?.trim() || '',
         notes: input.notes?.trim() || '',
         updatedAt: isoNow(),
     })

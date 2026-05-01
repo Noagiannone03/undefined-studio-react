@@ -15,6 +15,7 @@ export default function Clients() {
     const [contactName, setContactName] = useState('')
     const [contactEmail, setContactEmail] = useState('')
     const [billingEmail, setBillingEmail] = useState('')
+    const [address, setAddress] = useState('')
     const [notes, setNotes] = useState('')
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState<string | null>(null)
@@ -32,11 +33,12 @@ export default function Clients() {
 
         setLoading(true)
         try {
-            await createClient({ name, contactName, contactEmail, billingEmail, notes })
+            await createClient({ name, contactName, contactEmail, billingEmail, address, notes })
             setName('')
             setContactName('')
             setContactEmail('')
             setBillingEmail('')
+            setAddress('')
             setNotes('')
         } catch {
             setError('Impossible de créer le client.')
@@ -83,6 +85,16 @@ export default function Clients() {
                     <div>
                         <label htmlFor="client-notes" className="dash-label">Notes internes</label>
                         <textarea id="client-notes" className="dash-input dash-textarea" value={notes} onChange={(e) => setNotes(e.target.value)} />
+                    </div>
+                    <div>
+                        <label htmlFor="client-address" className="dash-label">Adresse entreprise</label>
+                        <textarea
+                            id="client-address"
+                            className="dash-input dash-textarea"
+                            value={address}
+                            onChange={(e) => setAddress(e.target.value)}
+                            placeholder="Adresse postale complète"
+                        />
                     </div>
 
                     {error && <div className="login__error">{error}</div>}

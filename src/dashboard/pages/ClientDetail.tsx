@@ -45,6 +45,7 @@ type EditableClient = {
     contactName: string
     contactEmail: string
     billingEmail: string
+    address: string
     notes: string
 }
 
@@ -55,6 +56,7 @@ function clientToDraft(client: Client): EditableClient {
         contactName: client.contactName,
         contactEmail: client.contactEmail,
         billingEmail: client.billingEmail,
+        address: client.address ?? '',
         notes: client.notes ?? '',
     }
 }
@@ -66,6 +68,7 @@ function clientsAreEqual(a: EditableClient, b: EditableClient): boolean {
         a.contactName === b.contactName &&
         a.contactEmail === b.contactEmail &&
         a.billingEmail === b.billingEmail &&
+        a.address === b.address &&
         a.notes === b.notes
     )
 }
@@ -191,7 +194,7 @@ export default function ClientDetail() {
         event.preventDefault()
         setProjError(null)
         if (!projName.trim() || !projTagline.trim() || !projKickoff || !projDelivery) {
-            setProjError('Nom, tagline, kickoff et livraison requis.')
+            setProjError('Nom, description courte, date de démarrage et livraison requis.')
             return
         }
         setProjBusy(true)
@@ -324,6 +327,15 @@ export default function ClientDetail() {
                         className="dash-input"
                         value={draft.billingEmail}
                         onChange={(e) => patch({ billingEmail: e.target.value })}
+                    />
+                </div>
+                <div className="dash-stack-sm">
+                    <span className="dash-label">Adresse entreprise</span>
+                    <textarea
+                        className="dash-inline-textarea"
+                        value={draft.address}
+                        onChange={(e) => patch({ address: e.target.value })}
+                        placeholder="Adresse postale complète"
                     />
                 </div>
                 <div className="dash-stack-sm">
@@ -474,8 +486,13 @@ export default function ClientDetail() {
                             </div>
                         </div>
                         <div className="dash-stack-sm">
-                            <span className="dash-label">Tagline</span>
-                            <input className="dash-input" value={projTagline} onChange={(e) => setProjTagline(e.target.value)} />
+                            <span className="dash-label">Description courte</span>
+                            <input
+                                className="dash-input"
+                                value={projTagline}
+                                onChange={(e) => setProjTagline(e.target.value)}
+                                placeholder="Ex : Refonte du site vitrine, espace client, identité..."
+                            />
                         </div>
                         <div className="dash-grid dash-grid--3">
                             <div className="dash-stack-sm">
@@ -487,7 +504,7 @@ export default function ClientDetail() {
                                 </select>
                             </div>
                             <div className="dash-stack-sm">
-                                <span className="dash-label">Kickoff</span>
+                                <span className="dash-label">Date de démarrage</span>
                                 <input type="date" className="dash-input" value={projKickoff} onChange={(e) => setProjKickoff(e.target.value)} />
                             </div>
                             <div className="dash-stack-sm">

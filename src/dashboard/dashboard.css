@@ -2032,11 +2032,27 @@
     margin: 0;
 }
 .dash-milestone__date {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 10px;
-    letter-spacing: 0.12em;
-    color: var(--color-ink-mute);
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    width: fit-content;
+    border: 1px solid var(--color-hair);
+    background: var(--color-paper-2);
+    padding: 5px 8px;
     margin-top: 3px;
+}
+.dash-milestone__date span,
+.dash-milestone__date strong {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+}
+.dash-milestone__date span {
+    color: var(--color-ink-mute);
+}
+.dash-milestone__date strong {
+    color: var(--color-ink);
 }
 .dash-milestone__updates {
     display: grid;
@@ -2191,6 +2207,20 @@
     transition: border-color 140ms ease, background 140ms ease;
 }
 
+.dash-step__date-wrap {
+    display: grid;
+    gap: 5px;
+    min-width: 0;
+}
+
+.dash-step__date-wrap span {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--color-ink-mute);
+}
+
 .dash-step__label:focus,
 .dash-step__date:focus {
     border-color: var(--color-klein);
@@ -2254,7 +2284,7 @@
 
 @media (min-width: 900px) {
     .dash-step {
-        grid-template-columns: 28px minmax(0, 1.6fr) 132px 170px 42px;
+        grid-template-columns: 28px minmax(0, 1.6fr) 132px 190px 42px;
         gap: 12px;
     }
 }
