@@ -5,16 +5,8 @@ import { EmptyState } from '../components/EmptyState'
 import { InvoiceStatusPill, ProjectStatusPill, TicketStatusPill } from '../components/StatusPill'
 import { ProgressBar } from '../components/ProgressBar'
 import { formatDate, formatEur } from '../utils'
-import type { Project, ProjectStatus } from '../types'
-
-const PHASE_LABEL: Record<ProjectStatus, string> = {
-    discovery: 'Cadrage',
-    design: 'Design',
-    build: 'Dev',
-    review: 'Revue',
-    live: 'En ligne',
-    paused: 'En pause',
-}
+import { isProjectActive, projectStatusLabel } from '../projectStatus'
+import type { Project } from '../types'
 
 function daysUntil(iso: string | undefined): number | null {
     if (!iso) return null
@@ -64,7 +56,7 @@ export default function Overview() {
     const { clients, projects, projectUpdates, tickets, invoices, users, findClient, findProject } = useDashboardData()
 
     if (user?.role === 'admin') {
-        const activeProjects = projects.filter((project) => project.status !== 'live' && project.status !== 'paused')
+        const activeProjects = projects.filter((project) => isProjectActive(project.status))
         const openTickets = tickets.filter((ticket) => ticket.status !== 'resolved')
         const pendingAccounts = users.filter((account) => account.mustChangePassword)
         const dueInvoices = invoices.filter((inv) => inv.status === 'due' || inv.status === 'overdue')
@@ -118,7 +110,7 @@ export default function Overview() {
                                                 <span className="dash-card__accent" style={{ background: project.accent }} />
                                                 <div className="dash-row-between">
                                                     <ProjectStatusPill status={project.status} />
-                                                    <span className="dash-kicker">{client?.name ?? '—'} · {PHASE_LABEL[project.status]}</span>
+                                                    <span className="dash-kicker">{client?.name ?? '—'} · {projectStatusLabel(project.status)}</span>
                                                 </div>
                                                 <h3 className="dash-h2" style={{ marginTop: 8 }}>{project.name}</h3>
                                                 <div className="dash-stack-sm" style={{ marginTop: 10 }}>
@@ -198,7 +190,7 @@ export default function Overview() {
         )
     }
 
-    const activeProjects = projects.filter((p) => p.status !== 'live' && p.status !== 'paused')
+    const activeProjects = projects.filter((p) => isProjectActive(p.status))
     const visibleProjects = activeProjects.length > 0 ? activeProjects : projects
     const openTickets = tickets.filter((t) => t.status !== 'resolved')
     const outstandingInvoices = invoices.filter((inv) => inv.status === 'due' || inv.status === 'overdue')

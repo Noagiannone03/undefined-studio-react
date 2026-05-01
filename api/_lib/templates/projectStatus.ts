@@ -14,12 +14,15 @@ export type ProjectStatusData = {
 }
 
 const STATUS_LABELS: Record<string, string> = {
-  discovery: 'Cadrage',
-  design: 'Design',
-  build: 'D&eacute;veloppement',
-  review: 'R&eacute;vision',
-  live: 'En ligne',
+  active: 'En cours',
+  done: 'Termin&eacute;',
+  waiting: 'En attente',
   paused: 'En pause',
+  discovery: 'En attente',
+  design: 'En cours',
+  build: 'En cours',
+  review: 'En cours',
+  live: 'Termin&eacute;',
 }
 
 function escapeHtml(s: string) {

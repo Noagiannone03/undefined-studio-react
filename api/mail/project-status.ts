@@ -22,7 +22,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       to,
       subject: isUpdateBool
         ? `Update projet : ${projectName} — ${updateTitle}`
-        : `Votre projet ${projectName} est maintenant en phase ${newStatus}`,
+        : `Votre projet ${projectName} change de statut`,
       html: projectStatusTemplate({
         contactName: contactName || clientName || '',
         clientName: clientName || '',

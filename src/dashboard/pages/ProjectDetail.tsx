@@ -10,16 +10,8 @@ import { useAutoSave } from '../components/useAutoSave'
 import { createProjectUpdate, updateProject } from '../firestore'
 import { mailApi } from '../api'
 import { formatDate, formatEur } from '../utils'
+import { PROJECT_STATUS_OPTIONS, projectStatusLabel } from '../projectStatus'
 import type { Milestone, ProjectStatus } from '../types'
-
-const PHASE_OPTIONS: { value: ProjectStatus; label: string; tone: 'mute' | 'klein' | 'tomato' | 'ink' }[] = [
-    { value: 'discovery', label: 'Cadrage', tone: 'mute' },
-    { value: 'design', label: 'Design', tone: 'klein' },
-    { value: 'build', label: 'Développement', tone: 'klein' },
-    { value: 'review', label: 'Revue', tone: 'tomato' },
-    { value: 'live', label: 'En ligne', tone: 'ink' },
-    { value: 'paused', label: 'En pause', tone: 'mute' },
-]
 
 type EditableProject = {
     status: ProjectStatus
@@ -127,8 +119,8 @@ export default function ProjectDetail() {
     const projectInvoices = invoicesForProject(project.id)
     const projectUpdates = updatesForProject(project.id)
     const progress = computeProgress(draft.milestones)
-    const currentPhase = PHASE_OPTIONS.find((o) => o.value === draft.status)
     const currentStep = activeMilestone(draft.milestones)
+    const currentStatusLabel = projectStatusLabel(draft.status)
 
     const patch = (p: Partial<EditableProject>) => setDraft((prev) => prev ? { ...prev, ...p } : prev)
     const patchMilestones = (next: Milestone[]) => setDraft((prev) => prev ? { ...prev, milestones: next } : prev)
@@ -158,17 +150,20 @@ export default function ProjectDetail() {
         event.preventDefault()
         setUpdateError(null)
         setUpdateSuccess(false)
+        if (!updateMilestoneId) { setUpdateError('Choisis l’étape concernée par ce point.'); return }
         if (!updateBody.trim()) { setUpdateError('Écris le message à envoyer au client.'); return }
 
         const selectedMilestone = draft.milestones.find((m) => m.id === updateMilestoneId)
-        const title = selectedMilestone?.label ? `Point — ${selectedMilestone.label}` : `Point projet — ${project.name}`
+        if (!selectedMilestone) { setUpdateError('Cette étape n’existe plus. Choisis une autre étape.'); return }
+        const milestoneLabel = selectedMilestone.label || 'Étape projet'
+        const title = `Point — ${milestoneLabel}`
 
         setPublishingUpdate(true)
         try {
             await createProjectUpdate({
                 clientId: project.clientId, projectId: project.id, title,
                 body: updateBody, authorName: user?.name ?? 'Undefined',
-                milestoneId: selectedMilestone?.id, milestoneLabel: selectedMilestone?.label,
+                milestoneId: selectedMilestone.id, milestoneLabel: milestoneLabel,
             })
             const contactEmail = client?.contactEmail
             if (contactEmail) {
@@ -223,7 +218,7 @@ export default function ProjectDetail() {
                         <div style={{ flex: '1 1 400px' }}>
                             <div className="dash-row" style={{ gap: 12, marginBottom: 16 }}>
                                 <ProjectStatusPill status={draft.status} />
-                                <span className="dash-kicker" style={{ color: 'var(--color-ink-soft)' }}>Phase {currentPhase?.label ?? '—'}</span>
+                                <span className="dash-kicker" style={{ color: 'var(--color-ink-soft)' }}>Statut projet · {currentStatusLabel}</span>
                             </div>
                             <span className="dash-kicker">Étape en cours</span>
                             <h2 className="dash-h1" style={{ fontSize: 'clamp(28px, 3vw, 40px)', lineHeight: 1.1, marginTop: 4 }}>
@@ -260,7 +255,7 @@ export default function ProjectDetail() {
                                 <div>
                                     <h2 className="dash-h2">Étapes</h2>
                                     <p className="dash-sub" style={{ fontSize: 13, margin: '2px 0 0' }}>
-                                        Clique sur le statut pour cycler : à faire → en cours → faite.
+                                        Les étapes décrivent ce qui se passe concrètement. Le statut du projet se règle à droite.
                                     </p>
                                 </div>
                                 <button
@@ -320,7 +315,7 @@ export default function ProjectDetail() {
                                 <div>
                                     <h2 className="dash-h2">Envoyer un point au client</h2>
                                     <p className="dash-sub" style={{ fontSize: 13, margin: '2px 0 0' }}>
-                                        Le client reçoit le message par email et le retrouve dans son espace.
+                                        Chaque point doit être rattaché à une étape. Il sera affiché sous cette étape côté client.
                                     </p>
                                 </div>
                             </div>
@@ -328,9 +323,8 @@ export default function ProjectDetail() {
                                 <span className="dash-label">Étape concernée</span>
                                 <select className="dash-input" value={updateMilestoneId}
                                     onChange={(e) => setUpdateMilestoneId(e.target.value)}>
-                                    <option value="">Général</option>
                                     {draft.milestones.map((m) => (
-                                        <option key={m.id} value={m.id}>{m.label || 'Étape'}</option>
+                                        <option key={m.id} value={m.id}>{m.label || 'Étape sans titre'}</option>
                                     ))}
                                 </select>
                             </div>
@@ -424,21 +418,21 @@ export default function ProjectDetail() {
 
                     {/* COLONNE DROITE (SIDEBAR) */}
                     <div className="dash-overview-side">
-                        {/* RÉGLAGES — phase + dates + note */}
+                        {/* RÉGLAGES — statut + dates + note */}
                         <section className="dash-card">
                             <div className="dash-row-between" style={{ marginBottom: 12 }}>
                                 <h2 className="dash-h2" style={{ fontSize: 'clamp(18px, 2vw, 24px)' }}>Réglages</h2>
                             </div>
 
                             <div className="dash-stack-sm">
-                                <span className="dash-label">Phase du projet</span>
+                                <span className="dash-label">Statut du projet</span>
                                 <div className="dash-status-picker">
-                                    {PHASE_OPTIONS.map((opt) => (
+                                    {PROJECT_STATUS_OPTIONS.map((opt) => (
                                         <button
                                             key={opt.value}
                                             type="button"
                                             onClick={() => patch({ status: opt.value })}
-                                            className={`dash-status-pick tone-${opt.tone}${draft.status === opt.value ? ' is-active' : ''}`}
+                                            className={`dash-status-pick tone-${opt.tone}${projectStatusLabel(draft.status) === opt.label ? ' is-active' : ''}`}
                                         >
                                             {opt.label}
                                         </button>
@@ -497,7 +491,7 @@ export default function ProjectDetail() {
                     <div style={{ flex: '1 1 400px' }}>
                         <div className="dash-row" style={{ gap: 12, marginBottom: 16 }}>
                             <ProjectStatusPill status={project.status} />
-                            <span className="dash-kicker" style={{ color: 'var(--color-ink-soft)' }}>Phase {currentPhase?.label ?? 'En cours'}</span>
+                            <span className="dash-kicker" style={{ color: 'var(--color-ink-soft)' }}>Statut projet · {currentStatusLabel}</span>
                         </div>
                         <span className="dash-kicker">Étape en cours</span>
                         <h2 className="dash-h1" style={{ fontSize: 'clamp(28px, 3vw, 40px)', lineHeight: 1.1, marginTop: 4 }}>
@@ -537,7 +531,13 @@ export default function ProjectDetail() {
                             <p className="dash-note">Les étapes apparaîtront ici dès qu’elles sont planifiées.</p>
                         ) : (
                             <ul className="dash-timeline dash-timeline--compact">
-                                {project.milestones.map((milestone) => (
+                                {project.milestones.map((milestone) => {
+                                    const milestoneUpdates = projectUpdates.filter((update) =>
+                                        update.milestoneId
+                                            ? update.milestoneId === milestone.id
+                                            : update.milestoneLabel === milestone.label,
+                                    )
+                                    return (
                                     <li key={milestone.id} className={`dash-milestone dash-milestone--${milestone.status}`}>
                                         <span className="dash-milestone__marker" />
                                         <span className="dash-milestone__line" />
@@ -545,8 +545,19 @@ export default function ProjectDetail() {
                                         <p className="dash-milestone__date">
                                             {milestone.date ? formatDate(milestone.date) : MILESTONE_LABEL[milestone.status]}
                                         </p>
+                                        {milestoneUpdates.length > 0 && (
+                                            <div className="dash-milestone__updates">
+                                                {milestoneUpdates.map((update) => (
+                                                    <article key={update.id} className="dash-milestone__update">
+                                                        <span>{formatDate(update.date)}</span>
+                                                        <p>{update.body}</p>
+                                                    </article>
+                                                ))}
+                                            </div>
+                                        )}
                                     </li>
-                                ))}
+                                    )
+                                })}
                             </ul>
                         )}
                     </div>
@@ -596,8 +607,8 @@ export default function ProjectDetail() {
                     <div className="dash-card">
                         <div className="dash-stack-sm" style={{ gap: 16 }}>
                             <div>
-                                <span className="dash-kicker">Phase actuelle</span>
-                                <strong style={{ display: 'block', marginTop: 4, fontSize: 15 }}>{currentPhase?.label ?? 'En cours'}</strong>
+                                <span className="dash-kicker">Statut projet</span>
+                                <strong style={{ display: 'block', marginTop: 4, fontSize: 15 }}>{currentStatusLabel}</strong>
                             </div>
                             <div style={{ borderTop: '1px solid var(--color-hair)', paddingTop: 12 }}>
                                 <span className="dash-kicker">En cours</span>
@@ -621,7 +632,14 @@ export default function ProjectDetail() {
                             projectUpdates.slice(0, 4).map((update) => (
                                 <article key={update.id} className="dash-update dash-update--quiet">
                                     <div className="dash-update__head">
-                                        <h3 className="dash-update__title" style={{ fontSize: 15 }}>{update.title}</h3>
+                                        <div>
+                                            <h3 className="dash-update__title" style={{ fontSize: 15 }}>{update.title}</h3>
+                                            {update.milestoneLabel && (
+                                                <span className="dash-pill dash-pill--mute" style={{ marginTop: 6 }}>
+                                                    {update.milestoneLabel}
+                                                </span>
+                                            )}
+                                        </div>
                                         <span className="dash-update__meta">{formatDate(update.date)}</span>
                                     </div>
                                     <p className="dash-update__body">{update.body}</p>

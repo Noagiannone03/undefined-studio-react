@@ -5,6 +5,7 @@ import { ProjectStatusPill } from '../components/StatusPill'
 import { ProgressBar } from '../components/ProgressBar'
 import { EmptyState } from '../components/EmptyState'
 import { formatDate } from '../utils'
+import { isProjectActive, isProjectDone, isProjectPaused, isProjectWaiting } from '../projectStatus'
 import type { Milestone, Project } from '../types'
 
 function currentMilestone(milestones: Milestone[]) {
@@ -12,7 +13,7 @@ function currentMilestone(milestones: Milestone[]) {
 }
 
 function projectSortValue(project: Project) {
-    const statusWeight = project.status === 'paused' ? 2 : project.status === 'live' ? 1 : 0
+    const statusWeight = isProjectPaused(project.status) ? 3 : isProjectDone(project.status) ? 2 : isProjectActive(project.status) ? 0 : 1
     return `${statusWeight}-${project.delivery || '9999-99-99'}`
 }
 
@@ -61,10 +62,11 @@ export default function Projects() {
     const { user } = useAuth()
     const { projects, findClient, hasClientScope, error } = useDashboardData()
     const sortedProjects = [...projects].sort((a, b) => projectSortValue(a).localeCompare(projectSortValue(b)))
-    const activeCount = projects.filter((project) => project.status !== 'live' && project.status !== 'paused').length
-    const liveCount = projects.filter((project) => project.status === 'live').length
-    const pausedCount = projects.filter((project) => project.status === 'paused').length
-    const nextProject = sortedProjects.find((project) => project.status !== 'live' && project.status !== 'paused') ?? sortedProjects[0]
+    const activeCount = projects.filter((project) => isProjectActive(project.status)).length
+    const doneCount = projects.filter((project) => isProjectDone(project.status)).length
+    const pausedCount = projects.filter((project) => isProjectPaused(project.status)).length
+    const waitingCount = projects.filter((project) => isProjectWaiting(project.status)).length
+    const nextProject = sortedProjects.find((project) => isProjectActive(project.status)) ?? sortedProjects[0]
 
     if (user?.role === 'admin') {
         return (
@@ -95,8 +97,9 @@ export default function Projects() {
                             </div>
                             <div className="dash-card dash-project-summary__stats">
                                 <div><span className="dash-kicker">En cours</span><strong>{activeCount}</strong></div>
-                                <div><span className="dash-kicker">En ligne</span><strong>{liveCount}</strong></div>
+                                <div><span className="dash-kicker">Terminés</span><strong>{doneCount}</strong></div>
                                 <div><span className="dash-kicker">Pause</span><strong>{pausedCount}</strong></div>
+                                <div><span className="dash-kicker">Attente</span><strong>{waitingCount}</strong></div>
                             </div>
                         </section>
                         <section style={{ display: 'flex', flexDirection: 'column' }}>
@@ -141,7 +144,7 @@ export default function Projects() {
                         <div className="dash-card dash-project-summary__stats">
                             <div><span className="dash-kicker">Projets</span><strong>{projects.length}</strong></div>
                             <div><span className="dash-kicker">Actifs</span><strong>{activeCount}</strong></div>
-                            <div><span className="dash-kicker">Livrés</span><strong>{liveCount}</strong></div>
+                            <div><span className="dash-kicker">Terminés</span><strong>{doneCount}</strong></div>
                         </div>
                     </section>
                     <section style={{ display: 'flex', flexDirection: 'column' }}>

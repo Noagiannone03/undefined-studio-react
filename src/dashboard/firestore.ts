@@ -155,14 +155,17 @@ function asClientStatus(value: unknown): ClientStatus {
 }
 
 function asProjectStatus(value: unknown): ProjectStatus {
-    return value === 'discovery' ||
+    return value === 'active' ||
+        value === 'done' ||
+        value === 'waiting' ||
+        value === 'paused' ||
+        value === 'discovery' ||
         value === 'design' ||
         value === 'build' ||
         value === 'review' ||
-        value === 'live' ||
-        value === 'paused'
+        value === 'live'
         ? value
-        : 'discovery'
+        : 'active'
 }
 
 function asTicketStatus(value: unknown): TicketStatus {

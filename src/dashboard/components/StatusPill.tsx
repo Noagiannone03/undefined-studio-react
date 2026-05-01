@@ -1,14 +1,18 @@
 import type { AppRole, ClientStatus, InvoiceStatus, ProjectStatus, TicketStatus } from '../types'
+import { projectStatusGroup, projectStatusLabel } from '../projectStatus'
 
 type Tone = 'ink' | 'klein' | 'tomato' | 'mute' | 'neutral'
 
 const PROJECT_TONES: Record<ProjectStatus, { label: string; tone: Tone }> = {
-    discovery: { label: 'Cadrage', tone: 'mute' },
-    design: { label: 'Design', tone: 'klein' },
-    build: { label: 'Dev', tone: 'klein' },
-    review: { label: 'Revue', tone: 'tomato' },
-    live: { label: 'En ligne', tone: 'ink' },
+    active: { label: 'En cours', tone: 'klein' },
+    done: { label: 'Terminé', tone: 'ink' },
+    waiting: { label: 'En attente', tone: 'tomato' },
     paused: { label: 'En pause', tone: 'mute' },
+    discovery: { label: 'En attente', tone: 'tomato' },
+    design: { label: 'En cours', tone: 'klein' },
+    build: { label: 'En cours', tone: 'klein' },
+    review: { label: 'En cours', tone: 'klein' },
+    live: { label: 'Terminé', tone: 'ink' },
 }
 
 const INVOICE_TONES: Record<InvoiceStatus, { label: string; tone: Tone }> = {
@@ -44,7 +48,8 @@ function toneClass(tone: Tone) {
 }
 
 export function ProjectStatusPill({ status }: { status: ProjectStatus }) {
-    const { label, tone } = PROJECT_TONES[status]
+    const { tone } = PROJECT_TONES[status] ?? PROJECT_TONES[projectStatusGroup(status)]
+    const label = projectStatusLabel(status)
     return <span className={toneClass(tone)}>{label}</span>
 }
 

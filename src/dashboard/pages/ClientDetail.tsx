@@ -20,6 +20,7 @@ import {
 } from '../firestore'
 import { mailApi } from '../api'
 import { formatDate, formatEur } from '../utils'
+import { PROJECT_STATUS_OPTIONS } from '../projectStatus'
 import type { Client, ClientStatus, ProjectStatus } from '../types'
 
 const CLIENT_STATUS_OPTIONS: { value: ClientStatus; label: string; tone: 'mute' | 'klein' | 'tomato' | 'ink' }[] = [
@@ -94,7 +95,7 @@ export default function ClientDetail() {
     // ── Project form ──
     const [projName, setProjName] = useState('')
     const [projTagline, setProjTagline] = useState('')
-    const [projStatus, setProjStatus] = useState<ProjectStatus>('discovery')
+    const [projStatus, setProjStatus] = useState<ProjectStatus>('active')
     const [projAccent, setProjAccent] = useState(ACCENTS[0].value)
     const [projKickoff, setProjKickoff] = useState('')
     const [projDelivery, setProjDelivery] = useState('')
@@ -204,7 +205,7 @@ export default function ClientDetail() {
             })
             setProjName('')
             setProjTagline('')
-            setProjStatus('discovery')
+            setProjStatus('active')
             setProjAccent(ACCENTS[0].value)
             setProjKickoff('')
             setProjDelivery('')
@@ -413,8 +414,8 @@ export default function ClientDetail() {
                             <div className="dash-stack-sm">
                                 <span className="dash-label">Statut</span>
                                 <select className="dash-input" value={projStatus} onChange={(e) => setProjStatus(e.target.value as ProjectStatus)}>
-                                    {(['discovery', 'design', 'build', 'review', 'live', 'paused'] as ProjectStatus[]).map((s) => (
-                                        <option key={s} value={s}>{s}</option>
+                                    {PROJECT_STATUS_OPTIONS.map((status) => (
+                                        <option key={status.value} value={status.value}>{status.label}</option>
                                     ))}
                                 </select>
                             </div>

@@ -1151,7 +1151,7 @@
 .dash-project-summary__stats,
 .dash-project-detail-summary__stats {
     display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
     gap: 0;
     padding: 0;
 }
@@ -1742,6 +1742,31 @@
     letter-spacing: 0.12em;
     color: var(--color-ink-mute);
     margin-top: 3px;
+}
+.dash-milestone__updates {
+    display: grid;
+    gap: 8px;
+    margin-top: 10px;
+}
+.dash-milestone__update {
+    border-left: 2px solid var(--color-klein);
+    background: var(--color-paper-2);
+    padding: 8px 10px;
+}
+.dash-milestone__update span {
+    display: block;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--color-ink-mute);
+    margin-bottom: 4px;
+}
+.dash-milestone__update p {
+    margin: 0;
+    font-size: 13px;
+    line-height: 1.45;
+    color: var(--color-ink);
 }
 
 @media (min-width: 900px) {

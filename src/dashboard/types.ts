@@ -28,7 +28,17 @@ export type Client = {
     updatedAt?: string
 }
 
-export type ProjectStatus = 'discovery' | 'design' | 'build' | 'review' | 'live' | 'paused'
+export type ProjectStatus =
+    | 'active'
+    | 'done'
+    | 'paused'
+    | 'waiting'
+    // Legacy values kept for existing Firebase documents.
+    | 'discovery'
+    | 'design'
+    | 'build'
+    | 'review'
+    | 'live'
 
 export type Milestone = {
     id: string
