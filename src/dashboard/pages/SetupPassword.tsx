@@ -31,6 +31,7 @@ export default function SetupPassword() {
         setLoading(true)
         try {
             await changePassword(password)
+            window.sessionStorage.setItem('dash-entry-intro', '1')
             navigate('/', { replace: true })
         } catch (err) {
             console.error('[setup-password] failed', err)
@@ -41,16 +42,36 @@ export default function SetupPassword() {
     }
 
     return (
-        <div className="login">
+        <div className="login login--setup">
             <div className="login__form-side">
-                <span className="dash-kicker login__top-kicker">( 00 ) — Sécurisation du compte</span>
+                <motion.span
+                    className="dash-kicker login__top-kicker login__setup-kicker"
+                    initial={{ opacity: 0, x: -10 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ duration: 0.45, ease: EXPO }}
+                >
+                    ( 01 ) — Première connexion
+                </motion.span>
 
                 <div className="login__content">
+                    <motion.div
+                        className="login__handoff"
+                        initial={{ opacity: 0, y: 12, scale: 0.98 }}
+                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                        transition={{ duration: 0.5, ease: EXPO }}
+                    >
+                        <span className="login__handoff-dot" aria-hidden />
+                        <div>
+                            <span className="dash-kicker">Étape requise</span>
+                            <strong>Nouveau mot de passe</strong>
+                        </div>
+                    </motion.div>
+
                     <motion.h1
                         className="login__title"
-                        initial={{ opacity: 0, y: 16 }}
+                        initial={{ opacity: 0, y: 18 }}
                         animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.7, ease: EXPO }}
+                        transition={{ duration: 0.68, ease: EXPO, delay: 0.08 }}
                     >
                         Sécurise ton{' '}
                         <span className="serif-italic">accès.</span>
@@ -60,18 +81,17 @@ export default function SetupPassword() {
                         className="login__sub"
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.6, ease: EXPO, delay: 0.1 }}
+                        transition={{ duration: 0.55, ease: EXPO, delay: 0.16 }}
                     >
-                        {user?.name}, ton accès a été créé avec un mot de passe temporaire.
-                        Remplace-le maintenant pour activer complètement le dashboard.
+                        {user?.name}, finalise l’accès pour entrer dans ton espace.
                     </motion.p>
 
                     <motion.form
                         onSubmit={onSubmit}
                         className="login__form"
-                        initial={{ opacity: 0, y: 10 }}
+                        initial={{ opacity: 0, y: 14 }}
                         animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.6, ease: EXPO, delay: 0.2 }}
+                        transition={{ duration: 0.58, ease: EXPO, delay: 0.24 }}
                         noValidate
                     >
                         <div>
@@ -111,16 +131,37 @@ export default function SetupPassword() {
                 <span className="dash-kicker login__bot-kicker">UNDEFINED STUDIO — ACCÈS SÉCURISÉ</span>
             </div>
 
-            <div className="login__splash" aria-hidden>
-                <span className="dash-kicker login__splash-kicker">( PREMIÈRE CONNEXION ) — UNDEFINED STUDIO</span>
-                <p className="login__splash-big">
+            <motion.div
+                className="login__splash login__splash--setup"
+                aria-hidden
+                initial={{ clipPath: 'inset(0 0 0 100%)' }}
+                animate={{ clipPath: 'inset(0 0 0 0%)' }}
+                transition={{ duration: 0.7, ease: EXPO }}
+            >
+                <span className="dash-kicker login__splash-kicker">( MOT DE PASSE ) — UNDEFINED STUDIO</span>
+                <motion.p
+                    className="login__splash-big"
+                    initial={{ opacity: 0, y: 30 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.7, ease: EXPO, delay: 0.2 }}
+                >
                     Ton espace,
                     <br />
                     <span className="login__splash-italic">totalement</span>
                     <br />
                     privé.
-                </p>
-            </div>
+                </motion.p>
+                <motion.div
+                    className="login__setup-rail"
+                    initial={{ opacity: 0, y: 18 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.55, ease: EXPO, delay: 0.36 }}
+                >
+                    <span />
+                    <span />
+                    <span />
+                </motion.div>
+            </motion.div>
         </div>
     )
 }

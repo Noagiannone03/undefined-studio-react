@@ -1,6 +1,7 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node'
 import { sendMail } from '../_lib/mailer.js'
 import { baseTemplate, cta } from '../_lib/templates/base.js'
+import { dashboardUrl } from '../_lib/dashboard-url.js'
 
 function buildReminderHtml(month: string, year: string, dashboardUrl: string): string {
   const content = `
@@ -43,13 +44,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   const month = now.toLocaleDateString('fr-FR', { month: 'long' })
   const year = String(now.getFullYear())
   const adminEmail = process.env.ADMIN_EMAIL ?? 'noa.giannone@gmail.com'
-  const siteUrl = process.env.SITE_URL ?? 'https://undefined-studio.fr'
 
   try {
     await sendMail({
       to: adminEmail,
       subject: `Rappel facturation — ${month} ${year}`,
-      html: buildReminderHtml(month, year, `${siteUrl}/app/invoices`),
+      html: buildReminderHtml(month, year, dashboardUrl('/invoices')),
     })
     console.log(`[cron/monthly-reminder] Email envoyé à ${adminEmail}`)
     return res.json({ ok: true, month, year })

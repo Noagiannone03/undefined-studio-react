@@ -38,6 +38,7 @@ export default function Login() {
         setLoading(true)
         try {
             await login(email, password)
+            window.sessionStorage.setItem('dash-entry-intro', '1')
         } catch (err) {
             console.error('[login] failed', err)
             const code = (err as { code?: string } | null)?.code

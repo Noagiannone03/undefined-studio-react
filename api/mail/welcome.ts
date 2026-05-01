@@ -2,6 +2,7 @@ import type { VercelRequest, VercelResponse } from '@vercel/node'
 import { sendMail } from '../_lib/mailer.js'
 import { requireApiKey } from '../_lib/auth.js'
 import { welcomeTemplate } from '../_lib/templates/welcome.js'
+import { dashboardUrl } from '../_lib/dashboard-url.js'
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' })
@@ -21,7 +22,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         clientName,
         email,
         temporaryPassword,
-        loginUrl: `${process.env.SITE_URL ?? 'https://undefined-studio.fr'}/app/login`,
+        loginUrl: dashboardUrl('/login'),
       }),
     })
     return res.json({ ok: true })

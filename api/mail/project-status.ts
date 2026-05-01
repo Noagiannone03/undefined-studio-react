@@ -2,6 +2,7 @@ import type { VercelRequest, VercelResponse } from '@vercel/node'
 import { sendMail } from '../_lib/mailer.js'
 import { requireApiKey } from '../_lib/auth.js'
 import { projectStatusTemplate } from '../_lib/templates/projectStatus.js'
+import { dashboardUrl } from '../_lib/dashboard-url.js'
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' })
@@ -14,7 +15,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(400).json({ error: 'Champs manquants' })
   }
 
-  const siteUrl = process.env.SITE_URL ?? 'https://undefined-studio.fr'
   const isUpdateBool = isUpdate === 'true' || (isUpdate as unknown) === true
 
   try {
@@ -30,7 +30,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         newStatus,
         progress: parseInt(progress || '0', 10),
         summary: summary || undefined,
-        projectUrl: `${siteUrl}/app/projects${projectId ? `/${projectId}` : ''}`,
+        projectUrl: dashboardUrl(`/projects${projectId ? `/${projectId}` : ''}`),
         isUpdate: isUpdateBool,
         updateTitle: updateTitle || undefined,
         updateBody: updateBody || undefined,

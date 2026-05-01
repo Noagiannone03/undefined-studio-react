@@ -2,6 +2,7 @@ import type { VercelRequest, VercelResponse } from '@vercel/node'
 import { sendMail } from '../_lib/mailer.js'
 import { requireApiKey } from '../_lib/auth.js'
 import { ticketCreatedTemplate } from '../_lib/templates/ticketCreated.js'
+import { dashboardUrl } from '../_lib/dashboard-url.js'
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' })
@@ -12,7 +13,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(400).json({ error: 'Champs manquants' })
   }
 
-  const siteUrl = process.env.SITE_URL ?? 'https://undefined-studio.fr'
   const adminEmail = process.env.ADMIN_EMAIL ?? 'noa.giannone@gmail.com'
 
   try {
@@ -25,7 +25,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         ticketSubject,
         ticketBody,
         priority: (priority as 'low' | 'normal' | 'high') || 'normal',
-        ticketUrl: `${siteUrl}/app/tickets${ticketId ? `#${ticketId}` : ''}`,
+        ticketUrl: dashboardUrl(`/tickets${ticketId ? `#${ticketId}` : ''}`),
       }),
     })
     return res.json({ ok: true })
