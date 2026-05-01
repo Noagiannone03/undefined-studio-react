@@ -3,6 +3,7 @@ import type { FormEvent } from 'react'
 import { Link, Navigate, useNavigate } from 'react-router-dom'
 import { useAuth } from '../auth'
 import { useDashboardData } from '../useDashboardData'
+import { LoadingButton } from '../components/LoadingState'
 import { createTicket } from '../firestore'
 import { mailApi } from '../api'
 import type { TicketPriority } from '../types'
@@ -137,9 +138,9 @@ export default function NewTicket() {
                 {error && <div className="login__error">{error}</div>}
 
                 <div className="dash-row" style={{ marginTop: 8 }}>
-                    <button type="submit" className="dash-btn" disabled={sending || sent}>
-                        {sent ? 'Envoyé ✓' : sending ? 'Envoi…' : 'Envoyer'}
-                    </button>
+                    <LoadingButton type="submit" className="dash-btn" loading={sending} loadingLabel="Envoi" disabled={sent}>
+                        {sent ? 'Envoyé' : 'Envoyer'}
+                    </LoadingButton>
                     <Link to="/tickets" className="dash-btn dash-btn--ghost">
                         Annuler
                     </Link>

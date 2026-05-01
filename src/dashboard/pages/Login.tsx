@@ -3,6 +3,7 @@ import type { FormEvent } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { motion } from 'motion/react'
 import { useAuth } from '../auth'
+import { LoadingButton } from '../components/LoadingState'
 
 const EXPO = [0.16, 1, 0.3, 1] as const
 
@@ -11,11 +12,16 @@ export default function Login() {
     const navigate = useNavigate()
     const location = useLocation()
     const from = (location.state as { from?: string } | null)?.from ?? '/'
+    const wasBlocked = Boolean((location.state as { blocked?: boolean } | null)?.blocked)
 
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState<string | null>(null)
+
+    useEffect(() => {
+        if (wasBlocked) setError('Ton accès a été bloqué. Contacte le studio.')
+    }, [wasBlocked])
 
     useEffect(() => {
         if (authLoading) return
@@ -38,6 +44,8 @@ export default function Login() {
             const userMessage =
                 code === 'auth/invalid-credential' || code === 'auth/wrong-password' || code === 'auth/user-not-found'
                     ? 'Email ou mot de passe incorrect.'
+                    : code === 'dashboard/account-blocked'
+                    ? 'Ton accès a été bloqué. Contacte le studio.'
                     : code === 'auth/user-disabled'
                     ? 'Ce compte est désactivé.'
                     : code === 'auth/too-many-requests'
@@ -114,12 +122,14 @@ export default function Login() {
                             <div role="alert" className="login__error">{error}</div>
                         )}
 
-                        <button type="submit" className="dash-btn" disabled={loading}>
-                            {loading ? 'Connexion...' : 'Se connecter'}
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="16" height="16" aria-hidden>
-                                <path d="M5 12h14M13 5l7 7-7 7" />
-                            </svg>
-                        </button>
+                        <LoadingButton type="submit" className="dash-btn" loading={loading} loadingLabel="Connexion">
+                            Se connecter
+                            {!loading && (
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="16" height="16" aria-hidden>
+                                    <path d="M5 12h14M13 5l7 7-7 7" />
+                                </svg>
+                            )}
+                        </LoadingButton>
 
                     </motion.form>
                 </div>

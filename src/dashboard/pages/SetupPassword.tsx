@@ -3,6 +3,7 @@ import type { FormEvent } from 'react'
 import { motion } from 'motion/react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../auth'
+import { LoadingButton } from '../components/LoadingState'
 
 const EXPO = [0.16, 1, 0.3, 1] as const
 
@@ -101,9 +102,9 @@ export default function SetupPassword() {
 
                         {error && <div role="alert" className="login__error">{error}</div>}
 
-                        <button type="submit" className="dash-btn" disabled={loading}>
-                            {loading ? 'Mise à jour...' : 'Activer mon accès'}
-                        </button>
+                        <LoadingButton type="submit" className="dash-btn" loading={loading} loadingLabel="Activation">
+                            Activer mon accès
+                        </LoadingButton>
                     </motion.form>
                 </div>
 
@@ -118,9 +119,6 @@ export default function SetupPassword() {
                     <span className="login__splash-italic">totalement</span>
                     <br />
                     privé.
-                </p>
-                <p className="login__splash-quote">
-                    Choisis ton mot de passe — il remplace le temporaire qu'on t'a envoyé.
                 </p>
             </div>
         </div>

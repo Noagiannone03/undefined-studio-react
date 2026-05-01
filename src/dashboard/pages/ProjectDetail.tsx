@@ -1,13 +1,14 @@
 import { useEffect, useMemo, useState } from 'react'
 import type { FormEvent } from 'react'
-import { Link, useParams } from 'react-router-dom'
+import { Link, useNavigate, useParams } from 'react-router-dom'
 import { useAuth } from '../auth'
 import { useDashboardData } from '../useDashboardData'
 import { ProgressBar } from '../components/ProgressBar'
 import { InvoiceStatusPill, ProjectStatusPill, TicketStatusPill } from '../components/StatusPill'
+import { DashboardSkeleton, LoadingButton } from '../components/LoadingState'
 import { SaveIndicator } from '../components/SaveIndicator'
 import { useAutoSave } from '../components/useAutoSave'
-import { createProjectUpdate, updateProject } from '../firestore'
+import { createProjectUpdate, deleteProject, updateProject } from '../firestore'
 import { mailApi } from '../api'
 import { formatDate, formatEur } from '../utils'
 import { PROJECT_STATUS_OPTIONS, projectStatusLabel } from '../projectStatus'
@@ -62,6 +63,7 @@ function activeMilestone(milestones: Milestone[]) {
 
 export default function ProjectDetail() {
     const { id } = useParams<{ id: string }>()
+    const navigate = useNavigate()
     const { user } = useAuth()
     const { loading, findProject, findClient, updatesForProject, tickets, invoicesForProject } = useDashboardData()
     const project = findProject(id)
@@ -75,6 +77,8 @@ export default function ProjectDetail() {
     const [publishingUpdate, setPublishingUpdate] = useState(false)
     const [updateError, setUpdateError] = useState<string | null>(null)
     const [updateSuccess, setUpdateSuccess] = useState(false)
+    const [deleteBusy, setDeleteBusy] = useState(false)
+    const [deleteError, setDeleteError] = useState<string | null>(null)
 
     useEffect(() => { if (baseline) setDraft(baseline) }, [baseline])
 
@@ -101,7 +105,7 @@ export default function ProjectDetail() {
     }, [draft, updateMilestoneId])
 
     if (loading && !project) {
-        return <div className="dash-card"><span className="dash-kicker">Projet</span><h1 className="dash-h2">Chargement…</h1></div>
+        return <DashboardSkeleton label="Chargement du projet" />
     }
 
     if (!project || !draft) {
@@ -180,6 +184,22 @@ export default function ProjectDetail() {
             setUpdateError(err instanceof Error ? err.message : 'Publication impossible.')
         } finally {
             setPublishingUpdate(false)
+        }
+    }
+
+    const onDeleteProject = async () => {
+        const confirmed = window.confirm(
+            `Supprimer définitivement ${project.name} ? Les points liés seront supprimés, les tickets et factures resteront dans le dossier client sans projet attaché.`,
+        )
+        if (!confirmed) return
+        setDeleteError(null)
+        setDeleteBusy(true)
+        try {
+            await deleteProject(project.id)
+            navigate('/projects', { replace: true })
+        } catch {
+            setDeleteError('Suppression du projet impossible.')
+            setDeleteBusy(false)
         }
     }
 
@@ -338,9 +358,9 @@ export default function ProjectDetail() {
                                 />
                             </div>
                             <div className="dash-row" style={{ gap: 12, alignItems: 'center', marginTop: 16 }}>
-                                <button type="submit" className="dash-btn" disabled={publishingUpdate}>
-                                    {publishingUpdate ? 'Envoi...' : 'Publier le point'}
-                                </button>
+                                <LoadingButton type="submit" className="dash-btn" loading={publishingUpdate} loadingLabel="Publication">
+                                    Publier le point
+                                </LoadingButton>
                                 {updateSuccess && <span className="dash-kicker" style={{ color: 'var(--color-ink)' }}>Envoyé</span>}
                             </div>
                             {updateError && <div className="login__error" style={{ marginTop: 8 }}>{updateError}</div>}
@@ -462,6 +482,25 @@ export default function ProjectDetail() {
                                     style={{ minHeight: 120 }}
                                 />
                             </div>
+                        </section>
+
+                        <section className="dash-card" style={{ borderColor: 'var(--color-tomato)', marginTop: 16 }}>
+                            <span className="dash-kicker" style={{ color: 'var(--color-tomato)' }}>Zone admin</span>
+                            <h2 className="dash-h2" style={{ fontSize: 'clamp(18px, 2vw, 24px)', marginTop: 4 }}>Supprimer le projet</h2>
+                            <p className="dash-note" style={{ marginTop: 6 }}>
+                                Supprime le projet et ses points. Les tickets et factures restent conservés côté client.
+                            </p>
+                            <LoadingButton
+                                type="button"
+                                className="dash-btn"
+                                loading={deleteBusy}
+                                loadingLabel="Suppression"
+                                style={{ marginTop: 14, background: 'var(--color-tomato)', borderColor: 'var(--color-tomato)' }}
+                                onClick={onDeleteProject}
+                            >
+                                Supprimer le projet
+                            </LoadingButton>
+                            {deleteError && <div className="login__error" style={{ marginTop: 8 }}>{deleteError}</div>}
                         </section>
                     </div>
                 </div>

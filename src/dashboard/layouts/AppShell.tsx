@@ -3,11 +3,14 @@ import { Outlet } from 'react-router-dom'
 import { AnimatePresence, motion } from 'motion/react'
 import { Sidebar, SidebarBody } from '../components/Sidebar'
 import { Topbar } from '../components/Topbar'
+import { DashboardSkeleton } from '../components/LoadingState'
+import { useDashboardData } from '../useDashboardData'
 
 const EXPO = [0.16, 1, 0.3, 1] as const
 
 export default function AppShell() {
     const [sheetOpen, setSheetOpen] = useState(false)
+    const { loading } = useDashboardData()
 
     // While the sheet is open: subscribe to Escape + browser back/forward,
     // and lock page scroll so only the sheet can scroll.
@@ -36,7 +39,9 @@ export default function AppShell() {
                 <Sidebar />
                 <div className="dash-main">
                     <Topbar onMenu={() => setSheetOpen(true)} />
-                    <main className="dash-content"><Outlet /></main>
+                    <main className="dash-content">
+                        {loading ? <DashboardSkeleton /> : <Outlet />}
+                    </main>
                 </div>
             </div>
 

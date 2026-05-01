@@ -5,11 +5,13 @@ import {
     doc,
     documentId,
     getDoc,
+    getDocs,
     onSnapshot,
     query,
     setDoc,
     updateDoc,
     where,
+    writeBatch,
     type FirestoreError,
     type QueryConstraint,
 } from 'firebase/firestore'
@@ -480,6 +482,11 @@ export function subscribeUserProfile(
     )
 }
 
+export async function getUserProfile(uid: string): Promise<UserProfile | null> {
+    const snapshot = await getDoc(doc(db, USERS, uid))
+    return snapshot.exists() ? mapUserProfile(snapshot.id, snapshot.data() as Record<string, unknown>) : null
+}
+
 export function subscribeUsers(
     profile: UserProfile,
     onNext: SnapshotCallback<UserProfile>,
@@ -639,6 +646,65 @@ export async function updateClient(clientId: string, input: UpdateClientInput) {
     })
 }
 
+export async function deleteClient(clientId: string) {
+    const batch = writeBatch(db)
+
+    const [projectsSnap, updatesSnap, ticketsSnap, invoicesSnap, usersSnap] = await Promise.all([
+        getDocs(query(collection(db, PROJECTS), where('clientId', '==', clientId))),
+        getDocs(query(collection(db, PROJECT_UPDATES), where('clientId', '==', clientId))),
+        getDocs(query(collection(db, TICKETS), where('clientId', '==', clientId))),
+        getDocs(query(collection(db, INVOICES), where('clientId', '==', clientId))),
+        getDocs(query(collection(db, USERS), where('clientIds', 'array-contains', clientId))),
+    ])
+
+    await Promise.all(
+        invoicesSnap.docs.map((item) => {
+            const data = item.data() as Record<string, unknown>
+            return typeof data.storagePath === 'string' && data.storagePath ? deleteInvoicePdf(data.storagePath) : undefined
+        }),
+    )
+
+    projectsSnap.docs.forEach((item) => batch.delete(item.ref))
+    updatesSnap.docs.forEach((item) => batch.delete(item.ref))
+    ticketsSnap.docs.forEach((item) => batch.delete(item.ref))
+    invoicesSnap.docs.forEach((item) => batch.delete(item.ref))
+    usersSnap.docs.forEach((item) => {
+        const profile = mapUserProfile(item.id, item.data() as Record<string, unknown>)
+        const nextClientIds = profile.clientIds.filter((id) => id !== clientId)
+        batch.update(item.ref, {
+            clientIds: nextClientIds,
+            clientId: nextClientIds[0] ?? '',
+            isActive: nextClientIds.length > 0,
+            updatedAt: isoNow(),
+        })
+    })
+    batch.delete(doc(db, CLIENTS, clientId))
+
+    await batch.commit()
+}
+
+export async function updateUserAccess(uid: string, input: { isActive: boolean }) {
+    await updateDoc(doc(db, USERS, uid), {
+        isActive: input.isActive,
+        updatedAt: isoNow(),
+    })
+}
+
+export async function removeClientAccess(uid: string, clientId: string) {
+    const ref = doc(db, USERS, uid)
+    const snapshot = await getDoc(ref)
+    if (!snapshot.exists()) return
+
+    const profile = mapUserProfile(snapshot.id, snapshot.data() as Record<string, unknown>)
+    const nextClientIds = profile.clientIds.filter((id) => id !== clientId)
+    await updateDoc(ref, {
+        clientIds: nextClientIds,
+        clientId: nextClientIds[0] ?? '',
+        isActive: nextClientIds.length > 0 ? profile.isActive : false,
+        updatedAt: isoNow(),
+    })
+}
+
 export async function createClientAccount(input: CreateClientAccountInput) {
     const secondaryAuth = getSecondaryAdminAuth()
     const created = await createUserWithEmailAndPassword(
@@ -716,6 +782,23 @@ export async function updateProject(projectId: string, input: UpdateProjectInput
     }
 
     await updateDoc(doc(db, PROJECTS, projectId), patch)
+}
+
+export async function deleteProject(projectId: string) {
+    const batch = writeBatch(db)
+
+    const [updatesSnap, ticketsSnap, invoicesSnap] = await Promise.all([
+        getDocs(query(collection(db, PROJECT_UPDATES), where('projectId', '==', projectId))),
+        getDocs(query(collection(db, TICKETS), where('projectId', '==', projectId))),
+        getDocs(query(collection(db, INVOICES), where('projectId', '==', projectId))),
+    ])
+
+    updatesSnap.docs.forEach((item) => batch.delete(item.ref))
+    ticketsSnap.docs.forEach((item) => batch.update(item.ref, { projectId: '', updatedAt: isoNow() }))
+    invoicesSnap.docs.forEach((item) => batch.update(item.ref, { projectId: '', updatedAt: isoNow() }))
+    batch.delete(doc(db, PROJECTS, projectId))
+
+    await batch.commit()
 }
 
 export async function createProjectUpdate(input: CreateProjectUpdateInput) {

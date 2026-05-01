@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'motion/react'
 import { useAuth } from '../auth'
 import { useDashboardData } from '../useDashboardData'
 import { EmptyState } from '../components/EmptyState'
+import { LoadingButton } from '../components/LoadingState'
 import { TicketStatusPill } from '../components/StatusPill'
 import { formatDate, formatDateTime } from '../utils'
 import { replyToTicket, updateTicketStatus } from '../firestore'
@@ -240,14 +241,16 @@ export default function Tickets() {
                                                         }))
                                                     }
                                                 />
-                                                <button
+                                                <LoadingButton
                                                     type="button"
                                                     className="dash-btn"
-                                                    disabled={busyId === ticket.id || !(replyBody[ticket.id] ?? '').trim()}
+                                                    loading={busyId === ticket.id}
+                                                    loadingLabel="Envoi"
+                                                    disabled={!(replyBody[ticket.id] ?? '').trim()}
                                                     onClick={() => onReply(ticket.id)}
                                                 >
-                                                    {busyId === ticket.id ? 'Envoi...' : user?.role === 'admin' ? 'Répondre' : 'Envoyer'}
-                                                </button>
+                                                    {user?.role === 'admin' ? 'Répondre' : 'Envoyer'}
+                                                </LoadingButton>
                                             </div>
                                         </motion.div>
                                     )}

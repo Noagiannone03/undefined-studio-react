@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import type { FormEvent } from 'react'
-import { Link, Navigate, useParams } from 'react-router-dom'
+import { Link, Navigate, useNavigate, useParams } from 'react-router-dom'
 import { useAuth } from '../auth'
 import { useDashboardData } from '../useDashboardData'
 import {
@@ -11,12 +11,16 @@ import {
 } from '../components/StatusPill'
 import { ProgressBar } from '../components/ProgressBar'
 import { EmptyState } from '../components/EmptyState'
+import { DashboardSkeleton, LoadingButton } from '../components/LoadingState'
 import { SaveIndicator } from '../components/SaveIndicator'
 import { useAutoSave } from '../components/useAutoSave'
 import {
     createClientAccount,
     createProject,
+    deleteClient,
+    removeClientAccess,
     updateClient,
+    updateUserAccess,
 } from '../firestore'
 import { mailApi } from '../api'
 import { formatDate, formatEur } from '../utils'
@@ -72,6 +76,7 @@ function randomPassword() {
 
 export default function ClientDetail() {
     const { id } = useParams<{ id: string }>()
+    const navigate = useNavigate()
     const { user } = useAuth()
     const { clients, projects, users, tickets, invoices, loading } = useDashboardData()
 
@@ -102,6 +107,8 @@ export default function ClientDetail() {
     const [projBusy, setProjBusy] = useState(false)
     const [projError, setProjError] = useState<string | null>(null)
     const [projFormOpen, setProjFormOpen] = useState(false)
+    const [adminActionBusy, setAdminActionBusy] = useState<string | null>(null)
+    const [adminActionError, setAdminActionError] = useState<string | null>(null)
 
     const { state: saveState, errorMessage: saveError, adopt: adoptDraft } = useAutoSave<EditableClient | null>({
         value: draft,
@@ -124,11 +131,7 @@ export default function ClientDetail() {
     if (user?.role !== 'admin') return <Navigate to="/" replace />
 
     if (loading && !client) {
-        return (
-            <div className="dash-card">
-                <span className="dash-kicker">Chargement…</span>
-            </div>
-        )
+        return <DashboardSkeleton label="Chargement du client" />
     }
 
     if (!client || !draft) {
@@ -214,6 +217,47 @@ export default function ClientDetail() {
             setProjError('Création du projet impossible.')
         } finally {
             setProjBusy(false)
+        }
+    }
+
+    const onToggleAccount = async (uid: string, isActive: boolean) => {
+        setAdminActionError(null)
+        setAdminActionBusy(uid)
+        try {
+            await updateUserAccess(uid, { isActive: !isActive })
+        } catch {
+            setAdminActionError('Action impossible sur cet accès.')
+        } finally {
+            setAdminActionBusy(null)
+        }
+    }
+
+    const onRemoveAccess = async (uid: string, accountName: string) => {
+        if (!window.confirm(`Retirer l'accès de ${accountName} à ${client.name} ?`)) return
+        setAdminActionError(null)
+        setAdminActionBusy(uid)
+        try {
+            await removeClientAccess(uid, client.id)
+        } catch {
+            setAdminActionError('Retrait de l’accès impossible.')
+        } finally {
+            setAdminActionBusy(null)
+        }
+    }
+
+    const onDeleteClient = async () => {
+        const confirmed = window.confirm(
+            `Supprimer définitivement ${client.name} ? Les projets, points, tickets, factures et accès liés à cette entreprise seront retirés.`,
+        )
+        if (!confirmed) return
+        setAdminActionError(null)
+        setAdminActionBusy('delete-client')
+        try {
+            await deleteClient(client.id)
+            navigate('/clients', { replace: true })
+        } catch {
+            setAdminActionError('Suppression de l’entreprise impossible.')
+            setAdminActionBusy(null)
         }
     }
 
@@ -348,9 +392,9 @@ export default function ClientDetail() {
                             </div>
                         </div>
                         {accError && <div className="login__error">{accError}</div>}
-                        <button type="submit" className="dash-btn" disabled={accBusy}>
-                            {accBusy ? 'Création…' : 'Créer le compte'}
-                        </button>
+                        <LoadingButton type="submit" className="dash-btn" loading={accBusy} loadingLabel="Création">
+                            Créer le compte
+                        </LoadingButton>
                     </form>
                 )}
                 {accSuccess && <div className="dash-note">{accSuccess}</div>}
@@ -370,13 +414,36 @@ export default function ClientDetail() {
                                 {(account.mustChangePassword || !account.isActive) && (
                                     <div className="dash-row" style={{ marginTop: 8 }}>
                                         {account.mustChangePassword && <span className="dash-pill dash-pill--tomato">Mot de passe à changer</span>}
-                                        {!account.isActive && <span className="dash-pill dash-pill--mute">Inactif</span>}
+                                        {!account.isActive && <span className="dash-pill dash-pill--mute">Bloqué</span>}
                                     </div>
                                 )}
+                                <div className="dash-row" style={{ marginTop: 12, gap: 8, flexWrap: 'wrap' }}>
+                                    <LoadingButton
+                                        type="button"
+                                        className="dash-btn dash-btn--ghost"
+                                        loading={adminActionBusy === account.uid}
+                                        loadingLabel="Traitement"
+                                        style={{ height: 34, fontSize: 11, padding: '0 12px' }}
+                                        onClick={() => onToggleAccount(account.uid, account.isActive)}
+                                    >
+                                        {account.isActive ? 'Bloquer' : 'Débloquer'}
+                                    </LoadingButton>
+                                    <LoadingButton
+                                        type="button"
+                                        className="dash-btn dash-btn--ghost"
+                                        loading={adminActionBusy === account.uid}
+                                        loadingLabel="Retrait"
+                                        style={{ height: 34, fontSize: 11, padding: '0 12px', color: 'var(--color-tomato)', borderColor: 'var(--color-tomato)' }}
+                                        onClick={() => onRemoveAccess(account.uid, account.name)}
+                                    >
+                                        Retirer l’accès
+                                    </LoadingButton>
+                                </div>
                             </div>
                         ))}
                     </div>
                 )}
+                {adminActionError && <div className="login__error">{adminActionError}</div>}
             </section>
 
             {/* ── Projets ─────────────────────────────────────────────────── */}
@@ -429,9 +496,9 @@ export default function ClientDetail() {
                             </div>
                         </div>
                         {projError && <div className="login__error">{projError}</div>}
-                        <button type="submit" className="dash-btn" disabled={projBusy}>
-                            {projBusy ? 'Création…' : 'Créer le projet'}
-                        </button>
+                        <LoadingButton type="submit" className="dash-btn" loading={projBusy} loadingLabel="Création">
+                            Créer le projet
+                        </LoadingButton>
                     </form>
                 )}
                 {clientProjects.length === 0 ? (
@@ -571,6 +638,29 @@ export default function ClientDetail() {
                         })}
                     </div>
                 )}
+            </section>
+
+            <section className="dash-card" style={{ borderColor: 'var(--color-tomato)' }}>
+                <div className="dash-row-between" style={{ alignItems: 'flex-start', gap: 16 }}>
+                    <div>
+                        <span className="dash-kicker" style={{ color: 'var(--color-tomato)' }}>Zone admin</span>
+                        <h2 className="dash-h2" style={{ marginTop: 4 }}>Supprimer l’entreprise</h2>
+                        <p className="dash-note" style={{ marginTop: 6 }}>
+                            Supprime l’entreprise et ses éléments liés. Les accès utilisateurs liés uniquement à cette entreprise seront bloqués.
+                        </p>
+                    </div>
+                    <LoadingButton
+                        type="button"
+                        className="dash-btn"
+                        loading={adminActionBusy === 'delete-client'}
+                        loadingLabel="Suppression"
+                        style={{ background: 'var(--color-tomato)', borderColor: 'var(--color-tomato)' }}
+                        onClick={onDeleteClient}
+                    >
+                        Supprimer
+                    </LoadingButton>
+                </div>
+                {adminActionError && <div className="login__error" style={{ marginTop: 12 }}>{adminActionError}</div>}
             </section>
         </div>
     )

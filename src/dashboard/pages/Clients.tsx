@@ -3,6 +3,7 @@ import type { FormEvent } from 'react'
 import { Link, Navigate } from 'react-router-dom'
 import { ClientStatusPill } from '../components/StatusPill'
 import { EmptyState } from '../components/EmptyState'
+import { LoadingButton } from '../components/LoadingState'
 import { useAuth } from '../auth'
 import { useDashboardData } from '../useDashboardData'
 import { createClient } from '../firestore'
@@ -86,9 +87,9 @@ export default function Clients() {
 
                     {error && <div className="login__error">{error}</div>}
 
-                    <button type="submit" className="dash-btn" disabled={loading}>
-                        {loading ? 'Création…' : 'Créer l\'entreprise'}
-                    </button>
+                    <LoadingButton type="submit" className="dash-btn" loading={loading} loadingLabel="Création">
+                        Créer l'entreprise
+                    </LoadingButton>
                 </form>
 
                 {/* Liste des clients */}

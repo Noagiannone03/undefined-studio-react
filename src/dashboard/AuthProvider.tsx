@@ -3,8 +3,9 @@ import type { ReactNode } from 'react'
 import { Navigate, useLocation } from 'react-router-dom'
 import { onAuthStateChanged, signInWithEmailAndPassword, signOut, updatePassword } from 'firebase/auth'
 import { auth as firebaseAuth } from './firebase'
-import { markPasswordChangeCompleted, ensureUserProfile, subscribeUserProfile } from './firestore'
+import { markPasswordChangeCompleted, ensureUserProfile, getUserProfile, subscribeUserProfile } from './firestore'
 import { AuthContext, useAuth } from './auth'
+import { FullPageLoader } from './components/LoadingState'
 import type { UserProfile } from './types'
 
 export function AuthProvider({ children }: { children: ReactNode }) {
@@ -50,7 +51,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }, [])
 
     const login = async (email: string, password: string) => {
-        await signInWithEmailAndPassword(firebaseAuth, email.trim().toLowerCase(), password)
+        const credential = await signInWithEmailAndPassword(firebaseAuth, email.trim().toLowerCase(), password)
+        await ensureUserProfile(credential.user)
+        const profile = await getUserProfile(credential.user.uid)
+        if (profile?.isActive === false) {
+            await signOut(firebaseAuth)
+            throw Object.assign(new Error('Compte bloqué.'), { code: 'dashboard/account-blocked' })
+        }
     }
 
     const logout = async () => {
@@ -70,16 +77,13 @@ export function RequireAuth({ children }: { children: ReactNode }) {
     const { user, loading } = useAuth()
     const location = useLocation()
     if (loading) {
-        return (
-            <div className="dash-root" style={{ display: 'grid', placeItems: 'center', minHeight: '100svh' }}>
-                <div className="dash-card">
-                    <span className="dash-kicker">Connexion sécurisée</span>
-                    <h1 className="dash-h2">Chargement du compte…</h1>
-                </div>
-            </div>
-        )
+        return <FullPageLoader label="Chargement du compte" />
     }
     if (!user) return <Navigate to="/login" replace state={{ from: location.pathname }} />
+    if (!user.isActive) {
+        void signOut(firebaseAuth)
+        return <Navigate to="/login" replace state={{ blocked: true }} />
+    }
     if (user.mustChangePassword && location.pathname !== '/setup-password') {
         return <Navigate to="/setup-password" replace />
     }
