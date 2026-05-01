@@ -135,15 +135,11 @@ export default function Login() {
                     ( APP ) — UNDEFINED STUDIO
                 </span>
                 <p className="login__splash-big">
-                    Ton projet,
+                    Bienvenue dans les
                     <br />
-                    <span className="login__splash-italic">en toute</span>
+                    <span className="login__splash-italic">coulisses</span>
                     <br />
-                    transparence.
-                </p>
-                <p className="login__splash-quote">
-                    L’avancement, les factures, les échanges.
-                    À jour, à un seul endroit.
+                    du studio.
                 </p>
             </div>
         </div>

@@ -22,24 +22,12 @@ export function welcomeTemplate(data: WelcomeData): string {
 
     <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:32px;">
       <tr>
-        <td style="background:#fff;border:2px solid #0E0E0C;padding:18px 24px;border-bottom:none;">
-          <p style="font-family:monospace;font-size:9px;letter-spacing:0.18em;text-transform:uppercase;color:rgba(14,14,12,0.38);margin:0 0 8px;">Adresse e-mail</p>
-          <p style="font-family:monospace;font-size:16px;font-weight:700;color:#0E0E0C;margin:0;">${data.email}</p>
-        </td>
-      </tr>
-      <tr>
-        <td style="background:#0E0E0C;height:2px;font-size:0;line-height:0;">&nbsp;</td>
-      </tr>
-      <tr>
-        <td style="background:#fff;border:2px solid #0E0E0C;padding:18px 24px;border-top:none;">
-          <p style="font-family:monospace;font-size:9px;letter-spacing:0.18em;text-transform:uppercase;color:rgba(14,14,12,0.38);margin:0 0 12px;">Mot de passe temporaire</p>
-          <table cellpadding="0" cellspacing="0" border="0">
-            <tr>
-              <td style="background:#E84A2A;padding:10px 20px;">
-                <span style="font-family:monospace;font-size:20px;font-weight:900;color:#fff;letter-spacing:0.06em;">${data.temporaryPassword}</span>
-              </td>
-            </tr>
-          </table>
+        <td style="background:#fff;border:1px solid #0E0E0C;padding:32px;">
+          <p style="font-family:monospace;font-size:9px;letter-spacing:0.18em;text-transform:uppercase;color:rgba(14,14,12,0.4);margin:0 0 8px;">Adresse e-mail</p>
+          <p style="font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;font-size:18px;font-weight:700;color:#0E0E0C;margin:0 0 24px;">${data.email}</p>
+          
+          <p style="font-family:monospace;font-size:9px;letter-spacing:0.18em;text-transform:uppercase;color:rgba(14,14,12,0.4);margin:0 0 8px;">Mot de passe temporaire</p>
+          <p style="font-family:monospace;font-size:24px;font-weight:900;color:#0E0E0C;letter-spacing:0.04em;margin:0;">${data.temporaryPassword}</p>
         </td>
       </tr>
     </table>
