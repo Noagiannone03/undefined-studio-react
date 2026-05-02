@@ -1,4 +1,4 @@
-import type { Client, Invoice } from '../types'
+import type { Invoice } from '../types'
 
 const MONTHS = [
     'JAN', 'FEV', 'MAR', 'AVR', 'MAI', 'JUN',
@@ -10,34 +10,37 @@ const MONTHS_FULL = [
     'JUILLET', 'AOÛT', 'SEPTEMBRE', 'OCTOBRE', 'NOVEMBRE', 'DÉCEMBRE',
 ]
 
-function clientToken(client: Client | undefined | null): string {
-    if (!client) return 'CLIENT'
-    return client.slug ? client.slug.toUpperCase() : client.name.toUpperCase().replace(/\s+/g, '').slice(0, 12)
-}
-
 /**
- * Suggère un numéro `FAC-CAT-CLIENT-YYYY-NNN` calé sur le compteur du client pour l'année.
- * `category` est éditable par l'utilisateur (ex. MAINT, DEV, AUDIT).
+ * Suggère un numéro mensuel `YYYY-MM-NNN`, basé sur la date d'émission.
+ * Le compteur repart à 001 chaque mois et s'appuie sur les factures déjà émises ce mois-là.
  */
 export function suggestInvoiceNumber(opts: {
-    client: Client | null | undefined
     issued: string // ISO
     invoices: Invoice[]
-    category?: string
 }): string {
     const date = new Date(opts.issued)
-    const year = Number.isNaN(date.getTime()) ? new Date().getFullYear() : date.getFullYear()
-    const cat = (opts.category ?? 'MAINT').toUpperCase()
-    const slug = clientToken(opts.client)
+    const safeDate = Number.isNaN(date.getTime()) ? new Date() : date
+    const year = safeDate.getFullYear()
+    const month = String(safeDate.getMonth() + 1).padStart(2, '0')
+    const prefix = `${year}-${month}`
 
-    const sameYearForClient = opts.invoices.filter((invoice) => {
-        if (opts.client && invoice.clientId !== opts.client.id) return false
+    const sameMonth = opts.invoices.filter((invoice) => {
         const issued = invoice.issued ? new Date(invoice.issued) : null
-        return issued && issued.getFullYear() === year
+        return issued &&
+            !Number.isNaN(issued.getTime()) &&
+            issued.getFullYear() === year &&
+            issued.getMonth() === safeDate.getMonth()
     })
 
-    const next = String(sameYearForClient.length + 1).padStart(3, '0')
-    return `FAC-${cat}-${slug}-${year}-${next}`
+    const maxExisting = sameMonth.reduce((max, invoice) => {
+        const match = invoice.number.match(new RegExp(`^${prefix}-(\\d+)$`))
+        const value = match ? Number(match[1]) : 0
+        return Number.isFinite(value) ? Math.max(max, value) : max
+    }, 0)
+
+    const fallbackNext = sameMonth.length + 1
+    const next = String(Math.max(maxExisting + 1, fallbackNext)).padStart(3, '0')
+    return `${prefix}-${next}`
 }
 
 /**

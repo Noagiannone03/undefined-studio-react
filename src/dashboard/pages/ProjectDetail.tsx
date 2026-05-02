@@ -11,7 +11,8 @@ import { useAutoSave } from '../components/useAutoSave'
 import { useToast } from '../components/Toast'
 import { createProjectUpdate, deleteProject, updateProject } from '../firestore'
 import { mailApi } from '../api'
-import { formatDate, formatEur } from '../utils'
+import { formatDate } from '../utils'
+import { formatInvoiceEur } from '../invoice/format'
 import { PROJECT_STATUS_OPTIONS, projectStatusLabel } from '../projectStatus'
 import type { Milestone, ProjectStatus } from '../types'
 
@@ -435,8 +436,8 @@ export default function ProjectDetail() {
                                             className="dash-row-between"
                                             style={{ padding: '10px 0', borderBottom: '1px solid var(--color-hair)', textDecoration: 'none', color: 'inherit' }}>
                                             <div>
-                                                <span className="dash-kicker">{invoice.number}</span>
-                                                <p style={{ margin: '2px 0 0', fontSize: 14, fontWeight: 600 }}>{formatEur(invoice.amount)}</p>
+                                                <span className="dash-kicker">{invoice.title || invoice.number}</span>
+                                                <p style={{ margin: '2px 0 0', fontSize: 14, fontWeight: 600 }}>{formatInvoiceEur(invoice.amount)}</p>
                                             </div>
                                             <InvoiceStatusPill status={invoice.status} />
                                         </Link>
@@ -641,8 +642,8 @@ export default function ProjectDetail() {
                                 {projectInvoices.map((invoice) => (
                                     <div key={invoice.id} className="dash-row-between" style={{ padding: '10px 0', borderBottom: '1px solid var(--color-hair)' }}>
                                         <div>
-                                            <span className="dash-kicker">{invoice.number}</span>
-                                            <p style={{ margin: '2px 0 0', fontSize: 14, fontWeight: 600 }}>{formatEur(invoice.amount)}</p>
+                                            <span className="dash-kicker">{invoice.title || invoice.number}</span>
+                                            <p style={{ margin: '2px 0 0', fontSize: 14, fontWeight: 600 }}>{formatInvoiceEur(invoice.amount)}</p>
                                         </div>
                                         <InvoiceStatusPill status={invoice.status} />
                                     </div>

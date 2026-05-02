@@ -5,6 +5,7 @@ import { EmptyState } from '../components/EmptyState'
 import { InvoiceStatusPill, ProjectStatusPill, TicketStatusPill } from '../components/StatusPill'
 import { ProgressBar } from '../components/ProgressBar'
 import { formatDate, formatEur } from '../utils'
+import { formatInvoiceEur } from '../invoice/format'
 import { isProjectActive, projectStatusLabel } from '../projectStatus'
 import type { Project } from '../types'
 
@@ -316,8 +317,8 @@ export default function Overview() {
                                                 className="dash-overview-listing"
                                             >
                                                 <div>
-                                                    <span className="dash-kicker">{proj?.name ?? invoice.number}</span>
-                                                    <p style={{ margin: '2px 0 0', fontSize: 14, fontWeight: 600 }}>{formatEur(invoice.amount)}</p>
+                                                    <span className="dash-kicker">{invoice.title || proj?.name || invoice.number}</span>
+                                                    <p style={{ margin: '2px 0 0', fontSize: 14, fontWeight: 600 }}>{formatInvoiceEur(invoice.amount)}</p>
                                                 </div>
                                                 <InvoiceStatusPill status={invoice.status} />
                                             </Link>

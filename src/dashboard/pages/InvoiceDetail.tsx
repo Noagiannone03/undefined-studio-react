@@ -24,7 +24,7 @@ import {
     updateInvoice,
 } from '../firestore'
 import { mailApi } from '../api'
-import { formatEur } from '../utils'
+import { formatInvoiceEur } from '../invoice/format'
 import type { Invoice, InvoiceItem, InvoiceSource, InvoiceStatus } from '../types'
 
 const MAX_PDF_BYTES = 10 * 1024 * 1024
@@ -177,18 +177,18 @@ export default function InvoiceDetail() {
     const [actionRunning, setActionRunning] = useState<null | 'send' | 'pay' | 'download' | 'delete' | 'upload'>(null)
     const [actionError, setActionError] = useState<string | null>(null)
     const fileInputRef = useRef<HTMLInputElement>(null)
+    const lastSuggestedNumberRef = useRef('')
 
-    // ── Auto-fill number/title for new generated invoices
+    // ── Auto-fill number/title for new invoices
     useEffect(() => {
-        if (mode !== 'new' || tab !== 'generated') return
+        if (mode !== 'new') return
         if (!draft.clientId) return
-        const client = clients.find((c) => c.id === draft.clientId)
-        if (!client) return
-        if (!draft.number) {
-            const next = suggestInvoiceNumber({ client, issued: draft.issued, invoices })
+        const next = suggestInvoiceNumber({ issued: draft.issued, invoices })
+        if (!draft.number || draft.number === lastSuggestedNumberRef.current) {
+            lastSuggestedNumberRef.current = next
             setDraft((prev) => ({ ...prev, number: next }))
         }
-        if (!draft.title) {
+        if (tab === 'generated' && !draft.title) {
             const t = suggestInvoiceTitle({ issued: draft.issued })
             setDraft((prev) => ({ ...prev, title: t }))
         }
@@ -811,7 +811,7 @@ export default function InvoiceDetail() {
 
                             <div className="dash-row-between" style={{ borderTop: '1px solid var(--color-hair)', paddingTop: 12 }}>
                                 <span className="dash-kicker">Total HT</span>
-                                <span className="dash-h2" style={{ fontSize: 22 }}>{formatEur(totalHT)}</span>
+                                <span className="dash-h2" style={{ fontSize: 22 }}>{formatInvoiceEur(totalHT)}</span>
                             </div>
 
                             <div className="dash-stack-sm">

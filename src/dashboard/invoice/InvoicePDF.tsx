@@ -185,9 +185,15 @@ type InvoicePDFProps = {
     client: Client | null
 }
 
+function cleanPartyLine(value: string | undefined): string {
+    return (value ?? '').trim().replace(/[,\s]+$/g, '')
+}
+
 export function InvoicePDF({ invoice, client }: InvoicePDFProps) {
     const total = invoice.items.reduce((sum, item) => sum + (Number.isFinite(item.amount) ? item.amount : 0), 0)
     const items = invoice.items.length > 0 ? invoice.items : [{ id: 'empty', description: '—', amount: invoice.amount }]
+    const clientEmail = cleanPartyLine(client?.billingEmail || client?.contactEmail)
+    const clientPhone = cleanPartyLine(client?.phone)
 
     return (
         <Document
@@ -219,7 +225,7 @@ export function InvoicePDF({ invoice, client }: InvoicePDFProps) {
                 <View style={styles.parties}>
                     <View style={styles.partyCol}>
                         <Text style={styles.partyKicker}>{STUDIO_PROFILE.name}</Text>
-                        <Text style={styles.partyLine}>{STUDIO_PROFILE.phone}</Text>
+                        <Text style={styles.partyLine}>{cleanPartyLine(STUDIO_PROFILE.phone)}</Text>
                         <Text style={styles.partyLine}>{STUDIO_PROFILE.email}</Text>
                         <Text style={styles.partyLine}>{STUDIO_PROFILE.website}</Text>
                         <Text style={styles.partyLine}>{STUDIO_PROFILE.address}</Text>
@@ -229,11 +235,9 @@ export function InvoicePDF({ invoice, client }: InvoicePDFProps) {
                     <View style={styles.partyColRight}>
                         <Text style={styles.partyKicker}>À L'ATTENTION DE</Text>
                         <Text style={styles.partyLine}>{client?.name ?? '—'}</Text>
-                        {client?.address ? <Text style={styles.partyLine}>{client.address}</Text> : null}
-                        {client?.billingEmail || client?.contactEmail ? (
-                            <Text style={styles.partyLine}>{client.billingEmail || client.contactEmail}</Text>
-                        ) : null}
-                        {client?.phone ? <Text style={styles.partyLine}>{client.phone}</Text> : null}
+                        {client?.address ? <Text style={styles.partyLine}>{cleanPartyLine(client.address)}</Text> : null}
+                        {clientEmail ? <Text style={styles.partyLine}>{clientEmail}</Text> : null}
+                        {clientPhone ? <Text style={styles.partyLine}>{clientPhone}</Text> : null}
                     </View>
                 </View>
 

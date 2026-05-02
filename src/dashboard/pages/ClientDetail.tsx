@@ -25,6 +25,7 @@ import {
 } from '../firestore'
 import { mailApi } from '../api'
 import { formatDate, formatEur } from '../utils'
+import { formatInvoiceEur } from '../invoice/format'
 import { PROJECT_STATUS_OPTIONS } from '../projectStatus'
 import type { Client, ClientStatus, ProjectStatus } from '../types'
 
@@ -603,7 +604,7 @@ export default function ClientDetail() {
                             <table className="dash-table">
                                 <thead>
                                     <tr>
-                                        <th>Numéro</th>
+                                        <th>Facture</th>
                                         <th>Projet</th>
                                         <th>Émise</th>
                                         <th>Échéance</th>
@@ -621,13 +622,14 @@ export default function ClientDetail() {
                                                         to={`/invoices/${invoice.id}`}
                                                         style={{ textDecoration: 'underline', color: 'inherit' }}
                                                     >
-                                                        {invoice.number}
+                                                        {invoice.title || project?.name || 'Facture'}
                                                     </Link>
+                                                    <div style={{ marginTop: 3, fontSize: 11, color: 'var(--color-ink-soft)' }}>{invoice.number}</div>
                                                 </td>
                                                 <td>{project?.name ?? '—'}</td>
                                                 <td>{formatDate(invoice.issued)}</td>
                                                 <td>{formatDate(invoice.due)}</td>
-                                                <td className="dash-table__num">{formatEur(invoice.amount)}</td>
+                                                <td className="dash-table__num">{formatInvoiceEur(invoice.amount)}</td>
                                                 <td><InvoiceStatusPill status={invoice.status} /></td>
                                             </tr>
                                         )

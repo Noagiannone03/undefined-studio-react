@@ -14,6 +14,7 @@ import {
 } from '../invoice/storage'
 import { attachInvoicePdf, markInvoiceSent, updateInvoice } from '../firestore'
 import { formatDate, formatEur } from '../utils'
+import { formatInvoiceEur } from '../invoice/format'
 import type { Invoice } from '../types'
 
 export default function Invoices() {
@@ -283,12 +284,11 @@ export default function Invoices() {
                                 >
                                     <span className="dash-invoice-client__item-accent" />
                                     <span className="dash-invoice-client__item-main">
-                                        <span className="dash-kicker">{invoice.number}</span>
                                         <strong>{invoice.title || project?.name || 'Facture'}</strong>
-                                        <span>{project?.name ?? 'Projet'} · émise le {formatDate(invoice.issued)}</span>
+                                        <span>{project?.name ?? 'Projet'} · {invoice.number} · émise le {formatDate(invoice.issued)}</span>
                                     </span>
                                     <span className="dash-invoice-client__item-side">
-                                        <strong>{formatEur(invoice.amount)}</strong>
+                                        <strong>{formatInvoiceEur(invoice.amount)}</strong>
                                         <InvoiceStatusPill status={invoice.status} />
                                     </span>
                                 </button>
@@ -342,7 +342,7 @@ export default function Invoices() {
                         <table className="dash-table">
                             <thead>
                                 <tr>
-                                    <th>Numéro</th>
+                                    <th>Facture</th>
                                     {isAdmin && <th>Client</th>}
                                     <th>Projet</th>
                                     <th>Émise</th>
@@ -366,17 +366,18 @@ export default function Invoices() {
                                                         to={`/invoices/${invoice.id}`}
                                                         style={{ textDecoration: 'underline', color: 'inherit' }}
                                                     >
-                                                        {invoice.number}
+                                                        {invoice.title || project?.name || 'Facture'}
                                                     </Link>
                                                 ) : (
-                                                    invoice.number
+                                                    invoice.title || project?.name || 'Facture'
                                                 )}
+                                                <div style={{ marginTop: 3, fontSize: 11, color: 'var(--color-ink-soft)' }}>{invoice.number}</div>
                                             </td>
                                             {isAdmin && <td>{client?.name ?? '—'}</td>}
                                             <td>{project?.name ?? '—'}</td>
                                             <td>{formatDate(invoice.issued)}</td>
                                             <td>{formatDate(invoice.due)}</td>
-                                            <td className="dash-table__num">{formatEur(invoice.amount)}</td>
+                                            <td className="dash-table__num">{formatInvoiceEur(invoice.amount)}</td>
                                             <td><InvoiceStatusPill status={invoice.status} /></td>
                                             {isAdmin && (
                                                 <td style={{ fontSize: 12, color: 'var(--color-ink-soft)' }}>
