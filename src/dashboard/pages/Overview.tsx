@@ -317,7 +317,7 @@ export default function Overview() {
                                                 className="dash-overview-listing"
                                             >
                                                 <div>
-                                                    <span className="dash-kicker">{invoice.title || proj?.name || invoice.number}</span>
+                                                    <span className="dash-kicker">{invoice.title || proj?.name || 'Facture'}</span>
                                                     <p style={{ margin: '2px 0 0', fontSize: 14, fontWeight: 600 }}>{formatInvoiceEur(invoice.amount)}</p>
                                                 </div>
                                                 <InvoiceStatusPill status={invoice.status} />

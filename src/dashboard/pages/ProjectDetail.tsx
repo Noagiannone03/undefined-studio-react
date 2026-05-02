@@ -436,7 +436,7 @@ export default function ProjectDetail() {
                                             className="dash-row-between"
                                             style={{ padding: '10px 0', borderBottom: '1px solid var(--color-hair)', textDecoration: 'none', color: 'inherit' }}>
                                             <div>
-                                                <span className="dash-kicker">{invoice.title || invoice.number}</span>
+                                                <span className="dash-kicker">{invoice.title || 'Facture'}</span>
                                                 <p style={{ margin: '2px 0 0', fontSize: 14, fontWeight: 600 }}>{formatInvoiceEur(invoice.amount)}</p>
                                             </div>
                                             <InvoiceStatusPill status={invoice.status} />
@@ -642,7 +642,7 @@ export default function ProjectDetail() {
                                 {projectInvoices.map((invoice) => (
                                     <div key={invoice.id} className="dash-row-between" style={{ padding: '10px 0', borderBottom: '1px solid var(--color-hair)' }}>
                                         <div>
-                                            <span className="dash-kicker">{invoice.title || invoice.number}</span>
+                                            <span className="dash-kicker">{invoice.title || 'Facture'}</span>
                                             <p style={{ margin: '2px 0 0', fontSize: 14, fontWeight: 600 }}>{formatInvoiceEur(invoice.amount)}</p>
                                         </div>
                                         <InvoiceStatusPill status={invoice.status} />

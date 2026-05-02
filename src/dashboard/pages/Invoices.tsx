@@ -283,10 +283,10 @@ export default function Invoices() {
                                     onClick={() => openPreview(invoice)}
                                 >
                                     <span className="dash-invoice-client__item-accent" />
-                                    <span className="dash-invoice-client__item-main">
-                                        <strong>{invoice.title || project?.name || 'Facture'}</strong>
-                                        <span>{project?.name ?? 'Projet'} · {invoice.number} · émise le {formatDate(invoice.issued)}</span>
-                                    </span>
+                                        <span className="dash-invoice-client__item-main">
+                                            <strong>{invoice.title || project?.name || 'Facture'}</strong>
+                                            <span>{project?.name ?? 'Projet'} · émise le {formatDate(invoice.issued)}</span>
+                                        </span>
                                     <span className="dash-invoice-client__item-side">
                                         <strong>{formatInvoiceEur(invoice.amount)}</strong>
                                         <InvoiceStatusPill status={invoice.status} />
@@ -371,7 +371,6 @@ export default function Invoices() {
                                                 ) : (
                                                     invoice.title || project?.name || 'Facture'
                                                 )}
-                                                <div style={{ marginTop: 3, fontSize: 11, color: 'var(--color-ink-soft)' }}>{invoice.number}</div>
                                             </td>
                                             {isAdmin && <td>{client?.name ?? '—'}</td>}
                                             <td>{project?.name ?? '—'}</td>
@@ -396,6 +395,13 @@ export default function Invoices() {
                                                     </button>
                                                     {isAdmin && (
                                                         <>
+                                                            <Link
+                                                                to={`/invoices/${invoice.id}`}
+                                                                className="dash-btn dash-btn--ghost"
+                                                                style={{ height: 34, fontSize: 12, padding: '0 14px' }}
+                                                            >
+                                                                Modifier
+                                                            </Link>
                                                             <button
                                                                 type="button"
                                                                 className="dash-btn"

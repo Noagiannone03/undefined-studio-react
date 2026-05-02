@@ -624,7 +624,6 @@ export default function ClientDetail() {
                                                     >
                                                         {invoice.title || project?.name || 'Facture'}
                                                     </Link>
-                                                    <div style={{ marginTop: 3, fontSize: 11, color: 'var(--color-ink-soft)' }}>{invoice.number}</div>
                                                 </td>
                                                 <td>{project?.name ?? '—'}</td>
                                                 <td>{formatDate(invoice.issued)}</td>
