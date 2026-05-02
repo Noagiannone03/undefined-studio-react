@@ -7,6 +7,7 @@ import { useDashboardData } from '../useDashboardData'
 import { InvoiceStatusPill } from '../components/StatusPill'
 import { SaveIndicator } from '../components/SaveIndicator'
 import { useAutoSave } from '../components/useAutoSave'
+import { useToast } from '../components/Toast'
 import { InvoicePDF } from '../invoice/InvoicePDF'
 import { DEFAULT_TERMS, suggestInvoiceNumber, suggestInvoiceTitle } from '../invoice/numbering'
 import {
@@ -116,6 +117,7 @@ export default function InvoiceDetail() {
     const { id } = useParams<{ id: string }>()
     const [searchParams] = useSearchParams()
     const navigate = useNavigate()
+    const { showSuccess, showError } = useToast()
     const { user } = useAuth()
     const { invoices, clients, projects, findClient } = useDashboardData()
 
@@ -411,15 +413,20 @@ export default function InvoiceDetail() {
                     pdfBase64,
                 })
                 await markInvoiceSent(invoiceId)
-                navigate('/invoices', { replace: true, state: { justSent: finalInvoice.number } })
+                showSuccess('Facture envoyée', `La fonction Vercel a confirmé l’envoi à ${to}.`)
+                navigate('/invoices', { replace: true })
             } else {
-                setActionError('Aucun email de facturation configuré pour ce client. PDF stocké, non envoyé.')
+                const message = 'Aucun email de facturation configuré pour ce client. PDF stocké, non envoyé.'
+                setActionError(message)
+                showError('Facture non envoyée', message)
                 patch({ status: 'due' })
                 if (mode === 'new') navigate(`/invoices/${invoiceId}`, { replace: true })
             }
         } catch (err) {
             console.error('[invoice/validate-and-send]', err)
-            setActionError(err instanceof Error ? err.message : 'Échec.')
+            const message = err instanceof Error ? err.message : 'Échec.'
+            setActionError(message)
+            showError('Facture non envoyée', message)
         } finally {
             setActionRunning(null)
         }

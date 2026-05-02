@@ -8,6 +8,7 @@ import { InvoiceStatusPill, ProjectStatusPill, TicketStatusPill } from '../compo
 import { DashboardSkeleton, LoadingButton } from '../components/LoadingState'
 import { SaveIndicator } from '../components/SaveIndicator'
 import { useAutoSave } from '../components/useAutoSave'
+import { useToast } from '../components/Toast'
 import { createProjectUpdate, deleteProject, updateProject } from '../firestore'
 import { mailApi } from '../api'
 import { formatDate, formatEur } from '../utils'
@@ -65,6 +66,7 @@ export default function ProjectDetail() {
     const { id } = useParams<{ id: string }>()
     const navigate = useNavigate()
     const { user } = useAuth()
+    const { showSuccess, showError } = useToast()
     const { loading, findProject, findClient, updatesForProject, tickets, invoicesForProject } = useDashboardData()
     const project = findProject(id)
     const client = project ? findClient(project.clientId) : undefined
@@ -176,12 +178,17 @@ export default function ProjectDetail() {
                     projectName: project.name, projectId: project.id, newStatus: draft.status,
                     progress, isUpdate: true, updateTitle: title, updateBody,
                 })
+                showSuccess('Point envoyé', `Email confirmé par Vercel pour ${contactEmail}.`)
+            } else {
+                showError('Point non envoyé par email', 'Aucun email contact configuré pour ce client. Le point reste publié dans l’espace.')
             }
             setUpdateBody('')
             setUpdateSuccess(true)
             setTimeout(() => setUpdateSuccess(false), 4000)
         } catch (err) {
-            setUpdateError(err instanceof Error ? err.message : 'Publication impossible.')
+            const message = err instanceof Error ? err.message : 'Publication impossible.'
+            setUpdateError(message)
+            showError('Point non envoyé', message)
         } finally {
             setPublishingUpdate(false)
         }

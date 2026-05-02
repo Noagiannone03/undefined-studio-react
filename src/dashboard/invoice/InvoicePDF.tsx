@@ -229,8 +229,10 @@ export function InvoicePDF({ invoice, client }: InvoicePDFProps) {
                     <View style={styles.partyColRight}>
                         <Text style={styles.partyKicker}>À L'ATTENTION DE</Text>
                         <Text style={styles.partyLine}>{client?.name ?? '—'}</Text>
-                        {client?.contactName ? <Text style={styles.partyLine}>{client.contactName}</Text> : null}
-                        {client?.billingEmail ? <Text style={styles.partyLine}>{client.billingEmail}</Text> : null}
+                        {client?.address ? <Text style={styles.partyLine}>{client.address}</Text> : null}
+                        {client?.billingEmail || client?.contactEmail ? (
+                            <Text style={styles.partyLine}>{client.billingEmail || client.contactEmail}</Text>
+                        ) : null}
                     </View>
                 </View>
 

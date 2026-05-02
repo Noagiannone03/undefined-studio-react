@@ -6,6 +6,7 @@ import { Topbar } from '../components/Topbar'
 import { DashboardSkeleton } from '../components/LoadingState'
 import { useDashboardData } from '../useDashboardData'
 import { useAuth } from '../auth'
+import { ToastProvider } from '../components/Toast'
 
 const EXPO = [0.16, 1, 0.3, 1] as const
 const ENTRY_INTRO_MIN_MS = 2000
@@ -49,6 +50,7 @@ export default function AppShell() {
     }, [sheetOpen])
 
     return (
+        <ToastProvider>
         <div className="dash-root">
             <div className="dash-shell">
                 <Sidebar />
@@ -146,5 +148,6 @@ export default function AppShell() {
                 )}
             </AnimatePresence>
         </div>
+        </ToastProvider>
     )
 }

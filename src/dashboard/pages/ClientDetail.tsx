@@ -14,6 +14,7 @@ import { EmptyState } from '../components/EmptyState'
 import { DashboardSkeleton, LoadingButton } from '../components/LoadingState'
 import { SaveIndicator } from '../components/SaveIndicator'
 import { useAutoSave } from '../components/useAutoSave'
+import { useToast } from '../components/Toast'
 import {
     createClientAccount,
     createProject,
@@ -81,6 +82,7 @@ export default function ClientDetail() {
     const { id } = useParams<{ id: string }>()
     const navigate = useNavigate()
     const { user } = useAuth()
+    const { showSuccess, showError } = useToast()
     const { clients, projects, users, tickets, invoices, loading } = useDashboardData()
 
     const client = useMemo(() => clients.find((c) => c.id === id), [clients, id])
@@ -171,20 +173,23 @@ export default function ClientDetail() {
         setAccBusy(true)
         try {
             await createClientAccount({ clientId: client.id, name: accName, email: accEmail, temporaryPassword: accPass })
-            mailApi.welcome({
+            await mailApi.welcome({
                 to: accEmail.trim().toLowerCase(),
                 contactName: accName.trim(),
                 clientName: client.name,
                 email: accEmail.trim().toLowerCase(),
                 temporaryPassword: accPass,
             })
+            showSuccess('Invitation envoyée', `Email confirmé par Vercel pour ${accEmail.trim().toLowerCase()}.`)
             setAccSuccess(`Compte créé — mot de passe temporaire : ${accPass}`)
             setAccName('')
             setAccEmail('')
             setAccPass(randomPassword())
             setAccFormOpen(false)
-        } catch {
-            setAccError('Email déjà utilisé ou erreur Firebase Auth.')
+        } catch (err) {
+            const message = err instanceof Error ? err.message : 'Email déjà utilisé ou erreur Firebase Auth.'
+            setAccError(message)
+            showError('Invitation non envoyée', message)
         } finally {
             setAccBusy(false)
         }

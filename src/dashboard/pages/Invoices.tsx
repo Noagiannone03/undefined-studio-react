@@ -3,6 +3,7 @@ import { Link, useLocation } from 'react-router-dom'
 import { pdf } from '@react-pdf/renderer'
 import { EmptyState } from '../components/EmptyState'
 import { InvoiceStatusPill } from '../components/StatusPill'
+import { useToast } from '../components/Toast'
 import { useDashboardData } from '../useDashboardData'
 import { useAuth } from '../auth'
 import { InvoicePDF } from '../invoice/InvoicePDF'
@@ -18,6 +19,7 @@ import type { Invoice } from '../types'
 export default function Invoices() {
     const { user } = useAuth()
     const { invoices, findProject, findClient, hasClientScope, error } = useDashboardData()
+    const { showSuccess, showError } = useToast()
     const isAdmin = user?.role === 'admin'
     const location = useLocation()
 
@@ -26,17 +28,11 @@ export default function Invoices() {
     const [previewOpen, setPreviewOpen] = useState(false)
     const [previewUrl, setPreviewUrl] = useState<string | null>(null)
     const [previewError, setPreviewError] = useState<string | null>(null)
-    const [successMessage, setSuccessMessage] = useState<string | null>(
-        (location.state as { justSent?: string } | null)?.justSent
-            ? `Facture ${(location.state as { justSent: string }).justSent} envoyée.`
-            : null
-    )
 
     useEffect(() => {
-        if (!successMessage) return
-        const t = setTimeout(() => setSuccessMessage(null), 5000)
-        return () => clearTimeout(t)
-    }, [successMessage])
+        const justSent = (location.state as { justSent?: string } | null)?.justSent
+        if (justSent) showSuccess('Facture envoyée', `La facture ${justSent} a bien été envoyée.`)
+    }, [location.state, showSuccess])
 
     const paid = invoices.filter((invoice) => invoice.status === 'paid').reduce((sum, invoice) => sum + invoice.amount, 0)
     const due = invoices.filter((invoice) => invoice.status !== 'paid').reduce((sum, invoice) => sum + invoice.amount, 0)
@@ -99,11 +95,11 @@ export default function Invoices() {
         const client = findClient(invoice.clientId)
         const to = client?.billingEmail ?? client?.contactEmail
         if (!to) {
-            alert('Aucun email de facturation trouvé pour ce client.')
+            showError('Email non envoyé', 'Aucun email de facturation trouvé pour ce client.')
             return
         }
         if (invoice.source === 'uploaded' && !invoice.pdfUrl) {
-            alert('PDF manquant pour cette facture importée.')
+            showError('Email non envoyé', 'PDF manquant pour cette facture importée.')
             return
         }
 
@@ -162,11 +158,10 @@ export default function Invoices() {
             }
 
             await markInvoiceSent(invoice.id)
-            setSuccessMessage(`Facture ${invoice.number} envoyée à ${to}.`)
+            showSuccess('Facture envoyée', `La fonction Vercel a confirmé l’envoi à ${to}.`)
         } catch (err) {
             console.error('[invoices/send]', err)
-            setSuccessMessage(null)
-            alert(err instanceof Error ? err.message : 'Échec de l\'envoi.')
+            showError('Facture non envoyée', err instanceof Error ? err.message : 'La fonction Vercel a échoué.')
         } finally {
             setActiveId(null)
         }
@@ -252,10 +247,6 @@ export default function Invoices() {
             </header>
 
             {error && <div className="login__error">{error}</div>}
-            {successMessage && (
-                <div className="dash-banner dash-banner--success">{successMessage}</div>
-            )}
-
             <section className="dash-grid dash-grid--2">
                 <div className="dash-card">
                     <span className="dash-kicker">Total payé</span>

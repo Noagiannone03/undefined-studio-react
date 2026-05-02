@@ -4,6 +4,7 @@ import { Link, Navigate, useNavigate } from 'react-router-dom'
 import { useAuth } from '../auth'
 import { useDashboardData } from '../useDashboardData'
 import { LoadingButton } from '../components/LoadingState'
+import { useToast } from '../components/Toast'
 import { createTicket } from '../firestore'
 import { mailApi } from '../api'
 import type { TicketPriority } from '../types'
@@ -11,6 +12,7 @@ import type { TicketPriority } from '../types'
 export default function NewTicket() {
     const { user } = useAuth()
     const { projects, findClient } = useDashboardData()
+    const { showSuccess, showError } = useToast()
     const navigate = useNavigate()
 
     const [subject, setSubject] = useState('')
@@ -46,18 +48,21 @@ export default function NewTicket() {
             })
 
             const client = findClient(clientId)
-            mailApi.ticketCreated({
+            await mailApi.ticketCreated({
                 clientName: client?.name ?? user.name,
                 contactName: user.name,
                 ticketSubject: subject,
                 ticketBody: body,
                 priority,
             })
+            showSuccess('Ticket envoyé', 'La notification email a bien été confirmée par Vercel.')
 
             setSent(true)
             setTimeout(() => navigate('/tickets'), 700)
-        } catch {
-            setError("Impossible d'envoyer le ticket.")
+        } catch (err) {
+            const message = err instanceof Error ? err.message : "Impossible d'envoyer le ticket."
+            setError(message)
+            showError('Notification ticket non envoyée', message)
         } finally {
             setSending(false)
         }
