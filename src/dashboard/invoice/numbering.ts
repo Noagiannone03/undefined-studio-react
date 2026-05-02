@@ -20,31 +20,35 @@ export function invoiceDueAtEndOfMonth(issued: string): string {
     return new Date(date.getFullYear(), date.getMonth() + 1, 0, 12).toISOString().slice(0, 10)
 }
 
-function previousBillingMonth(issued: string): { month: string; year: number } {
+function previousBillingDate(issued: string): Date {
     const date = safeDateFromIso(issued)
-    const previous = new Date(date.getFullYear(), date.getMonth() - 1, 1, 12)
+    return new Date(date.getFullYear(), date.getMonth() - 1, 1, 12)
+}
+
+function previousBillingMonth(issued: string): { month: string; year: number } {
+    const previous = previousBillingDate(issued)
     return { month: MONTHS_FULL[previous.getMonth()], year: previous.getFullYear() }
 }
 
 /**
- * Suggère un numéro mensuel `YYYY-MM-NNN`, basé sur la date d'émission.
- * Le compteur repart à 001 chaque mois et s'appuie sur les factures déjà émises ce mois-là.
+ * Suggère un numéro mensuel `YYYY-MM-NNN`, basé sur le mois facturé.
+ * Une facture émise en mai pour avril prend donc le préfixe `YYYY-04`.
  */
 export function suggestInvoiceNumber(opts: {
     issued: string // ISO
     invoices: Invoice[]
 }): string {
-    const safeDate = safeDateFromIso(opts.issued)
-    const year = safeDate.getFullYear()
-    const month = String(safeDate.getMonth() + 1).padStart(2, '0')
+    const billedDate = previousBillingDate(opts.issued)
+    const year = billedDate.getFullYear()
+    const month = String(billedDate.getMonth() + 1).padStart(2, '0')
     const prefix = `${year}-${month}`
 
     const sameMonth = opts.invoices.filter((invoice) => {
-        const issued = invoice.issued ? new Date(invoice.issued) : null
-        return issued &&
-            !Number.isNaN(issued.getTime()) &&
-            issued.getFullYear() === year &&
-            issued.getMonth() === safeDate.getMonth()
+        const match = invoice.number.match(new RegExp(`^${prefix}-(\\d+)$`))
+        if (match) return true
+        const issued = invoice.issued ? previousBillingDate(invoice.issued) : null
+        if (!issued) return false
+        return issued.getFullYear() === year && issued.getMonth() === billedDate.getMonth()
     })
 
     const maxExisting = sameMonth.reduce((max, invoice) => {

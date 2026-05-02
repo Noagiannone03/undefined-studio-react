@@ -209,6 +209,42 @@ function getPdfDensity(invoice: Invoice, client: Client | null): PdfDensity {
         (client?.phone ? 1 : 0)
     const densityScore = itemLines * 1.35 + termLines * 0.9 + clientLines * 0.35
 
+    if (densityScore >= 24 || invoice.items.length >= 13 || termLines >= 12) {
+        return {
+            pagePadding: 20,
+            baseFontSize: 7.2,
+            lineHeight: 1.08,
+            headerMargin: 6,
+            titleSize: 17,
+            titleWidth: 430,
+            markWidth: 42,
+            markHeight: 30,
+            metaMargin: 5,
+            partiesTop: 8,
+            partiesBottom: 9,
+            partyKickerSize: 6.6,
+            partyKickerMargin: 2,
+            partyLineSize: 6.8,
+            tableMargin: 8,
+            rowMinHeight: 19,
+            cellPadY: 4,
+            cellPadX: 7,
+            amountWidth: 108,
+            tableHeadSize: 7,
+            totalPadY: 6,
+            totalPadX: 10,
+            totalLabelSize: 8,
+            totalValueSize: 9,
+            footerTop: 10,
+            footerTitleSize: 7.2,
+            footerTitleMargin: 3,
+            footerItemMargin: 1,
+            footerTextSize: 6.7,
+            footerVatTop: 5,
+            footerVatSize: 6.4,
+        }
+    }
+
     if (densityScore >= 17 || invoice.items.length >= 9 || termLines >= 8) {
         return {
             pagePadding: 28,
@@ -347,8 +383,8 @@ function cleanPartyLine(value: string | undefined): string {
 }
 
 export function InvoicePDF({ invoice, client }: InvoicePDFProps) {
-    const total = invoice.items.reduce((sum, item) => sum + (Number.isFinite(item.amount) ? item.amount : 0), 0)
     const items = invoice.items.length > 0 ? invoice.items : [{ id: 'empty', description: '—', amount: invoice.amount }]
+    const total = items.reduce((sum, item) => sum + (Number.isFinite(item.amount) ? item.amount : 0), 0)
     const clientEmail = cleanPartyLine(client?.billingEmail || client?.contactEmail)
     const clientPhone = cleanPartyLine(client?.phone)
     const density = getPdfDensity(invoice, client)
@@ -396,7 +432,6 @@ export function InvoicePDF({ invoice, client }: InvoicePDFProps) {
                         <Text style={[styles.partyKicker, { fontSize: density.partyKickerSize, marginBottom: density.partyKickerMargin }]}>{STUDIO_PROFILE.name}</Text>
                         <Text style={[styles.partyLine, { fontSize: density.partyLineSize }]}>{cleanPartyLine(STUDIO_PROFILE.phone)}</Text>
                         <Text style={[styles.partyLine, { fontSize: density.partyLineSize }]}>{STUDIO_PROFILE.email}</Text>
-                        <Text style={[styles.partyLine, { fontSize: density.partyLineSize }]}>{STUDIO_PROFILE.website}</Text>
                         <Text style={[styles.partyLine, { fontSize: density.partyLineSize }]}>{STUDIO_PROFILE.address}</Text>
                         <Text style={[styles.partyLine, { fontSize: density.partyLineSize }]}>{STUDIO_PROFILE.legalForm}</Text>
                         <Text style={[styles.partyLine, { fontSize: density.partyLineSize }]}>SIRET : {STUDIO_PROFILE.siret}</Text>

@@ -6,7 +6,6 @@ export const STUDIO_PROFILE = {
     name: 'GIANNONE NOA',
     phone: '06 22 92 29 60',
     email: 'noa.giannone@gmail.com',
-    website: 'noagiannone.fr',
     address: '63 rue de lissandre, 13014 Marseille',
     legalForm: 'Auto-entrepreneur',
     siret: '98862364100012',
