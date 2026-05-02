@@ -383,12 +383,11 @@ export default function Invoices() {
                                                     {invoice.sentAt ? formatDate(invoice.sentAt) : '—'}
                                                 </td>
                                             )}
-                                            <td style={{ textAlign: 'right' }}>
-                                                <div className="dash-row" style={{ justifyContent: 'flex-end', gap: 8 }}>
+                                            <td className="dash-table__actions">
+                                                <div className="dash-invoice-actions">
                                                     <button
                                                         type="button"
-                                                        className="dash-btn dash-btn--ghost"
-                                                        style={{ height: 34, fontSize: 12, padding: '0 14px' }}
+                                                        className="dash-btn dash-btn--ghost dash-invoice-actions__btn"
                                                         onClick={() => onDownloadPdf(invoice)}
                                                     >
                                                         PDF
@@ -397,15 +396,13 @@ export default function Invoices() {
                                                         <>
                                                             <Link
                                                                 to={`/invoices/${invoice.id}`}
-                                                                className="dash-btn dash-btn--ghost"
-                                                                style={{ height: 34, fontSize: 12, padding: '0 14px' }}
+                                                                className="dash-btn dash-btn--ghost dash-invoice-actions__btn"
                                                             >
                                                                 Modifier
                                                             </Link>
                                                             <button
                                                                 type="button"
-                                                                className="dash-btn"
-                                                                style={{ height: 34, fontSize: 12, padding: '0 14px' }}
+                                                                className="dash-btn dash-invoice-actions__btn dash-invoice-actions__btn--primary"
                                                                 disabled={isActive}
                                                                 onClick={() => onSendInvoice(invoice)}
                                                             >
@@ -414,12 +411,11 @@ export default function Invoices() {
                                                             {invoice.status !== 'paid' && (
                                                                 <button
                                                                     type="button"
-                                                                    className="dash-btn dash-btn--ghost"
-                                                                    style={{ height: 34, fontSize: 12, padding: '0 14px' }}
+                                                                    className="dash-btn dash-btn--ghost dash-invoice-actions__btn"
                                                                     disabled={isActive}
                                                                     onClick={() => onMarkPaid(invoice)}
                                                                 >
-                                                                    {isActive ? 'Mise à jour…' : 'Marquer payée'}
+                                                                    {isActive ? 'MAJ…' : 'Payée'}
                                                                 </button>
                                                             )}
                                                         </>

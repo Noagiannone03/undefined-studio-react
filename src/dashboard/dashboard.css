@@ -2954,6 +2954,35 @@
     font-size: 12px;
     letter-spacing: 0.06em;
 }
+.dash-table__actions {
+    text-align: right;
+    white-space: nowrap;
+    min-width: 292px;
+}
+.dash-invoice-actions {
+    display: inline-flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 6px;
+    flex-wrap: nowrap;
+}
+.dash-invoice-actions__btn {
+    height: 32px;
+    min-width: 0;
+    padding: 0 10px;
+    border-width: 1px;
+    box-shadow: none;
+    font-size: 11px;
+    line-height: 1;
+    letter-spacing: 0;
+}
+.dash-invoice-actions__btn:hover:not(:disabled) {
+    transform: translateY(-1px);
+    box-shadow: none;
+}
+.dash-invoice-actions__btn--primary {
+    min-width: 72px;
+}
 
 @media (min-width: 900px) {
     .dash-table { font-size: 14px; }
