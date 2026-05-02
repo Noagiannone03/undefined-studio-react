@@ -27,6 +27,7 @@ import type {
     ClientStatus,
     Invoice,
     InvoiceItem,
+    InvoiceProduct,
     InvoiceSource,
     InvoiceStatus,
     Milestone,
@@ -139,6 +140,15 @@ type CreateInvoiceInput = {
 
 type UpdateInvoiceInput = CreateInvoiceInput
 
+type CreateInvoiceProductInput = {
+    name: string
+    description: string
+    amount: number
+    isActive?: boolean
+}
+
+type UpdateInvoiceProductInput = CreateInvoiceProductInput
+
 type AttachInvoicePdfInput = {
     pdfUrl: string
     storagePath: string
@@ -151,6 +161,7 @@ const PROJECTS = 'projects'
 const PROJECT_UPDATES = 'projectUpdates'
 const TICKETS = 'tickets'
 const INVOICES = 'invoices'
+const INVOICE_PRODUCTS = 'invoiceProducts'
 
 function isoNow() {
     return new Date().toISOString()
@@ -366,6 +377,7 @@ function normalizeInvoiceItems(value: unknown): InvoiceItem[] {
             id: raw?.id ?? `item-${index + 1}`,
             description: typeof raw?.description === 'string' ? raw.description : '',
             amount: typeof raw?.amount === 'number' ? raw.amount : 0,
+            productId: typeof raw?.productId === 'string' ? raw.productId : undefined,
         }
     })
 }
@@ -408,6 +420,18 @@ function mapInvoice(id: string, data: Record<string, unknown>): Invoice {
         storagePath: typeof data.storagePath === 'string' ? data.storagePath : undefined,
         notes: typeof data.notes === 'string' ? data.notes : undefined,
         sentAt: typeof data.sentAt === 'string' ? data.sentAt : undefined,
+        createdAt: toIsoDate(data.createdAt),
+        updatedAt: toIsoDate(data.updatedAt),
+    }
+}
+
+function mapInvoiceProduct(id: string, data: Record<string, unknown>): InvoiceProduct {
+    return {
+        id,
+        name: typeof data.name === 'string' ? data.name : 'Produit',
+        description: typeof data.description === 'string' ? data.description : '',
+        amount: typeof data.amount === 'number' ? data.amount : 0,
+        isActive: data.isActive !== false,
         createdAt: toIsoDate(data.createdAt),
         updatedAt: toIsoDate(data.updatedAt),
     }
@@ -617,6 +641,25 @@ export function subscribeInvoices(
         profile.role === 'admin' ? [] : createClientScopedConstraints(profile),
         mapInvoice,
         (items) => onNext(sortByDateDesc(items, (item) => item.issued)),
+        onError,
+    )
+}
+
+export function subscribeInvoiceProducts(
+    profile: UserProfile,
+    onNext: SnapshotCallback<InvoiceProduct>,
+    onError?: ErrorCallback,
+): Unsubscribe {
+    if (profile.role !== 'admin') {
+        onNext([])
+        return () => undefined
+    }
+
+    return subscribeMappedCollection(
+        INVOICE_PRODUCTS,
+        [],
+        mapInvoiceProduct,
+        (items) => onNext(items.sort((a, b) => a.name.localeCompare(b.name, 'fr'))),
         onError,
     )
 }
@@ -863,6 +906,7 @@ function buildInvoicePayload(input: CreateInvoiceInput) {
         id: item.id || `item-${index + 1}`,
         description: item.description.trim(),
         amount: Number.isFinite(item.amount) ? Number(item.amount) : 0,
+        ...(item.productId ? { productId: item.productId } : {}),
     }))
 
     const computed = sumInvoiceItems(items)
@@ -905,6 +949,35 @@ export async function updateInvoice(invoiceId: string, input: UpdateInvoiceInput
         ...buildInvoicePayload(input),
         updatedAt: isoNow(),
     })
+}
+
+function buildInvoiceProductPayload(input: CreateInvoiceProductInput) {
+    return {
+        name: input.name.trim(),
+        description: input.description.trim(),
+        amount: Number.isFinite(input.amount) ? Number(input.amount) : 0,
+        isActive: input.isActive !== false,
+    }
+}
+
+export async function createInvoiceProduct(input: CreateInvoiceProductInput) {
+    const now = isoNow()
+    await addDoc(collection(db, INVOICE_PRODUCTS), {
+        ...buildInvoiceProductPayload(input),
+        createdAt: now,
+        updatedAt: now,
+    })
+}
+
+export async function updateInvoiceProduct(productId: string, input: UpdateInvoiceProductInput) {
+    await updateDoc(doc(db, INVOICE_PRODUCTS, productId), {
+        ...buildInvoiceProductPayload(input),
+        updatedAt: isoNow(),
+    })
+}
+
+export async function deleteInvoiceProduct(productId: string) {
+    await deleteDoc(doc(db, INVOICE_PRODUCTS, productId))
 }
 
 export async function attachInvoicePdf(invoiceId: string, input: AttachInvoicePdfInput) {

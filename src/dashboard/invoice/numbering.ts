@@ -10,6 +10,22 @@ const MONTHS_FULL = [
     'JUILLET', 'AOÛT', 'SEPTEMBRE', 'OCTOBRE', 'NOVEMBRE', 'DÉCEMBRE',
 ]
 
+function safeDateFromIso(iso: string): Date {
+    const date = new Date(`${iso}T12:00:00`)
+    return Number.isNaN(date.getTime()) ? new Date() : date
+}
+
+export function invoiceDueAtEndOfMonth(issued: string): string {
+    const date = safeDateFromIso(issued)
+    return new Date(date.getFullYear(), date.getMonth() + 1, 0, 12).toISOString().slice(0, 10)
+}
+
+function previousBillingMonth(issued: string): { month: string; year: number } {
+    const date = safeDateFromIso(issued)
+    const previous = new Date(date.getFullYear(), date.getMonth() - 1, 1, 12)
+    return { month: MONTHS_FULL[previous.getMonth()], year: previous.getFullYear() }
+}
+
 /**
  * Suggère un numéro mensuel `YYYY-MM-NNN`, basé sur la date d'émission.
  * Le compteur repart à 001 chaque mois et s'appuie sur les factures déjà émises ce mois-là.
@@ -18,8 +34,7 @@ export function suggestInvoiceNumber(opts: {
     issued: string // ISO
     invoices: Invoice[]
 }): string {
-    const date = new Date(opts.issued)
-    const safeDate = Number.isNaN(date.getTime()) ? new Date() : date
+    const safeDate = safeDateFromIso(opts.issued)
     const year = safeDate.getFullYear()
     const month = String(safeDate.getMonth() + 1).padStart(2, '0')
     const prefix = `${year}-${month}`
@@ -48,10 +63,7 @@ export function suggestInvoiceNumber(opts: {
  * en se basant sur la date d'émission.
  */
 export function suggestInvoiceTitle(opts: { issued: string; subject?: string }): string {
-    const date = new Date(opts.issued)
-    if (Number.isNaN(date.getTime())) return 'FACTURE'
-    const month = MONTHS_FULL[date.getMonth()]
-    const year = date.getFullYear()
+    const { month, year } = previousBillingMonth(opts.issued)
     const subject = (opts.subject ?? 'SERVICES WEB MENSUELS').toUpperCase()
     return `FACTURE – ${subject} – ${month} ${year}`
 }

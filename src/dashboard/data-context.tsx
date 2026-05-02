@@ -6,12 +6,13 @@ import { DashboardDataContext, type DashboardDataContextValue } from './dashboar
 import {
     subscribeClients,
     subscribeInvoices,
+    subscribeInvoiceProducts,
     subscribeProjects,
     subscribeProjectUpdates,
     subscribeTickets,
     subscribeUsers,
 } from './firestore'
-import type { Client, Invoice, Project, ProjectUpdate, Ticket, UserProfile } from './types'
+import type { Client, Invoice, InvoiceProduct, Project, ProjectUpdate, Ticket, UserProfile } from './types'
 
 type ScopedItems<T> = {
     scopeUid: string | null
@@ -30,6 +31,7 @@ export function DashboardDataProvider({ children }: { children: ReactNode }) {
     const [projectUpdatesState, setProjectUpdatesState] = useState<ScopedItems<ProjectUpdate>>({ scopeUid: null, items: [] })
     const [ticketsState, setTicketsState] = useState<ScopedItems<Ticket>>({ scopeUid: null, items: [] })
     const [invoicesState, setInvoicesState] = useState<ScopedItems<Invoice>>({ scopeUid: null, items: [] })
+    const [invoiceProductsState, setInvoiceProductsState] = useState<ScopedItems<InvoiceProduct>>({ scopeUid: null, items: [] })
     const [usersState, setUsersState] = useState<ScopedItems<UserProfile>>({ scopeUid: null, items: [] })
     const [errorState, setErrorState] = useState<ScopedError>({ scopeUid: null, message: null })
 
@@ -77,6 +79,11 @@ export function DashboardDataProvider({ children }: { children: ReactNode }) {
                 (items) => setInvoicesState({ scopeUid, items }),
                 reportError('les factures'),
             ),
+            subscribeInvoiceProducts(
+                user,
+                (items) => setInvoiceProductsState({ scopeUid, items }),
+                reportError('les produits de facturation'),
+            ),
         ]
 
         return () => {
@@ -90,6 +97,7 @@ export function DashboardDataProvider({ children }: { children: ReactNode }) {
         const projectUpdates = user && projectUpdatesState.scopeUid === user.uid ? projectUpdatesState.items : []
         const tickets = user && ticketsState.scopeUid === user.uid ? ticketsState.items : []
         const invoices = user && invoicesState.scopeUid === user.uid ? invoicesState.items : []
+        const invoiceProducts = user && invoiceProductsState.scopeUid === user.uid ? invoiceProductsState.items : []
         const users = user && usersState.scopeUid === user.uid ? usersState.items : []
         const error = user && errorState.scopeUid === user.uid ? errorState.message : null
         const loading = Boolean(
@@ -100,6 +108,7 @@ export function DashboardDataProvider({ children }: { children: ReactNode }) {
                 projectUpdatesState.scopeUid !== user.uid ||
                 ticketsState.scopeUid !== user.uid ||
                 invoicesState.scopeUid !== user.uid ||
+                invoiceProductsState.scopeUid !== user.uid ||
                 usersState.scopeUid !== user.uid
             ),
         )
@@ -116,6 +125,7 @@ export function DashboardDataProvider({ children }: { children: ReactNode }) {
             projectUpdates,
             tickets,
             invoices,
+            invoiceProducts,
             users,
             error,
             hasClientScope,
@@ -126,7 +136,7 @@ export function DashboardDataProvider({ children }: { children: ReactNode }) {
             updatesForProject: (projectId) =>
                 projectId ? projectUpdates.filter((item) => item.projectId === projectId) : [],
         }
-    }, [clientsState, errorState, invoicesState, projectUpdatesState, projectsState, ticketsState, user, usersState])
+    }, [clientsState, errorState, invoiceProductsState, invoicesState, projectUpdatesState, projectsState, ticketsState, user, usersState])
 
     return <DashboardDataContext.Provider value={value}>{children}</DashboardDataContext.Provider>
 }

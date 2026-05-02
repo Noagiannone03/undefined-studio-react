@@ -68,6 +68,10 @@ service cloud.firestore {
       allow write: if isAdmin();
     }
 
+    match /invoiceProducts/{productId} {
+      allow read, write: if isAdmin();
+    }
+
     match /tickets/{ticketId} {
       allow read: if canAccessClient(resource.data.clientId);
 

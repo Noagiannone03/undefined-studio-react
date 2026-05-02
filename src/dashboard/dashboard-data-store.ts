@@ -1,5 +1,5 @@
 import { createContext } from 'react'
-import type { Client, Invoice, Project, ProjectUpdate, Ticket, UserProfile } from './types'
+import type { Client, Invoice, InvoiceProduct, Project, ProjectUpdate, Ticket, UserProfile } from './types'
 
 export type DashboardDataContextValue = {
     loading: boolean
@@ -8,6 +8,7 @@ export type DashboardDataContextValue = {
     projectUpdates: ProjectUpdate[]
     tickets: Ticket[]
     invoices: Invoice[]
+    invoiceProducts: InvoiceProduct[]
     users: UserProfile[]
     error: string | null
     hasClientScope: boolean

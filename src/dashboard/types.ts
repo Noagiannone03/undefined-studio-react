@@ -111,6 +111,17 @@ export type InvoiceItem = {
     id: string
     description: string
     amount: number // HT in €
+    productId?: string
+}
+
+export type InvoiceProduct = {
+    id: string
+    name: string
+    description: string
+    amount: number
+    isActive: boolean
+    createdAt?: string
+    updatedAt?: string
 }
 
 export type Invoice = {

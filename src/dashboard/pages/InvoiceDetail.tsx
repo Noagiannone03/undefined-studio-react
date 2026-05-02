@@ -9,7 +9,7 @@ import { SaveIndicator } from '../components/SaveIndicator'
 import { useAutoSave } from '../components/useAutoSave'
 import { useToast } from '../components/Toast'
 import { InvoicePDF } from '../invoice/InvoicePDF'
-import { DEFAULT_TERMS, suggestInvoiceNumber, suggestInvoiceTitle } from '../invoice/numbering'
+import { DEFAULT_TERMS, invoiceDueAtEndOfMonth, suggestInvoiceNumber, suggestInvoiceTitle } from '../invoice/numbering'
 import {
     blobToBase64,
     deleteInvoicePdf,
@@ -18,14 +18,17 @@ import {
 import {
     attachInvoicePdf,
     createInvoice,
+    createInvoiceProduct,
+    deleteInvoiceProduct,
     deleteInvoice as deleteInvoiceDoc,
     markInvoiceSent,
     sumInvoiceItems,
     updateInvoice,
+    updateInvoiceProduct,
 } from '../firestore'
 import { mailApi } from '../api'
 import { formatInvoiceEur } from '../invoice/format'
-import type { Invoice, InvoiceItem, InvoiceSource, InvoiceStatus } from '../types'
+import type { Invoice, InvoiceItem, InvoiceProduct, InvoiceSource, InvoiceStatus } from '../types'
 
 const MAX_PDF_BYTES = 10 * 1024 * 1024
 
@@ -56,14 +59,17 @@ function isoToday(): string {
     return new Date().toISOString().slice(0, 10)
 }
 
-function isoPlusDays(days: number): string {
-    const d = new Date()
-    d.setDate(d.getDate() + days)
-    return d.toISOString().slice(0, 10)
-}
-
 function emptyItem(): InvoiceItem {
     return { id: `item-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`, description: '', amount: 0 }
+}
+
+function productToItem(product: InvoiceProduct): InvoiceItem {
+    return {
+        id: `item-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+        productId: product.id,
+        description: product.description || product.name,
+        amount: product.amount,
+    }
 }
 
 function invoicesAreEqual(a: EditableInvoice, b: EditableInvoice): boolean {
@@ -119,7 +125,7 @@ export default function InvoiceDetail() {
     const navigate = useNavigate()
     const { showSuccess, showError } = useToast()
     const { user } = useAuth()
-    const { invoices, clients, projects, findClient } = useDashboardData()
+    const { invoices, invoiceProducts, clients, projects, findClient } = useDashboardData()
 
     const isAdmin = user?.role === 'admin'
     const mode: Mode = id ? 'edit' : 'new'
@@ -149,7 +155,7 @@ export default function InvoiceDetail() {
                 terms: existing.terms.length > 0 ? existing.terms : DEFAULT_TERMS,
                 status: existing.status,
                 issued: existing.issued || isoToday(),
-                due: existing.due || isoPlusDays(30),
+                due: existing.due || invoiceDueAtEndOfMonth(existing.issued || isoToday()),
                 notes: existing.notes ?? '',
                 amount: existing.amount,
             }
@@ -165,7 +171,7 @@ export default function InvoiceDetail() {
             terms: [...DEFAULT_TERMS],
             status: 'draft',
             issued: isoToday(),
-            due: isoPlusDays(30),
+            due: invoiceDueAtEndOfMonth(isoToday()),
             notes: '',
             amount: 0,
         }
@@ -176,8 +182,12 @@ export default function InvoiceDetail() {
     const [dragOver, setDragOver] = useState(false)
     const [actionRunning, setActionRunning] = useState<null | 'send' | 'pay' | 'download' | 'delete' | 'upload'>(null)
     const [actionError, setActionError] = useState<string | null>(null)
+    const [productDraft, setProductDraft] = useState({ id: '', name: '', description: '', amount: 0 })
+    const [productSaving, setProductSaving] = useState(false)
     const fileInputRef = useRef<HTMLInputElement>(null)
     const lastSuggestedNumberRef = useRef('')
+    const lastSuggestedTitleRef = useRef('')
+    const lastSuggestedDueRef = useRef(draft.due)
 
     // ── Auto-fill number/title for new invoices
     useEffect(() => {
@@ -188,9 +198,15 @@ export default function InvoiceDetail() {
             lastSuggestedNumberRef.current = next
             setDraft((prev) => ({ ...prev, number: next }))
         }
-        if (tab === 'generated' && !draft.title) {
+        if (tab === 'generated' && (!draft.title || draft.title === lastSuggestedTitleRef.current)) {
             const t = suggestInvoiceTitle({ issued: draft.issued })
+            lastSuggestedTitleRef.current = t
             setDraft((prev) => ({ ...prev, title: t }))
+        }
+        const nextDue = invoiceDueAtEndOfMonth(draft.issued)
+        if (!draft.due || draft.due === lastSuggestedDueRef.current) {
+            lastSuggestedDueRef.current = nextDue
+            setDraft((prev) => ({ ...prev, due: nextDue }))
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [draft.clientId, draft.issued, mode, tab])
@@ -207,7 +223,7 @@ export default function InvoiceDetail() {
             terms: existing.terms.length > 0 ? existing.terms : DEFAULT_TERMS,
             status: existing.status,
             issued: existing.issued || isoToday(),
-            due: existing.due || isoPlusDays(30),
+            due: existing.due || invoiceDueAtEndOfMonth(existing.issued || isoToday()),
             notes: existing.notes ?? '',
             amount: existing.amount,
         })
@@ -287,7 +303,7 @@ export default function InvoiceDetail() {
                 terms: existing.terms.length > 0 ? existing.terms : DEFAULT_TERMS,
                 status: existing.status,
                 issued: existing.issued || isoToday(),
-                due: existing.due || isoPlusDays(30),
+                due: existing.due || invoiceDueAtEndOfMonth(existing.issued || isoToday()),
                 notes: existing.notes ?? '',
                 amount: existing.amount,
             })
@@ -321,6 +337,8 @@ export default function InvoiceDetail() {
     const projectsForClient = projects.filter((p) => p.clientId === draft.clientId)
     const breadcrumbClient = findClient(draft.clientId)
     const breadcrumbProject = projects.find((p) => p.id === draft.projectId)
+    const activeInvoiceProducts = invoiceProducts.filter((product) => product.isActive)
+    const editingProduct = productDraft.id ? invoiceProducts.find((product) => product.id === productDraft.id) : undefined
 
     const patch = (p: Partial<EditableInvoice>) => setDraft((prev) => ({ ...prev, ...p }))
 
@@ -331,6 +349,14 @@ export default function InvoiceDetail() {
         }))
     }
     const addItem = () => setDraft((prev) => ({ ...prev, items: [...prev.items, emptyItem()] }))
+    const addProductItem = (product: InvoiceProduct) => {
+        setDraft((prev) => ({
+            ...prev,
+            items: prev.items.length === 1 && !prev.items[0].description && prev.items[0].amount === 0
+                ? [productToItem(product)]
+                : [...prev.items, productToItem(product)],
+        }))
+    }
     const removeItem = (idx: number) => {
         setDraft((prev) => ({
             ...prev,
@@ -343,6 +369,66 @@ export default function InvoiceDetail() {
     const addTerm = () => setDraft((prev) => ({ ...prev, terms: [...prev.terms, ''] }))
     const removeTerm = (idx: number) => {
         setDraft((prev) => ({ ...prev, terms: prev.terms.filter((_, i) => i !== idx) }))
+    }
+
+    const resetProductDraft = () => setProductDraft({ id: '', name: '', description: '', amount: 0 })
+    const editProductDraft = (product: InvoiceProduct) => {
+        setProductDraft({
+            id: product.id,
+            name: product.name,
+            description: product.description,
+            amount: product.amount,
+        })
+    }
+    const saveProductDraft = async () => {
+        setActionError(null)
+        if (!productDraft.name.trim()) { setActionError('Nom du produit requis.'); return }
+        if (!Number.isFinite(productDraft.amount) || productDraft.amount < 0) { setActionError('Prix produit invalide.'); return }
+        setProductSaving(true)
+        try {
+            const payload = {
+                name: productDraft.name,
+                description: productDraft.description,
+                amount: productDraft.amount,
+                isActive: true,
+            }
+            if (productDraft.id) await updateInvoiceProduct(productDraft.id, payload)
+            else await createInvoiceProduct(payload)
+            resetProductDraft()
+            showSuccess('Produit enregistré', 'Le catalogue de facturation est à jour.')
+        } catch (err) {
+            setActionError(err instanceof Error ? err.message : 'Produit non enregistré.')
+        } finally {
+            setProductSaving(false)
+        }
+    }
+    const archiveProduct = async (product: InvoiceProduct) => {
+        setProductSaving(true)
+        try {
+            await updateInvoiceProduct(product.id, {
+                name: product.name,
+                description: product.description,
+                amount: product.amount,
+                isActive: false,
+            })
+            if (productDraft.id === product.id) resetProductDraft()
+        } catch (err) {
+            setActionError(err instanceof Error ? err.message : 'Produit non archivé.')
+        } finally {
+            setProductSaving(false)
+        }
+    }
+    const removeProduct = async (product: InvoiceProduct) => {
+        if (!confirm(`Supprimer le produit "${product.name}" du catalogue ?`)) return
+        setProductSaving(true)
+        try {
+            await deleteInvoiceProduct(product.id)
+            if (productDraft.id === product.id) resetProductDraft()
+        } catch (err) {
+            setActionError(err instanceof Error ? err.message : 'Produit non supprimé.')
+        } finally {
+            setProductSaving(false)
+        }
     }
 
     const generateBlob = async (invoice: Invoice): Promise<Blob> => {
@@ -774,8 +860,100 @@ export default function InvoiceDetail() {
                     {/* ── Generated-only: line items + terms */}
                     {(existing?.source ?? tab) === 'generated' ? (
                         <>
+                            <div className="dash-invoice-products">
+                                <div className="dash-row-between">
+                                    <div>
+                                        <span className="dash-label">Produits enregistrés</span>
+                                        <p className="dash-note" style={{ margin: '4px 0 0' }}>
+                                            Ajoute une prestation au catalogue, puis insère-la dans les lignes de facture.
+                                        </p>
+                                    </div>
+                                    {productDraft.id && (
+                                        <button type="button" className="dash-product-reset" onClick={resetProductDraft}>
+                                            Nouveau produit
+                                        </button>
+                                    )}
+                                </div>
+
+                                {activeInvoiceProducts.length > 0 ? (
+                                    <div className="dash-product-palette">
+                                        {activeInvoiceProducts.map((product) => (
+                                            <div key={product.id} className="dash-product-chip">
+                                                <button
+                                                    type="button"
+                                                    className="dash-product-chip__main"
+                                                    onClick={() => addProductItem(product)}
+                                                    title="Ajouter à la facture"
+                                                >
+                                                    <strong>{product.name}</strong>
+                                                    <span>{formatInvoiceEur(product.amount)}</span>
+                                                </button>
+                                                <button type="button" className="dash-product-chip__tool" onClick={() => editProductDraft(product)}>
+                                                    Modifier
+                                                </button>
+                                            </div>
+                                        ))}
+                                    </div>
+                                ) : (
+                                    <p className="dash-note" style={{ margin: 0 }}>Aucun produit enregistré pour l'instant.</p>
+                                )}
+
+                                <div className="dash-product-form">
+                                    <input
+                                        className="dash-input"
+                                        placeholder="Nom du produit"
+                                        value={productDraft.name}
+                                        onChange={(e) => setProductDraft((prev) => ({ ...prev, name: e.target.value }))}
+                                    />
+                                    <input
+                                        className="dash-input"
+                                        placeholder="Description sur facture"
+                                        value={productDraft.description}
+                                        onChange={(e) => setProductDraft((prev) => ({ ...prev, description: e.target.value }))}
+                                    />
+                                    <input
+                                        className="dash-input"
+                                        type="number"
+                                        inputMode="decimal"
+                                        placeholder="Prix"
+                                        value={productDraft.amount}
+                                        onChange={(e) => setProductDraft((prev) => ({ ...prev, amount: Number(e.target.value) || 0 }))}
+                                    />
+                                    <div className="dash-product-form__actions">
+                                        <button
+                                            type="button"
+                                            className="dash-btn dash-product-form__save"
+                                            onClick={saveProductDraft}
+                                            disabled={productSaving}
+                                        >
+                                            {productSaving ? 'Enregistrement…' : productDraft.id ? 'Enregistrer' : 'Ajouter'}
+                                        </button>
+                                        {productDraft.id && (
+                                            <>
+                                                <button
+                                                    type="button"
+                                                    className="dash-btn dash-btn--ghost dash-product-form__save"
+                                                    onClick={() => editingProduct && archiveProduct(editingProduct)}
+                                                    disabled={productSaving}
+                                                >
+                                                    Archiver
+                                                </button>
+                                                <button
+                                                    type="button"
+                                                    className="dash-btn dash-product-form__delete"
+                                                    onClick={() => editingProduct && removeProduct(editingProduct)}
+                                                    disabled={productSaving}
+                                                >
+                                                    Supprimer
+                                                </button>
+                                            </>
+                                        )}
+                                    </div>
+                                </div>
+                            </div>
+
                             <div className="dash-stack-sm">
-                                <span className="dash-label">Lignes</span>
+                                <span className="dash-label">Éléments facturés</span>
                                 {draft.items.map((item, idx) => (
                                     <div key={item.id} className="dash-invoice-row">
                                         <input
