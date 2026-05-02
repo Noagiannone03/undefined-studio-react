@@ -47,6 +47,7 @@ type EditableClient = {
     contactEmail: string
     billingEmail: string
     address: string
+    phone: string
     notes: string
 }
 
@@ -58,6 +59,7 @@ function clientToDraft(client: Client): EditableClient {
         contactEmail: client.contactEmail,
         billingEmail: client.billingEmail,
         address: client.address ?? '',
+        phone: client.phone ?? '',
         notes: client.notes ?? '',
     }
 }
@@ -70,6 +72,7 @@ function clientsAreEqual(a: EditableClient, b: EditableClient): boolean {
         a.contactEmail === b.contactEmail &&
         a.billingEmail === b.billingEmail &&
         a.address === b.address &&
+        a.phone === b.phone &&
         a.notes === b.notes
     )
 }
@@ -341,6 +344,16 @@ export default function ClientDetail() {
                         value={draft.address}
                         onChange={(e) => patch({ address: e.target.value })}
                         placeholder="Adresse postale complète"
+                    />
+                </div>
+                <div className="dash-stack-sm">
+                    <span className="dash-label">Téléphone entreprise</span>
+                    <input
+                        type="tel"
+                        className="dash-input"
+                        value={draft.phone}
+                        onChange={(e) => patch({ phone: e.target.value })}
+                        placeholder="+33 ..."
                     />
                 </div>
                 <div className="dash-stack-sm">

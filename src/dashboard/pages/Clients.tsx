@@ -16,6 +16,7 @@ export default function Clients() {
     const [contactEmail, setContactEmail] = useState('')
     const [billingEmail, setBillingEmail] = useState('')
     const [address, setAddress] = useState('')
+    const [phone, setPhone] = useState('')
     const [notes, setNotes] = useState('')
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState<string | null>(null)
@@ -33,12 +34,13 @@ export default function Clients() {
 
         setLoading(true)
         try {
-            await createClient({ name, contactName, contactEmail, billingEmail, address, notes })
+            await createClient({ name, contactName, contactEmail, billingEmail, address, phone, notes })
             setName('')
             setContactName('')
             setContactEmail('')
             setBillingEmail('')
             setAddress('')
+            setPhone('')
             setNotes('')
         } catch {
             setError('Impossible de créer le client.')
@@ -94,6 +96,17 @@ export default function Clients() {
                             value={address}
                             onChange={(e) => setAddress(e.target.value)}
                             placeholder="Adresse postale complète"
+                        />
+                    </div>
+                    <div>
+                        <label htmlFor="client-phone" className="dash-label">Téléphone entreprise</label>
+                        <input
+                            id="client-phone"
+                            type="tel"
+                            className="dash-input"
+                            value={phone}
+                            onChange={(e) => setPhone(e.target.value)}
+                            placeholder="+33 ..."
                         />
                     </div>
 

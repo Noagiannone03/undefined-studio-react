@@ -233,6 +233,7 @@ export function InvoicePDF({ invoice, client }: InvoicePDFProps) {
                         {client?.billingEmail || client?.contactEmail ? (
                             <Text style={styles.partyLine}>{client.billingEmail || client.contactEmail}</Text>
                         ) : null}
+                        {client?.phone ? <Text style={styles.partyLine}>{client.phone}</Text> : null}
                     </View>
                 </View>
 

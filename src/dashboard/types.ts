@@ -24,6 +24,7 @@ export type Client = {
     contactEmail: string
     billingEmail: string
     address?: string
+    phone?: string
     notes?: string
     createdAt?: string
     updatedAt?: string
