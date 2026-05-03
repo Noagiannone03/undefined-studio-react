@@ -3,19 +3,19 @@ import { useGSAP } from '@gsap/react'
 import gsap from 'gsap'
 
 const VALUES = [
-    'Comprendre avant de construire',
-    'Moins, mais qui tient',
-    'Un bon outil se fait oublier',
-    'Mesurer en usage, pas en vues',
+    "La fonction dicte la forme",
+    "La vitesse est une fonctionnalité",
+    "Moins de bruit, plus d'utilité",
+    "Conçu pour l'utilisateur, pas pour nous",
 ]
 
 type Line = { text: string; variant: 'display' | 'serif-italic'; accent?: boolean }
 
 const HEADLINE: Line[] = [
-    { text: 'ON COMPREND', variant: 'display' },
-    { text: 'le besoin.', variant: 'serif-italic' },
-    { text: 'ON BÂTIT', variant: 'display' },
-    { text: "CE QU'IL FAUT.", variant: 'display', accent: true },
+    { text: 'NOUS CRÉONS', variant: 'display' },
+    { text: "des produits.", variant: 'serif-italic' },
+    { text: 'QUI FONCTIONNENT', variant: 'display' },
+    { text: "VRAIMENT.", variant: 'display', accent: true },
 ]
 
 export default function About() {
@@ -85,16 +85,13 @@ export default function About() {
                         </span>
                         <div className="serif about-bio">
                             <p style={{ margin: 0 }}>
-                                On est un petit studio à Marseille. On construit des applications mobiles et web.
+                                Nous sommes un studio digital indépendant basé à Marseille. Notre métier : concevoir et développer des applications web et mobiles qui ne finissent pas à la corbeille.
                             </p>
                             <p style={{ margin: '1.1em 0 0' }}>
-                                Ça, c'est la version courte. La vraie, c'est qu'on essaie de faire des outils qui tiennent la route — et qui servent vraiment à quelqu'un. Parce qu'on en a vu passer, des apps qu'on ouvre une fois et qu'on désinstalle la semaine d'après. On n'a pas envie d'en faire une de plus.
+                                Nous ne faisons pas dans l'art abstrait. Nous créons des outils numériques pensés pour résoudre de vrais problèmes. Des interfaces rapides et intuitives, qui aident vos utilisateurs au lieu de les frustrer.
                             </p>
                             <p style={{ margin: '1.1em 0 0' }}>
-                                Alors on commence toujours par les bonnes questions. À qui ça sert. Ce qui manque aujourd'hui. Ce qui se passe si ça n'existe pas. On préfère les poser maintenant plutôt que six mois plus tard, quand le produit est là et que personne ne s'en sert.
-                            </p>
-                            <p style={{ margin: '1.1em 0 0' }}>
-                                La tech peut aider. Vraiment. À condition qu'on la construise pour ça.
+                                Si une fonctionnalité ne sert à rien, nous l'enlevons. Si un écran est lent, nous le réécrivons. Nous croyons en la simplicité, la performance, et l'utilité directe.
                             </p>
                         </div>
                     </div>

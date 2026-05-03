@@ -383,8 +383,7 @@ export default function Capabilities() {
                             <div className="cap-p1-content">
                                 <span className="mono cap-step-label" style={{ color: 'var(--color-klein)' }}>01</span>
                                 <p data-brief className="cap-brief">
-                                    Avant d'écrire la moindre ligne, on pose les vraies questions.
-                                    Quel problème on règle. Pour qui. Ce qui se passe si on ne le fait pas.
+                                    Avant de coder, nous posons les bases. Quel est le problème ? Qui va l'utiliser ? Nous définissons l'architecture technique et le parcours utilisateur avant de lancer le moindre design.
                                 </p>
                                 <div className="cap-tags">
                                     {['Cadrage', 'Architecture', 'Parcours'].map(t => (
@@ -417,8 +416,7 @@ export default function Capabilities() {
                                     </span>
                                 </h3>
                                 <p data-brief className="cap-brief">
-                                    On construit des interfaces qu'on utilise avec plaisir — pas qu'on subit.
-                                    L'identité, c'est ce qui les rend reconnaissables.
+                                    Nous dessinons des interfaces modernes et sans friction. Un bon design ne se contente pas d'être beau, il rend l'application évidente dès la première seconde d'utilisation.
                                 </p>
                                 <div className="cap-tags">
                                     {['UI', 'Système graphique', 'Typographie'].map(t => (
@@ -452,8 +450,7 @@ export default function Capabilities() {
                                 <span data-cursor className="cap-cursor">_</span>
                             </h3>
                             <p data-brief className="cap-brief">
-                                Un produit qui rame, c'est un produit qu'on abandonne.
-                                Code propre, rapide, solide — sur les vieux téléphones comme sur les derniers.
+                                Le cœur du réacteur. Nous écrivons du code propre, robuste et optimisé. Votre application doit charger instantanément et fonctionner parfaitement, sur mobile comme sur desktop.
                             </p>
                             <div className="cap-tags">
                                 {['React', 'TypeScript', 'SwiftUI'].map(t => (
@@ -474,8 +471,7 @@ export default function Capabilities() {
                             </div>
                             <h3 data-subtitle className="serif-italic cap-p4-subtitle">&amp; détails.</h3>
                             <p data-brief className="cap-brief">
-                                Le mouvement sert à quelque chose ou il ne sert à rien.
-                                Il doit indiquer, rassurer, donner un poids aux choses.
+                                La touche finale. Nous intégrons des micro-interactions et des transitions fluides. Ce n'est pas de la décoration : l'animation guide l'œil de l'utilisateur et rend l'expérience premium.
                             </p>
                             <div className="cap-tags">
                                 {['GSAP', 'Transitions', 'Micro-interactions'].map(t => (

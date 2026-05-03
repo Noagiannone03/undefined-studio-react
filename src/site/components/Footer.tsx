@@ -44,14 +44,14 @@ export default function Footer() {
             <div className="footer-head">
                 <h2 className="footer-h2">
                     <span className="reveal-mask">
-                        <span className="reveal-line footer-line">UN PROBLÈME</span>
+                        <span className="reveal-line footer-line">UN PRODUIT</span>
                     </span>
                     <span className="reveal-mask">
-                        <span className="reveal-line footer-line serif-italic">à régler ?</span>
+                        <span className="reveal-line footer-line serif-italic">à lancer ?</span>
                     </span>
                     <span className="reveal-mask">
                         <span className="reveal-line footer-line" style={{ color: 'var(--color-klein)' }}>
-                            ON EN PARLE.
+                            PARLONS-EN.
                         </span>
                     </span>
                 </h2>

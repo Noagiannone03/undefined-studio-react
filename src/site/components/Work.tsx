@@ -29,7 +29,7 @@ const PROJECTS: Project[] = [
         client: 'Indépendant',
         stack: ['SwiftUI', 'Figma', 'After Effects'],
         summary:
-            "Abandonner la voiture solo, c'est un geste — il mérite mieux qu'une énième app générique. On a construit un système de streaks qui ancre l'habitude au quotidien, et une direction artistique assez nette pour donner envie de s'y tenir.",
+            "L'objectif : encourager le covoiturage au quotidien. Nous avons conçu une application iOS native ultra-rapide, avec un système de streaks pour fidéliser les utilisateurs et un design system audacieux.",
         accent: 'var(--color-klein)',
         screens: [
             { src: vagoInterface, alt: 'Vago — interface ouverte' },
@@ -45,7 +45,7 @@ const PROJECTS: Project[] = [
         client: 'Whisp Labs',
         stack: ['iOS', 'Figma', 'Principle'],
         summary:
-            "Un réseau social vocal, pensé pour ne pas reproduire la toxicité des autres. Le défi : donner au produit une identité forte — couleur, typographie, signature sonore — sans jamais alourdir l'usage. Chaque écran tient debout tout seul.",
+            "Un réseau social vocal qui mise sur l'authenticité. Le défi technique et design : créer une identité visuelle marquante et une interface audio fluide, tout en gardant une navigation simplifiée à l'extrême.",
         accent: 'var(--color-tomato)',
         screens: [
             { src: whispHome, alt: 'Whisp — accueil' },
